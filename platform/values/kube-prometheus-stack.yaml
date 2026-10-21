@@ -1,0 +1,60 @@
+fullnameOverride: kps   # -> services kps-prometheus, kps-grafana
+# Alerting (D10): rules come as PrometheusRule from observability/prometheus/ (make alerting),
+# Alertmanager config is the Secret built from observability/alertmanager/ (the same files compose mounts).
+alertmanager:
+  enabled: true
+  ingress:
+    enabled: true
+    hosts: [alertmanager.localhost]   # http://alertmanager.localhost:8080
+  alertmanagerSpec:
+    useExistingSecret: true
+    configSecret: alertmanager-blueprints
+    externalUrl: http://alertmanager.localhost:8080
+    # secrets for receivers (bot tokens, routing keys) are mounted at /etc/alertmanager/secrets/<secret>/
+    # secrets: [alertmanager-receivers]
+prometheus:
+  prometheusSpec:
+    # pick up ServiceMonitor/PodMonitor from every namespace, not only from the chart release
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+    # pick up PrometheusRule from every namespace and without the `release` label
+    ruleSelectorNilUsesHelmValues: false
+    ruleNamespaceSelector: {}
+    enableRemoteWriteReceiver: true      # Tempo metrics-generator writes here
+    retention: 3d
+grafana:
+  adminPassword: admin   # local demo only
+  ingress:
+    enabled: true
+    hosts: [grafana.localhost]
+  # Dashboards as code: ConfigMap built from observability/grafana/dashboards (make dashboards).
+  # The Alertmanager datasource is added by the chart (sidecar.datasources.alertmanager.enabled, default true).
+  sidecar:
+    dashboards:
+      folderAnnotation: grafana_folder
+      provider: {foldersFromFilesStructure: true}
+  additionalDataSources:
+    - name: Loki
+      type: loki
+      uid: loki
+      url: http://loki.observability:3100
+      jsonData:
+        derivedFields:
+          - name: traceId
+            matcherType: label
+            matcherRegex: trace_id
+            datasourceUid: tempo
+            url: "$${__value.raw}"
+    - name: Tempo
+      type: tempo
+      uid: tempo
+      url: http://tempo.observability:3200
+      jsonData:
+        tracesToLogsV2: {datasourceUid: loki, filterByTraceID: true}
+        serviceMap: {datasourceUid: prometheus}
+# k3s runs controller-manager, scheduler and proxy inside one process and does not expose their metrics;
+# disabling them drops both the scrape targets and the always-firing KubeControllerManagerDown/SchedulerDown/ProxyDown.
+kubeControllerManager: {enabled: false}
+kubeScheduler: {enabled: false}
+kubeProxy: {enabled: false}
+kubeEtcd: {enabled: false}   # k3d uses the embedded datastore, not etcd

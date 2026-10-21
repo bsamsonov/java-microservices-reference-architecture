@@ -1,0 +1,68 @@
+# Alert rules for every Spring service (filtered by label `application`, so a new service needs no edits).
+# The same file works in both modes: compose loads it as is, k3d wraps it into a PrometheusRule.
+#
+# HTTP errors and latency are not here: they are SLO alerts generated from observability/slo/.
+# The rules below are causes (Kafka, DB pool, heap), so they are `warning`, not `critical`.
+# Conventions: docs/alerting.md.
+groups:
+  - name: spring-services
+    interval: 1m
+    rules:
+      # The failure counter appears with value 1 on the first failure, and increase() alone misses that.
+      # So: series that appeared in the last 10 min OR series that grew.
+      - alert: SpringKafkaListenerFailures
+        expr: |
+          sum by (namespace, application, messaging_source_name) (
+            (spring_kafka_listener_seconds_count{error!="none"} unless spring_kafka_listener_seconds_count{error!="none"} offset 10m)
+            or increase(spring_kafka_listener_seconds_count{error!="none"}[10m])
+          ) > 0
+        labels:
+          severity: warning
+          team: blueprints
+        annotations:
+          summary: "{{ $labels.application }}: failed Kafka records on {{ $labels.messaging_source_name }}"
+          description: "{{ $value | humanize }} failed listener attempts in 10 min; after retries the records end up in the DLT."
+
+      - alert: SpringKafkaConsumerLag
+        expr: max by (namespace, application, topic) (kafka_consumer_fetch_manager_records_lag) > 1000
+        for: 10m
+        labels:
+          severity: warning
+          team: blueprints
+        annotations:
+          summary: "{{ $labels.application }} is {{ $value | humanize }} records behind on {{ $labels.topic }}"
+          description: "Consumer lag has stayed above 1000 records for 10 min."
+
+      - alert: SpringDbPoolExhausted
+        expr: sum by (namespace, application) (hikaricp_connections_pending) > 0
+        for: 5m
+        labels:
+          severity: warning
+          team: blueprints
+        annotations:
+          summary: "{{ $labels.application }}: {{ $value | humanize }} threads wait for a DB connection"
+          description: "Hikari pool has had waiting threads for 5 min. If users are hit, HttpLatencyBudgetBurn pages on its own."
+
+      - alert: SpringHeapHigh
+        expr: |
+          sum by (namespace, application) (jvm_memory_used_bytes{area="heap"})
+            / sum by (namespace, application) (jvm_memory_max_bytes{area="heap", id=~".*Old Gen.*|.*Tenured.*"})
+            > 0.9
+        for: 10m
+        labels:
+          severity: warning
+          team: blueprints
+        annotations:
+          summary: "{{ $labels.application }}: heap at {{ $value | humanizePercentage }}"
+          description: "Heap usage relative to the old generation max has stayed above 90% for 10 min."
+
+      # info: visible in Alertmanager and Grafana (Alerting > Alert list), never notified.
+      - alert: SpringErrorLogLines
+        expr: sum by (namespace, application) (rate(logback_events_total{level="error"}[5m])) > 0
+        for: 5m
+        labels:
+          severity: info
+          team: blueprints
+        annotations:
+          summary: "{{ $labels.application }} writes ERROR lines"
+          description: "See the Logs row of the Spring services dashboard."

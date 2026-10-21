@@ -1,0 +1,131 @@
+groups:
+- interval: 2m30s
+  name: http-latency-increase
+  rules:
+  - expr: sum by (application, status, uri) (increase(http_server_requests_seconds_count{status!~"5..",uri!~"/actuator.*"}[4w]))
+    labels:
+      slo: http-latency
+      team: blueprints
+    record: http_server_requests_seconds:increase4w
+  - expr: sum by (application, status, uri) (increase(http_server_requests_seconds_bucket{le="0.5",status!~"5..",uri!~"/actuator.*"}[4w]))
+    labels:
+      le: "0.5"
+      slo: http-latency
+      team: blueprints
+    record: http_server_requests_seconds:increase4w
+- interval: 30s
+  name: http-latency
+  rules:
+  - expr: (sum by (application) (rate(http_server_requests_seconds_count{status!~"5..",uri!~"/actuator.*"}[5m]))
+      - sum by (application) (rate(http_server_requests_seconds_bucket{le="0.5",status!~"5..",uri!~"/actuator.*"}[5m])))
+      / sum by (application) (rate(http_server_requests_seconds_count{status!~"5..",uri!~"/actuator.*"}[5m]))
+    labels:
+      slo: http-latency
+      team: blueprints
+    record: http_server_requests_seconds:burnrate5m
+  - expr: (sum by (application) (rate(http_server_requests_seconds_count{status!~"5..",uri!~"/actuator.*"}[30m]))
+      - sum by (application) (rate(http_server_requests_seconds_bucket{le="0.5",status!~"5..",uri!~"/actuator.*"}[30m])))
+      / sum by (application) (rate(http_server_requests_seconds_count{status!~"5..",uri!~"/actuator.*"}[30m]))
+    labels:
+      slo: http-latency
+      team: blueprints
+    record: http_server_requests_seconds:burnrate30m
+  - expr: (sum by (application) (rate(http_server_requests_seconds_count{status!~"5..",uri!~"/actuator.*"}[1h]))
+      - sum by (application) (rate(http_server_requests_seconds_bucket{le="0.5",status!~"5..",uri!~"/actuator.*"}[1h])))
+      / sum by (application) (rate(http_server_requests_seconds_count{status!~"5..",uri!~"/actuator.*"}[1h]))
+    labels:
+      slo: http-latency
+      team: blueprints
+    record: http_server_requests_seconds:burnrate1h
+  - expr: (sum by (application) (rate(http_server_requests_seconds_count{status!~"5..",uri!~"/actuator.*"}[2h]))
+      - sum by (application) (rate(http_server_requests_seconds_bucket{le="0.5",status!~"5..",uri!~"/actuator.*"}[2h])))
+      / sum by (application) (rate(http_server_requests_seconds_count{status!~"5..",uri!~"/actuator.*"}[2h]))
+    labels:
+      slo: http-latency
+      team: blueprints
+    record: http_server_requests_seconds:burnrate2h
+  - expr: (sum by (application) (rate(http_server_requests_seconds_count{status!~"5..",uri!~"/actuator.*"}[6h]))
+      - sum by (application) (rate(http_server_requests_seconds_bucket{le="0.5",status!~"5..",uri!~"/actuator.*"}[6h])))
+      / sum by (application) (rate(http_server_requests_seconds_count{status!~"5..",uri!~"/actuator.*"}[6h]))
+    labels:
+      slo: http-latency
+      team: blueprints
+    record: http_server_requests_seconds:burnrate6h
+  - expr: (sum by (application) (rate(http_server_requests_seconds_count{status!~"5..",uri!~"/actuator.*"}[1d]))
+      - sum by (application) (rate(http_server_requests_seconds_bucket{le="0.5",status!~"5..",uri!~"/actuator.*"}[1d])))
+      / sum by (application) (rate(http_server_requests_seconds_count{status!~"5..",uri!~"/actuator.*"}[1d]))
+    labels:
+      slo: http-latency
+      team: blueprints
+    record: http_server_requests_seconds:burnrate1d
+  - expr: (sum by (application) (rate(http_server_requests_seconds_count{status!~"5..",uri!~"/actuator.*"}[4d]))
+      - sum by (application) (rate(http_server_requests_seconds_bucket{le="0.5",status!~"5..",uri!~"/actuator.*"}[4d])))
+      / sum by (application) (rate(http_server_requests_seconds_count{status!~"5..",uri!~"/actuator.*"}[4d]))
+    labels:
+      slo: http-latency
+      team: blueprints
+    record: http_server_requests_seconds:burnrate4d
+  - alert: HttpLatencyBudgetBurn
+    annotations:
+      description: 'SLO: 99% of successful requests within 500 ms over 4 weeks. The
+        tier (windows and time to exhaustion) is in the labels short, long and exhaustion.'
+      summary: '{{ $labels.application }}: too many requests slower than 500 ms, the
+        error budget burns too fast'
+    expr: http_server_requests_seconds:burnrate5m{slo="http-latency"} > (14 * (1-0.99))
+      and http_server_requests_seconds:burnrate1h{slo="http-latency"} > (14 * (1-0.99))
+    for: 2m
+    labels:
+      exhaustion: 2d
+      long: 1h
+      severity: critical
+      short: 5m
+      slo: http-latency
+      team: blueprints
+  - alert: HttpLatencyBudgetBurn
+    annotations:
+      description: 'SLO: 99% of successful requests within 500 ms over 4 weeks. The
+        tier (windows and time to exhaustion) is in the labels short, long and exhaustion.'
+      summary: '{{ $labels.application }}: too many requests slower than 500 ms, the
+        error budget burns too fast'
+    expr: http_server_requests_seconds:burnrate30m{slo="http-latency"} > (7 * (1-0.99))
+      and http_server_requests_seconds:burnrate6h{slo="http-latency"} > (7 * (1-0.99))
+    for: 15m
+    labels:
+      exhaustion: 4d
+      long: 6h
+      severity: critical
+      short: 30m
+      slo: http-latency
+      team: blueprints
+  - alert: HttpLatencyBudgetBurn
+    annotations:
+      description: 'SLO: 99% of successful requests within 500 ms over 4 weeks. The
+        tier (windows and time to exhaustion) is in the labels short, long and exhaustion.'
+      summary: '{{ $labels.application }}: too many requests slower than 500 ms, the
+        error budget burns too fast'
+    expr: http_server_requests_seconds:burnrate2h{slo="http-latency"} > (2 * (1-0.99))
+      and http_server_requests_seconds:burnrate1d{slo="http-latency"} > (2 * (1-0.99))
+    for: 1h
+    labels:
+      exhaustion: 2w
+      long: 1d
+      severity: warning
+      short: 2h
+      slo: http-latency
+      team: blueprints
+  - alert: HttpLatencyBudgetBurn
+    annotations:
+      description: 'SLO: 99% of successful requests within 500 ms over 4 weeks. The
+        tier (windows and time to exhaustion) is in the labels short, long and exhaustion.'
+      summary: '{{ $labels.application }}: too many requests slower than 500 ms, the
+        error budget burns too fast'
+    expr: http_server_requests_seconds:burnrate6h{slo="http-latency"} > (1 * (1-0.99))
+      and http_server_requests_seconds:burnrate4d{slo="http-latency"} > (1 * (1-0.99))
+    for: 3h
+    labels:
+      exhaustion: 4w
+      long: 4d
+      severity: warning
+      short: 6h
+      slo: http-latency
+      team: blueprints

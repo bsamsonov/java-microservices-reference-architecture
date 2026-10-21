@@ -1,0 +1,4 @@
+tempo:
+  metricsGenerator:
+    enabled: true
+    remoteWriteUrl: http://kps-prometheus.observability:9090/api/v1/write

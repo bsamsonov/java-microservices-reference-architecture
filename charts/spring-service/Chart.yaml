@@ -1,0 +1,5 @@
+apiVersion: v2
+name: spring-service
+description: Generic chart for every Spring Boot service of the blueprint (one chart, per-service values).
+type: application
+version: 0.1.0

@@ -1,0 +1,30 @@
+# SLO: 99.5% of HTTP requests of each Spring service end without 5xx, over 4 weeks.
+# One object covers all services (grouping by `application`), so a new service needs no edits.
+# Alerts are generated into ../prometheus/generated/ by observability/check-alerting.sh.
+apiVersion: pyrra.dev/v1alpha1
+kind: ServiceLevelObjective
+metadata:
+  name: http-availability
+  namespace: observability
+  # pyrra.dev/* annotations are copied into every generated alert (the notification template shows summary).
+  # Templates see only series labels: the tier labels short/long/exhaustion are rule labels and are not available here.
+  annotations:
+    pyrra.dev/summary: "{{ $labels.application }}: too many 5xx responses, the error budget burns too fast"
+    pyrra.dev/description: "SLO: 99.5% of requests without 5xx over 4 weeks. The tier (windows and time to exhaustion) is in the labels short, long and exhaustion."
+  labels:
+    pyrra.dev/team: blueprints     # becomes label team="blueprints" on the alerts
+spec:
+  target: "99.5"
+  window: 4w
+  description: HTTP requests of a Spring service that end without a 5xx status.
+  indicator:
+    ratio:
+      errors:
+        metric: http_server_requests_seconds_count{uri!~"/actuator.*", status=~"5.."}
+      total:
+        metric: http_server_requests_seconds_count{uri!~"/actuator.*"}
+      grouping:
+        - application
+  alerting:
+    name: HttpAvailabilityBudgetBurn
+    absent: false                  # no "metric absent" alert: a stopped service is caught by kubernetes-mixin

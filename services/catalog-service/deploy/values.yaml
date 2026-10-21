@@ -1,0 +1,17 @@
+# catalog-service on the local platform (see platform/README.md for addresses)
+image:
+  repository: catalog-service     # Tilt replaces it with the built image
+env:
+  SPRING_DATASOURCE_URL: jdbc:postgresql://pg-rw.infra:5432/catalog
+  MANAGEMENT_OPENTELEMETRY_TRACING_EXPORT_OTLP_ENDPOINT: http://otel-collector.observability:4318/v1/traces
+  MANAGEMENT_OPENTELEMETRY_LOGGING_EXPORT_OTLP_ENDPOINT: http://otel-collector.observability:4318/v1/logs
+  LOGGING_STRUCTURED_FORMAT_CONSOLE: ecs
+  # Keycloak: the issuer as written in tokens (public URL), signing keys fetched inside the cluster
+  SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak.localhost:8080/realms/blueprints
+  SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak.infra:8080/realms/blueprints/protocol/openid-connect/certs
+secretEnv:
+  - {name: SPRING_DATASOURCE_USERNAME, secret: pg-app, key: username}
+  - {name: SPRING_DATASOURCE_PASSWORD, secret: pg-app, key: password}
+ingress:
+  enabled: true
+  host: catalog.localhost

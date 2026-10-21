@@ -1,0 +1,10 @@
+# Test overrides (config/application.yaml has priority over the main application.yaml).
+management:
+  tracing:
+    export:
+      otlp:
+        enabled: false
+  logging:
+    export:
+      otlp:
+        enabled: false

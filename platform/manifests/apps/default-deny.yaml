@@ -1,0 +1,10 @@
+# Namespace apps is closed by default: a pod gets only the traffic its own NetworkPolicy allows
+# (charts/spring-service, values.networkPolicy). A new service without a policy is isolated, not open.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny
+  namespace: apps
+spec:
+  podSelector: {}
+  policyTypes: [Ingress, Egress]

@@ -1,0 +1,24 @@
+# Single entry point for apps: OTLP gRPC :4317 / HTTP :4318 -> traces to Tempo, logs to Loki.
+# Metrics are scraped by Prometheus from /actuator/prometheus (ServiceMonitor), not pushed.
+mode: deployment
+image: {repository: otel/opentelemetry-collector-contrib}
+fullnameOverride: otel-collector
+config:
+  receivers:
+    otlp:
+      protocols:
+        grpc: {endpoint: "0.0.0.0:4317"}
+        http: {endpoint: "0.0.0.0:4318"}
+  processors:
+    batch: {}
+  exporters:
+    otlp_grpc/tempo:
+      endpoint: tempo.observability:4317
+      tls: {insecure: true}
+    otlp_http/loki:
+      endpoint: http://loki.observability:3100/otlp
+  service:
+    pipelines:
+      traces: {receivers: [otlp], processors: [batch], exporters: [otlp_grpc/tempo]}
+      logs: {receivers: [otlp], processors: [batch], exporters: [otlp_http/loki]}
+      metrics: null

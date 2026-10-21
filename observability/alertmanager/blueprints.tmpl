@@ -1,0 +1,10 @@
+{{/* Runbook link. Our alerts: observability/runbooks/<alertname>.md in the repository.
+     kubernetes-mixin alerts (kube-prometheus-stack) bring their own annotation runbook_url. */}}
+{{ define "blueprints.runbook" }}{{ if .CommonAnnotations.runbook_url }}{{ .CommonAnnotations.runbook_url }}{{ else }}https://github.com/bsamsonov/java-microservices-reference-architecture/blob/main/observability/runbooks/{{ .CommonLabels.alertname }}.md{{ end }}{{ end }}
+
+{{/* Example: [FIRING:1] critical HttpAvailabilityBudgetBurn / orders-service */}}
+{{ define "blueprints.title" }}[{{ .Status | toUpper }}:{{ .Alerts.Firing | len }}] {{ .CommonLabels.severity }} {{ .CommonLabels.alertname }} / {{ .CommonLabels.application }}{{ end }}
+
+{{ define "blueprints.telegram" }}<b>{{ template "blueprints.title" . }}</b>
+{{ range .Alerts }}• {{ .Annotations.summary }}
+{{ end }}<a href="{{ template "blueprints.runbook" . }}">runbook</a>{{ end }}

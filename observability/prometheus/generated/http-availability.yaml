@@ -1,0 +1,122 @@
+groups:
+- interval: 2m30s
+  name: http-availability-increase
+  rules:
+  - expr: sum by (application, status, uri) (increase(http_server_requests_seconds_count{uri!~"/actuator.*"}[4w]))
+    labels:
+      slo: http-availability
+      team: blueprints
+    record: http_server_requests_seconds:increase4w
+- interval: 30s
+  name: http-availability
+  rules:
+  - expr: sum by (application) (rate(http_server_requests_seconds_count{status=~"5..",uri!~"/actuator.*"}[5m]))
+      / sum by (application) (rate(http_server_requests_seconds_count{uri!~"/actuator.*"}[5m]))
+    labels:
+      slo: http-availability
+      team: blueprints
+    record: http_server_requests_seconds:burnrate5m
+  - expr: sum by (application) (rate(http_server_requests_seconds_count{status=~"5..",uri!~"/actuator.*"}[30m]))
+      / sum by (application) (rate(http_server_requests_seconds_count{uri!~"/actuator.*"}[30m]))
+    labels:
+      slo: http-availability
+      team: blueprints
+    record: http_server_requests_seconds:burnrate30m
+  - expr: sum by (application) (rate(http_server_requests_seconds_count{status=~"5..",uri!~"/actuator.*"}[1h]))
+      / sum by (application) (rate(http_server_requests_seconds_count{uri!~"/actuator.*"}[1h]))
+    labels:
+      slo: http-availability
+      team: blueprints
+    record: http_server_requests_seconds:burnrate1h
+  - expr: sum by (application) (rate(http_server_requests_seconds_count{status=~"5..",uri!~"/actuator.*"}[2h]))
+      / sum by (application) (rate(http_server_requests_seconds_count{uri!~"/actuator.*"}[2h]))
+    labels:
+      slo: http-availability
+      team: blueprints
+    record: http_server_requests_seconds:burnrate2h
+  - expr: sum by (application) (rate(http_server_requests_seconds_count{status=~"5..",uri!~"/actuator.*"}[6h]))
+      / sum by (application) (rate(http_server_requests_seconds_count{uri!~"/actuator.*"}[6h]))
+    labels:
+      slo: http-availability
+      team: blueprints
+    record: http_server_requests_seconds:burnrate6h
+  - expr: sum by (application) (rate(http_server_requests_seconds_count{status=~"5..",uri!~"/actuator.*"}[1d]))
+      / sum by (application) (rate(http_server_requests_seconds_count{uri!~"/actuator.*"}[1d]))
+    labels:
+      slo: http-availability
+      team: blueprints
+    record: http_server_requests_seconds:burnrate1d
+  - expr: sum by (application) (rate(http_server_requests_seconds_count{status=~"5..",uri!~"/actuator.*"}[4d]))
+      / sum by (application) (rate(http_server_requests_seconds_count{uri!~"/actuator.*"}[4d]))
+    labels:
+      slo: http-availability
+      team: blueprints
+    record: http_server_requests_seconds:burnrate4d
+  - alert: HttpAvailabilityBudgetBurn
+    annotations:
+      description: 'SLO: 99.5% of requests without 5xx over 4 weeks. The tier (windows
+        and time to exhaustion) is in the labels short, long and exhaustion.'
+      summary: '{{ $labels.application }}: too many 5xx responses, the error budget
+        burns too fast'
+    expr: http_server_requests_seconds:burnrate5m{slo="http-availability"} > (14 *
+      (1-0.995)) and http_server_requests_seconds:burnrate1h{slo="http-availability"}
+      > (14 * (1-0.995))
+    for: 2m0s
+    labels:
+      exhaustion: 2d
+      long: 1h
+      severity: critical
+      short: 5m
+      slo: http-availability
+      team: blueprints
+  - alert: HttpAvailabilityBudgetBurn
+    annotations:
+      description: 'SLO: 99.5% of requests without 5xx over 4 weeks. The tier (windows
+        and time to exhaustion) is in the labels short, long and exhaustion.'
+      summary: '{{ $labels.application }}: too many 5xx responses, the error budget
+        burns too fast'
+    expr: http_server_requests_seconds:burnrate30m{slo="http-availability"} > (7 *
+      (1-0.995)) and http_server_requests_seconds:burnrate6h{slo="http-availability"}
+      > (7 * (1-0.995))
+    for: 15m0s
+    labels:
+      exhaustion: 4d
+      long: 6h
+      severity: critical
+      short: 30m
+      slo: http-availability
+      team: blueprints
+  - alert: HttpAvailabilityBudgetBurn
+    annotations:
+      description: 'SLO: 99.5% of requests without 5xx over 4 weeks. The tier (windows
+        and time to exhaustion) is in the labels short, long and exhaustion.'
+      summary: '{{ $labels.application }}: too many 5xx responses, the error budget
+        burns too fast'
+    expr: http_server_requests_seconds:burnrate2h{slo="http-availability"} > (2 *
+      (1-0.995)) and http_server_requests_seconds:burnrate1d{slo="http-availability"}
+      > (2 * (1-0.995))
+    for: 1h0m0s
+    labels:
+      exhaustion: 2w
+      long: 1d
+      severity: warning
+      short: 2h
+      slo: http-availability
+      team: blueprints
+  - alert: HttpAvailabilityBudgetBurn
+    annotations:
+      description: 'SLO: 99.5% of requests without 5xx over 4 weeks. The tier (windows
+        and time to exhaustion) is in the labels short, long and exhaustion.'
+      summary: '{{ $labels.application }}: too many 5xx responses, the error budget
+        burns too fast'
+    expr: http_server_requests_seconds:burnrate6h{slo="http-availability"} > (1 *
+      (1-0.995)) and http_server_requests_seconds:burnrate4d{slo="http-availability"}
+      > (1 * (1-0.995))
+    for: 3h0m0s
+    labels:
+      exhaustion: 4w
+      long: 4d
+      severity: warning
+      short: 6h
+      slo: http-availability
+      team: blueprints

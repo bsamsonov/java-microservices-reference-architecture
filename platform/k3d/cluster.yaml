@@ -1,0 +1,25 @@
+apiVersion: k3d.io/v1alpha5
+kind: Simple
+metadata:
+  name: blueprints
+servers: 1
+agents: 0                  # one node: a laptop with ~6 GB free RAM can't afford more
+ports:
+  - port: 8080:80          # ingress (traefik) -> http://localhost:8080
+    nodeFilters: [loadbalancer]
+registries:
+  create:
+    name: blueprints-registry   # push images to localhost:5050
+    host: "0.0.0.0"
+    hostPort: "5050"
+options:
+  k3s:
+    extraArgs:
+      # Default eviction starts at <15% free image fs / <10% node fs. On a dev laptop with a
+      # nearly full disk that evicts everything, so allow down to ~2 GB free.
+      - arg: --kubelet-arg=eviction-hard=imagefs.available<2Gi,nodefs.available<2Gi
+        nodeFilters: [server:*]
+      - arg: --kubelet-arg=image-gc-high-threshold=95
+        nodeFilters: [server:*]
+      - arg: --kubelet-arg=image-gc-low-threshold=90
+        nodeFilters: [server:*]

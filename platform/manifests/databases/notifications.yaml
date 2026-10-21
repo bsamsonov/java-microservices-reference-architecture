@@ -1,0 +1,10 @@
+# Database of notifications-service in the shared CNPG cluster (see README.md here)
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: notifications
+  namespace: infra
+spec:
+  cluster: {name: pg}
+  name: notifications
+  owner: app

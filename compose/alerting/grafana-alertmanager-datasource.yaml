@@ -1,0 +1,11 @@
+# Grafana shows alerts and silences of the external Alertmanager (Alerting > Alert list / Silences).
+# In k3d kube-prometheus-stack adds the same datasource on its own.
+apiVersion: 1
+datasources:
+  - name: Alertmanager
+    uid: alertmanager
+    type: alertmanager
+    url: http://alertmanager:9093
+    jsonData:
+      implementation: prometheus
+      handleGrafanaManagedAlerts: false

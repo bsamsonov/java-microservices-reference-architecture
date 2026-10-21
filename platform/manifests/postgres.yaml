@@ -1,0 +1,26 @@
+# CloudNativePG: one shared Postgres cluster for local dev; each service gets its own database.
+# Service: pg-rw.infra:5432; credentials in secret pg-app (user app).
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: pg
+  namespace: infra
+spec:
+  instances: 1
+  storage: {size: 2Gi}
+  bootstrap:
+    initdb:
+      database: orders
+      owner: app
+---
+# CNPG deprecated spec.monitoring.enablePodMonitor -> declare PodMonitor explicitly
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: pg
+  namespace: infra
+spec:
+  selector:
+    matchLabels: {cnpg.io/cluster: pg}
+  podMetricsEndpoints:
+    - port: metrics

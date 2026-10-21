@@ -1,0 +1,162 @@
+# Laptop mode: infra + observability in Docker Compose (~2-3 GB of images).
+#   docker compose -f compose/compose.yaml up -d                    # infra only; run services from IDE / ./mvnw
+#   docker compose -f compose/compose.yaml --profile apps up -d --build   # + services in containers
+# Services are mode-agnostic: everything environment-specific comes from env vars.
+name: blueprints
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: orders
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app   # local demo only
+    ports: ["5432:5432"]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./postgres-init:/docker-entrypoint-initdb.d:ro   # one <db>.sql per extra service
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d orders"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  kafka:
+    image: apache/kafka-native:4.0.0
+    ports: ["9092:9092"]
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      # HOST - for apps on the laptop (localhost:9092), DOCKER - for containers (kafka:19092)
+      KAFKA_LISTENERS: CONTROLLER://:9093,HOST://:9092,DOCKER://:19092
+      KAFKA_ADVERTISED_LISTENERS: HOST://localhost:9092,DOCKER://kafka:19092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,HOST:PLAINTEXT,DOCKER:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: DOCKER
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "19092"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # Keycloak issues access tokens to users (security/README.md). Admin console: http://localhost:8180 (admin/admin)
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.8.1
+    command: start-dev --import-realm
+    ports: ["8180:8080"]
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin      # local demo only
+      KC_HOSTNAME: http://localhost:8180      # tokens always say iss=http://localhost:8180/realms/blueprints
+      KC_HEALTH_ENABLED: "true"
+    volumes:
+      - ../security/keycloak:/opt/keycloak/data/import:ro   # realm as code, the same file as in k3d
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/9000 && printf 'GET /health/ready HTTP/1.0\\r\\n\\r\\n' >&3 && grep -q UP <&3"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  # Grafana + OTel Collector + Prometheus + Loki + Tempo in one container
+  lgtm:
+    image: grafana/otel-lgtm:latest
+    ports:
+      - "3000:3000"   # Grafana (admin/admin, local demo only)
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+      - "9090:9090"   # Prometheus (alerts: http://localhost:9090/alerts)
+    depends_on:
+      alertmanager: {condition: service_started}
+    volumes:
+      - lgtm:/data
+      # dashboards as code (observability/grafana), the same files as in k3d
+      - ../observability/grafana/dashboards:/blueprints/dashboards:ro
+      - ../observability/grafana/compose-dashboards.yaml:/otel-lgtm/grafana/conf/provisioning/dashboards/blueprints.yaml:ro
+      # alerting (D10): own copy of the otel-lgtm Prometheus config with rule_files + alertmanagers,
+      # rules from observability/prometheus (the same files as PrometheusRule in k3d), Watchdog only for compose
+      - ./alerting/prometheus.yaml:/otel-lgtm/prometheus.yaml:ro
+      - ../observability/prometheus:/blueprints/prometheus:ro
+      - ./alerting/watchdog.rules.yaml:/blueprints/compose-rules/watchdog.rules.yaml:ro
+      - ./alerting/grafana-alertmanager-datasource.yaml:/otel-lgtm/grafana/conf/provisioning/datasources/alertmanager.yaml:ro
+
+  # Alertmanager UI: http://localhost:9093; config is the same as in k3d (observability/alertmanager)
+  alertmanager:
+    image: prom/alertmanager:v0.34.1
+    ports:
+      - "9093:9093"
+    command:
+      - --config.file=/etc/alertmanager/config/alertmanager.yaml
+      - --storage.path=/alertmanager
+      - --web.external-url=http://localhost:9093
+    volumes:
+      - ../observability/alertmanager:/etc/alertmanager/config:ro
+      - alertmanager:/alertmanager
+
+  orders-service:
+    profiles: [apps]
+    build: ../services/orders-service   # needs target/*.jar: ./mvnw -DskipTests package
+    image: orders-service:compose
+    ports: ["8080:8080"]
+    depends_on:
+      postgres: {condition: service_healthy}
+      kafka: {condition: service_healthy}
+      lgtm: {condition: service_started}
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/orders
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:19092
+      # signing keys from inside the Docker network; the issuer stays http://localhost:8180 (application.yaml)
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/blueprints/protocol/openid-connect/certs
+      MANAGEMENT_OPENTELEMETRY_TRACING_EXPORT_OTLP_ENDPOINT: http://lgtm:4318/v1/traces
+      MANAGEMENT_OPENTELEMETRY_LOGGING_EXPORT_OTLP_ENDPOINT: http://lgtm:4318/v1/logs
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: "true"
+      MANAGEMENT_OTLP_METRICS_EXPORT_URL: http://lgtm:4318/v1/metrics
+      OTEL_RESOURCE_ATTRIBUTES: deployment.environment=compose
+
+  notifications-service:
+    profiles: [apps]
+    build: ../services/notifications-service   # needs target/*.jar: ./mvnw -DskipTests package
+    image: notifications-service:compose
+    ports: ["8081:8080"]
+    depends_on:
+      postgres: {condition: service_healthy}
+      kafka: {condition: service_healthy}
+      lgtm: {condition: service_started}
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/notifications
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:19092
+      # signing keys from inside the Docker network; the issuer stays http://localhost:8180 (application.yaml)
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/blueprints/protocol/openid-connect/certs
+      MANAGEMENT_OPENTELEMETRY_TRACING_EXPORT_OTLP_ENDPOINT: http://lgtm:4318/v1/traces
+      MANAGEMENT_OPENTELEMETRY_LOGGING_EXPORT_OTLP_ENDPOINT: http://lgtm:4318/v1/logs
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: "true"
+      MANAGEMENT_OTLP_METRICS_EXPORT_URL: http://lgtm:4318/v1/metrics
+      OTEL_RESOURCE_ATTRIBUTES: deployment.environment=compose
+
+  catalog-service:
+    profiles: [apps]
+    build: ../services/catalog-service   # needs target/*.jar: ./mvnw -DskipTests package
+    image: catalog-service:compose
+    ports: ["8082:8080"]
+    depends_on:
+      postgres: {condition: service_healthy}
+      lgtm: {condition: service_started}
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/catalog
+      # signing keys from inside the Docker network; the issuer stays http://localhost:8180 (application.yaml)
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/blueprints/protocol/openid-connect/certs
+      MANAGEMENT_OPENTELEMETRY_TRACING_EXPORT_OTLP_ENDPOINT: http://lgtm:4318/v1/traces
+      MANAGEMENT_OPENTELEMETRY_LOGGING_EXPORT_OTLP_ENDPOINT: http://lgtm:4318/v1/logs
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: "true"
+      MANAGEMENT_OTLP_METRICS_EXPORT_URL: http://lgtm:4318/v1/metrics
+      OTEL_RESOURCE_ATTRIBUTES: deployment.environment=compose
+
+volumes:
+  pgdata:
+  lgtm:
+  alertmanager:

@@ -1,0 +1,8 @@
+# gitleaks config: default rules plus allowlist for known local-demo values.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Local demo credentials and build output"
+paths = ['''(^|/)target/''']
+regexes = ['''admin:admin''']

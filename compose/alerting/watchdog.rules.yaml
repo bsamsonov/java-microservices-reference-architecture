@@ -1,0 +1,14 @@
+# compose only: kube-prometheus-stack ships the same Watchdog in its default rules.
+groups:
+  - name: meta
+    rules:
+      # always firing on purpose, so pint must not flag it:
+      # pint disable alerts/comparison
+      - alert: Watchdog
+        expr: vector(1)
+        labels:
+          severity: none
+          team: blueprints
+        annotations:
+          summary: Always firing; proves that Prometheus -> Alertmanager -> receiver works.
+          description: Routed to the `heartbeat` receiver. An external dead man's switch alarms when it stops arriving.

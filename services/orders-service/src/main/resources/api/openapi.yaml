@@ -1,0 +1,138 @@
+openapi: 3.0.3
+info:
+  title: Orders API
+  version: 0.1.0
+  description: Contract-first API of orders-service. Controllers implement interfaces generated from this file.
+tags:
+  - name: Orders
+# Every operation needs an access token from Keycloak (security/README.md); its description names the permission.
+security:
+  - accessToken: []
+paths:
+  /orders:
+    post:
+      tags: [Orders]
+      operationId: placeOrder
+      description: 'Requires permission `orders:write`.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/PlaceOrderRequest'}
+      responses:
+        '201':
+          description: Order placed
+          headers:
+            Location: {schema: {type: string}}
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/OrderResponse'}
+        '400': {$ref: '#/components/responses/Problem'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+  /orders/{orderId}:
+    get:
+      tags: [Orders]
+      operationId: getOrder
+      description: 'Requires permission `orders:read`.'
+      parameters:
+        - {$ref: '#/components/parameters/OrderId'}
+      responses:
+        '200':
+          description: Order
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/OrderResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/Problem'}
+  /orders/{orderId}/cancel:
+    post:
+      tags: [Orders]
+      operationId: cancelOrder
+      description: 'Requires permission `orders:write`.'
+      parameters:
+        - {$ref: '#/components/parameters/OrderId'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/CancelOrderRequest'}
+      responses:
+        '200':
+          description: Order cancelled
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/OrderResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/Problem'}
+        '409': {$ref: '#/components/responses/Problem'}
+components:
+  securitySchemes:
+    accessToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    OrderId:
+      name: orderId
+      in: path
+      required: true
+      schema: {type: string, format: uuid}
+  responses:
+    Unauthorized:
+      description: No access token, or it is invalid or expired
+    Forbidden:
+      description: The token lacks the permission this operation requires
+    Problem:
+      description: Error (RFC 9457)
+      content:
+        application/problem+json:
+          schema: {$ref: '#/components/schemas/Problem'}
+  schemas:
+    PlaceOrderRequest:
+      type: object
+      required: [customerId, lines]
+      properties:
+        customerId: {type: string, minLength: 1, maxLength: 64}
+        lines:
+          type: array
+          minItems: 1
+          items: {$ref: '#/components/schemas/OrderLine'}
+    CancelOrderRequest:
+      type: object
+      required: [reason]
+      properties:
+        reason: {type: string, minLength: 1, maxLength: 255}
+    OrderLine:
+      type: object
+      required: [productCode, quantity, unitPrice]
+      properties:
+        productCode: {type: string, minLength: 1, maxLength: 64}
+        quantity: {type: integer, format: int32, minimum: 1}
+        unitPrice: {type: number, minimum: 0}
+    OrderStatus:
+      type: string
+      enum: [PLACED, CANCELLED]
+    OrderResponse:
+      type: object
+      required: [id, customerId, status, total, createdAt, lines]
+      properties:
+        id: {type: string, format: uuid}
+        customerId: {type: string}
+        status: {$ref: '#/components/schemas/OrderStatus'}
+        total: {type: number}
+        createdAt: {type: string, format: date-time}
+        cancellationReason: {type: string}
+        lines:
+          type: array
+          items: {$ref: '#/components/schemas/OrderLine'}
+    Problem:
+      type: object
+      properties:
+        type: {type: string}
+        title: {type: string}
+        status: {type: integer}
+        detail: {type: string}
+        instance: {type: string}

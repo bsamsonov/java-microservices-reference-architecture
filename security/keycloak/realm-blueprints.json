@@ -1,0 +1,68 @@
+{
+  "realm": "blueprints",
+  "enabled": true,
+  "accessTokenLifespan": 900,
+  "roles": {
+    "realm": [
+      {"name": "orders:read", "description": "Read orders"},
+      {"name": "orders:write", "description": "Place and cancel orders"},
+      {"name": "notifications:read", "description": "Read notifications"},
+      {"name": "catalog:read", "description": "Read products"},
+      {"name": "catalog:write", "description": "Create, change and delete products"}
+    ]
+  },
+  "groups": [
+    {"name": "customers", "realmRoles": ["orders:read", "orders:write", "notifications:read", "catalog:read"]},
+    {"name": "catalog-managers", "realmRoles": ["catalog:read", "catalog:write"]}
+  ],
+  "users": [
+    {
+      "username": "alice", "email": "alice@example.com", "emailVerified": true,
+      "firstName": "Alice", "lastName": "Customer", "enabled": true,
+      "credentials": [{"type": "password", "value": "alice", "temporary": false}],
+      "groups": ["customers"]
+    },
+    {
+      "username": "bob", "email": "bob@example.com", "emailVerified": true,
+      "firstName": "Bob", "lastName": "Catalog", "enabled": true,
+      "credentials": [{"type": "password", "value": "bob", "temporary": false}],
+      "groups": ["catalog-managers"]
+    }
+  ],
+  "clients": [
+    {
+      "clientId": "blueprints-cli",
+      "name": "Demo client for curl and scripts (password grant, local demo only)",
+      "publicClient": true,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "protocolMappers": [
+        {
+          "name": "permissions",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "config": {
+            "claim.name": "permissions",
+            "multivalued": "true",
+            "jsonType.label": "String",
+            "access.token.claim": "true",
+            "id.token.claim": "false",
+            "userinfo.token.claim": "false",
+            "introspection.token.claim": "true"
+          }
+        },
+        {
+          "name": "audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.custom.audience": "blueprints-api",
+            "access.token.claim": "true",
+            "id.token.claim": "false",
+            "introspection.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ]
+}

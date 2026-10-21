@@ -1,0 +1,58 @@
+# Defaults target local run against the k3d platform (port-forward) or TestCatalogApplication.
+# In Kubernetes every value below is overridden by env vars from the Helm chart.
+spring:
+  application:
+    name: catalog-service
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Access tokens come from Keycloak, realm "blueprints" (security/README.md).
+          issuer-uri: http://localhost:8180/realms/blueprints        # must match the token's "iss" claim
+          jwk-set-uri: http://localhost:8180/realms/blueprints/protocol/openid-connect/certs   # signing keys
+          audiences: blueprints-api                                  # must be in the token's "aud" claim
+          authorities-claim-name: permissions                        # Keycloak puts the user's permissions here
+          authority-prefix: ""                                       # authority = permission as is, e.g. orders:write
+  datasource:
+    url: jdbc:postgresql://localhost:5432/catalog
+    username: app
+    password: app
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    distribution:
+      # buckets for p95/p99 in dashboards and alerts (observability/)
+      percentiles-histogram:
+        http.server.requests: true
+      # exact le="0.5" bucket for the latency SLO (observability/slo/http-latency.yaml)
+      slo:
+        http.server.requests: 500ms
+  tracing:
+    sampling:
+      probability: 1.0
+  otlp:
+    metrics:
+      export:
+        enabled: false               # compose turns it on (MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED=true)
+        url: http://localhost:4318/v1/metrics
+        step: 15s
+        base-time-unit: seconds      # same metric names as /actuator/prometheus (*_seconds_*), so dashboards fit both modes
+  opentelemetry:
+    tracing:
+      export:
+        otlp:
+          endpoint: http://localhost:4318/v1/traces
+    logging:
+      export:
+        otlp:
+          endpoint: http://localhost:4318/v1/logs

@@ -1,0 +1,30 @@
+# Strimzi 1.x (API v1), KRaft, one dual-role node: enough for local dev.
+# Ephemeral storage on purpose: Strimzi reports a KafkaStorage warning, messages are lost on restart. Bootstrap: blueprints-kafka-bootstrap.infra:9092
+apiVersion: kafka.strimzi.io/v1
+kind: KafkaNodePool
+metadata:
+  name: dual
+  namespace: infra
+  labels: {strimzi.io/cluster: blueprints}
+spec:
+  replicas: 1
+  roles: [controller, broker]
+  storage: {type: ephemeral}
+---
+apiVersion: kafka.strimzi.io/v1
+kind: Kafka
+metadata:
+  name: blueprints
+  namespace: infra
+spec:
+  kafka:
+    listeners:
+      - {name: plain, port: 9092, type: internal, tls: false}
+    config:
+      offsets.topic.replication.factor: 1
+      transaction.state.log.replication.factor: 1
+      transaction.state.log.min.isr: 1
+      default.replication.factor: 1
+      min.insync.replicas: 1
+  entityOperator:
+    topicOperator: {}     # topics are declared as KafkaTopic resources in service charts

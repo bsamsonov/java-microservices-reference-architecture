@@ -1,0 +1,9 @@
+# Dashboard provider for compose (otel-lgtm). In k3d the Grafana sidecar loads the same JSON from a ConfigMap.
+apiVersion: 1
+providers:
+  - name: blueprints
+    folder: Blueprints
+    type: file
+    allowUiUpdates: true          # edit in the UI, then export JSON back into observability/grafana/dashboards/
+    options:
+      path: /blueprints/dashboards

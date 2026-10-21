@@ -1,0 +1,158 @@
+# promtool test rules observability/prometheus/rules/tests/*.test.yaml
+# Each rule: one case where it fires and one where it stays silent.
+rule_files:
+  - ../spring-services.rules.yaml
+  - ../../generated/http-availability.yaml
+  - ../../generated/http-latency.yaml
+
+evaluation_interval: 1m
+
+tests:
+  # Kafka listener: the error series appears directly with value 1 (no prior 0 sample).
+  - interval: 1m
+    input_series:
+      - series: 'spring_kafka_listener_seconds_count{namespace="apps", application="notifications-service", messaging_source_name="orders.events", error="none"}'
+        values: '0+10x30'
+      - series: 'spring_kafka_listener_seconds_count{namespace="apps", application="notifications-service", messaging_source_name="orders.events", error="IllegalStateException"}'
+        values: '_x15 1x15'
+    alert_rule_test:
+      - eval_time: 10m
+        alertname: SpringKafkaListenerFailures
+        exp_alerts: []
+      - eval_time: 16m
+        alertname: SpringKafkaListenerFailures
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              team: blueprints
+              namespace: apps
+              application: notifications-service
+              messaging_source_name: orders.events
+            exp_annotations:
+              summary: "notifications-service: failed Kafka records on orders.events"
+              description: "1 failed listener attempts in 10 min; after retries the records end up in the DLT."
+      # 10 min after the last failure the alert resolves
+      - eval_time: 27m
+        alertname: SpringKafkaListenerFailures
+        exp_alerts: []
+
+  - interval: 1m
+    input_series:
+      - series: 'kafka_consumer_fetch_manager_records_lag{namespace="apps", application="notifications-service", topic="orders.events", partition="0"}'
+        values: '5000x20'
+      - series: 'kafka_consumer_fetch_manager_records_lag{namespace="apps", application="other-service", topic="orders.events", partition="0"}'
+        values: '10x20'
+    alert_rule_test:
+      - eval_time: 5m
+        alertname: SpringKafkaConsumerLag
+        exp_alerts: []
+      - eval_time: 12m
+        alertname: SpringKafkaConsumerLag
+        exp_alerts:
+          - exp_labels: {severity: warning, team: blueprints, namespace: apps, application: notifications-service, topic: orders.events}
+            exp_annotations:
+              summary: "notifications-service is 5k records behind on orders.events"
+              description: "Consumer lag has stayed above 1000 records for 10 min."
+
+  - interval: 1m
+    input_series:
+      - series: 'hikaricp_connections_pending{namespace="apps", application="orders-service", pool="HikariPool-1"}'
+        values: '0x5 3x10'
+    alert_rule_test:
+      - eval_time: 5m
+        alertname: SpringDbPoolExhausted
+        exp_alerts: []
+      - eval_time: 12m
+        alertname: SpringDbPoolExhausted
+        exp_alerts:
+          - exp_labels: {severity: warning, team: blueprints, namespace: apps, application: orders-service}
+            exp_annotations:
+              summary: "orders-service: 3 threads wait for a DB connection"
+              description: "Hikari pool has had waiting threads for 5 min. If users are hit, HttpLatencyBudgetBurn pages on its own."
+
+  - interval: 1m
+    input_series:
+      - series: 'jvm_memory_used_bytes{namespace="apps", application="orders-service", area="heap", id="G1 Old Gen"}'
+        values: '950x20'
+      - series: 'jvm_memory_max_bytes{namespace="apps", application="orders-service", area="heap", id="G1 Old Gen"}'
+        values: '1000x20'
+    alert_rule_test:
+      - eval_time: 12m
+        alertname: SpringHeapHigh
+        exp_alerts:
+          - exp_labels: {severity: warning, team: blueprints, namespace: apps, application: orders-service}
+            exp_annotations:
+              summary: "orders-service: heap at 95%"
+              description: "Heap usage relative to the old generation max has stayed above 90% for 10 min."
+
+  - interval: 1m
+    input_series:
+      - series: 'logback_events_total{namespace="apps", application="orders-service", level="error"}'
+        values: '0+1x20'
+    alert_rule_test:
+      - eval_time: 12m
+        alertname: SpringErrorLogLines
+        exp_alerts:
+          - exp_labels: {severity: info, team: blueprints, namespace: apps, application: orders-service}
+            exp_annotations:
+              summary: "orders-service writes ERROR lines"
+              description: "See the Logs row of the Spring services dashboard."
+
+  # SLO: every request of orders-service fails -> fast burn (5m and 1h windows) pages as critical;
+  # catalog-service stays healthy and must not fire.
+  - interval: 1m
+    input_series:
+      - series: 'http_server_requests_seconds_count{application="orders-service", uri="/orders", status="500"}'
+        values: '0+60x90'
+      - series: 'http_server_requests_seconds_count{application="orders-service", uri="/orders", status="200"}'
+        values: '0x90'
+      - series: 'http_server_requests_seconds_count{application="catalog-service", uri="/products", status="200"}'
+        values: '0+60x90'
+      - series: 'http_server_requests_seconds_count{application="catalog-service", uri="/actuator/health", status="503"}'
+        values: '0+60x90'
+    alert_rule_test:
+      - eval_time: 70m
+        alertname: HttpAvailabilityBudgetBurn
+        exp_alerts:
+          - exp_labels: {severity: critical, team: blueprints, slo: http-availability, application: orders-service, short: 5m, long: 1h, exhaustion: 2d}
+            exp_annotations:
+              summary: "orders-service: too many 5xx responses, the error budget burns too fast"
+              description: "SLO: 99.5% of requests without 5xx over 4 weeks. The tier (windows and time to exhaustion) is in the labels short, long and exhaustion."
+          - exp_labels: {severity: critical, team: blueprints, slo: http-availability, application: orders-service, short: 30m, long: 6h, exhaustion: 4d}
+            exp_annotations:
+              summary: "orders-service: too many 5xx responses, the error budget burns too fast"
+              description: "SLO: 99.5% of requests without 5xx over 4 weeks. The tier (windows and time to exhaustion) is in the labels short, long and exhaustion."
+          # the slow tier fires too; Alertmanager inhibits it while a critical one for the same service is active
+          - exp_labels: {severity: warning, team: blueprints, slo: http-availability, application: orders-service, short: 2h, long: 1d, exhaustion: 2w}
+            exp_annotations:
+              summary: "orders-service: too many 5xx responses, the error budget burns too fast"
+              description: "SLO: 99.5% of requests without 5xx over 4 weeks. The tier (windows and time to exhaustion) is in the labels short, long and exhaustion."
+
+  # SLO latency: orders-service answers in ~2 s (no request within the 0.5 s bucket) -> critical burn.
+  - interval: 1m
+    input_series:
+      - series: 'http_server_requests_seconds_bucket{application="orders-service", uri="/orders", status="200", le="0.5"}'
+        values: '0x90'
+      - series: 'http_server_requests_seconds_count{application="orders-service", uri="/orders", status="200"}'
+        values: '0+60x90'
+      - series: 'http_server_requests_seconds_bucket{application="catalog-service", uri="/products", status="200", le="0.5"}'
+        values: '0+60x90'
+      - series: 'http_server_requests_seconds_count{application="catalog-service", uri="/products", status="200"}'
+        values: '0+60x90'
+    alert_rule_test:
+      - eval_time: 70m
+        alertname: HttpLatencyBudgetBurn
+        exp_alerts:
+          - exp_labels: {severity: critical, team: blueprints, slo: http-latency, application: orders-service, short: 5m, long: 1h, exhaustion: 2d}
+            exp_annotations:
+              summary: "orders-service: too many requests slower than 500 ms, the error budget burns too fast"
+              description: "SLO: 99% of successful requests within 500 ms over 4 weeks. The tier (windows and time to exhaustion) is in the labels short, long and exhaustion."
+          - exp_labels: {severity: critical, team: blueprints, slo: http-latency, application: orders-service, short: 30m, long: 6h, exhaustion: 4d}
+            exp_annotations:
+              summary: "orders-service: too many requests slower than 500 ms, the error budget burns too fast"
+              description: "SLO: 99% of successful requests within 500 ms over 4 weeks. The tier (windows and time to exhaustion) is in the labels short, long and exhaustion."
+          # the slow tier fires too; Alertmanager inhibits it while a critical one for the same service is active
+          - exp_labels: {severity: warning, team: blueprints, slo: http-latency, application: orders-service, short: 2h, long: 1d, exhaustion: 2w}
+            exp_annotations:
+              summary: "orders-service: too many requests slower than 500 ms, the error budget burns too fast"
+              description: "SLO: 99% of successful requests within 500 ms over 4 weeks. The tier (windows and time to exhaustion) is in the labels short, long and exhaustion."

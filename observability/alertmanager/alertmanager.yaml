@@ -1,0 +1,69 @@
+# Alertmanager config, the same file in both modes:
+#   compose: mounted at /etc/alertmanager/config/ (service `alertmanager` in compose/compose.yaml)
+#   k3d:     Secret `alertmanager-blueprints` with this file and *.tmpl (make -C platform alerting),
+#            referenced by kube-prometheus-stack (alertmanager.alertmanagerSpec.configSecret)
+#
+# Severity contract (docs/alerting.md):
+#   critical -> pager + chat (someone must act now: an SLO burns fast)
+#   warning  -> chat         (look during working hours)
+#   info     -> nowhere      (visible in Alertmanager / Grafana alert list only)
+#
+# Receivers have no integrations yet: alerts are grouped, inhibited and visible, nothing is sent.
+# To enable delivery, uncomment one block per receiver; secrets go to files, never into this file.
+global:
+  resolve_timeout: 5m
+
+templates:
+  - /etc/alertmanager/config/*.tmpl
+
+route:
+  receiver: chat
+  group_by: [alertname, namespace, application]
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+  routes:
+    # dead man's switch: always firing; an external service alarms when it stops arriving
+    - receiver: heartbeat
+      matchers: [alertname = "Watchdog"]
+      group_wait: 0s
+      group_interval: 1m
+      repeat_interval: 1m
+    - receiver: "null"
+      matchers: [alertname = "InfoInhibitor"]
+    - receiver: "null"
+      matchers: [severity = "info"]
+    - receiver: pager
+      matchers: [severity = "critical"]
+      continue: true
+    - receiver: chat
+      matchers: [severity =~ "critical|warning"]
+
+inhibit_rules:
+  # one notification per problem: the fast SLO tier (critical) hides the slow one (warning)
+  - source_matchers: [severity = "critical"]
+    target_matchers: [severity = "warning"]
+    equal: [alertname, namespace, application]
+  # kubernetes-mixin convention: info alerts are muted unless InfoInhibitor is absent
+  - source_matchers: [alertname = "InfoInhibitor"]
+    target_matchers: [severity = "info"]
+    equal: [namespace]
+
+receivers:
+  - name: "null"
+  - name: heartbeat
+    # webhook_configs:
+    #   - url_file: /etc/alertmanager/secrets/heartbeat_url   # e.g. healthchecks.io ping URL
+  - name: chat
+    # telegram_configs:
+    #   - bot_token_file: /etc/alertmanager/secrets/telegram_bot_token
+    #     chat_id: -1001234567890
+    #     parse_mode: HTML
+    #     message: '{{ template "blueprints.telegram" . }}'
+  - name: pager
+    # pagerduty_configs:
+    #   - routing_key_file: /etc/alertmanager/secrets/pagerduty_routing_key
+    #     description: '{{ template "blueprints.title" . }}'
+    #     links:
+    #       - href: '{{ template "blueprints.runbook" . }}'
+    #         text: runbook

@@ -80,7 +80,7 @@ In priority order. Each one is a scenario with a measurable response; the full t
 
 ## Start here: eight decisions
 
-All 33 records, with options, costs and "when to choose differently", are in [`docs/adr/`](docs/adr/README.md).
+All 34 records, with options, costs and "when to choose differently", are in [`docs/adr/`](docs/adr/README.md).
 
 | ADR | Why read it |
 |---|---|

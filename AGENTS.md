@@ -21,6 +21,7 @@ A decision is never changed silently: write or update the ADR first.
 | `Tiltfile` | dev loop in k3d: `spring_service('<name>')` per service |
 | `docs/architecture/` | architecture overview (arc42-lite): quality drivers QD1–QD7, C4 in Mermaid, scenarios, risks R1–R9 |
 | `docs/adr/` | architecture decision records (MADR): options, cost, when to choose differently |
+| `.github/` | CI (`ci.yml`), repository rules (`governance.yml`, `scripts/`, `rulesets/main.json`, ADR-0034), Dependabot |
 
 ## Commands
 All commands run from the service folder (`services/<name>`) unless stated otherwise.
@@ -34,6 +35,7 @@ All commands run from the service folder (`services/<name>`) unless stated other
 | The same plus the services in containers (from the root) | `./mvnw -DskipTests package` in each service, then `docker compose -f compose/compose.yaml --profile apps up -d --build` |
 | Kubernetes (from the root) | `make -C platform up`, then `tilt ci` (or `tilt up` with the UI) |
 | Check alerting (from the root, needs Docker) | `observability/check-alerting.sh` |
+| Apply the repository ruleset after editing `.github/rulesets/main.json` (owner, from the root) | `gh api -X PUT repos/{owner}/{repo}/rulesets/$(gh api repos/{owner}/{repo}/rulesets -q '.[]\|select(.name=="main").id') --input .github/rulesets/main.json` |
 
 Grafana: http://localhost:3000 (admin/admin), Alertmanager: http://localhost:9093. Service: http://localhost:8080, module map: `/actuator/modulith`.
 Keycloak: http://localhost:8180 (admin/admin). API calls need a token: `TOKEN=$(security/token.sh alice)`, `curl -H "Authorization: Bearer $TOKEN" …`.
@@ -111,6 +113,7 @@ Infrastructure versions (Postgres, Kafka, otel-lgtm) are pinned and equal in com
 4. If infrastructure or configuration changed: the service starts in compose (`--profile apps`), the `POST` scenario answers, and the trace and logs are visible in Grafana.
 5. The service README (structure, tests) is updated, and so are `docs/adr/` and `docs/architecture/` if a decision or a driver changed.
 6. The commit message is in English, one logical unit per commit.
+7. The change reaches `main` through a branch and a pull request: no direct push, rebase merge only, CI and the `adr-guard` and `pr-scope` checks green (ADR-0034).
 
 ## Never
 - Use another module's internal packages or its tables.
@@ -120,3 +123,5 @@ Infrastructure versions (Postgres, Kafka, otel-lgtm) are pinned and equal in com
 - Disable or skip tests (`-DskipTests` before a commit, `@Disabled`) to get a green build.
 - Open an endpoint without a permission (`permitAll`) except health and `/actuator/prometheus`; log tokens.
 - Write non-English text anywhere in the repository: code, comments, docs, commit messages.
+- Edit an `Accepted`, `Rejected` or `Superseded` ADR beyond its `Status` and `Implemented` lines: write a new ADR that supersedes it.
+- Change more than one `services/<name>/` in one pull request without the label `cross-cutting`.

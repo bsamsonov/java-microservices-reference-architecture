@@ -111,7 +111,9 @@ Infrastructure versions (Postgres, Kafka, otel-lgtm) are pinned and equal in com
 3. The tests from the table above exist.
 4. If infrastructure or configuration changed: the service starts in compose (`--profile apps`), the `POST` scenario answers, and the trace and logs are visible in Grafana.
 5. The service README (structure, tests) is updated, and so are `docs/adr/` and `docs/architecture/` if a decision or a driver changed.
-6. The commit message is in English, one logical unit per commit.
+6. The commit message is in English, one logical unit per commit, in [Conventional Commits](https://www.conventionalcommits.org/) form:
+   `<type>(<scope>): <subject>`, at most 72 characters; the scope is the service or area (`orders-service`, `charts`, `observability`, `adr`, `ci`).
+   CI (`commit-messages`, ADR-0036) checks every commit of a pull request.
 7. The change reaches `main` through a branch and a pull request: no direct push, rebase merge only, CI and the `adr-guard` and `pr-scope` checks green (ADR-0034).
 
 ## Never

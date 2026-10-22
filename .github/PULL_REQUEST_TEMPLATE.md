@@ -5,7 +5,7 @@
 <!-- tests added or changed; for infrastructure or configuration: compose with --profile apps, the POST scenario, trace and logs in Grafana -->
 
 ## Checklist
-- [ ] One logical unit per commit, messages in English
+- [ ] One logical unit per commit, messages in English, Conventional Commits (`type(scope): subject`)
 - [ ] `./mvnw verify` green in every changed service; tests from the table in `AGENTS.md`
 - [ ] Contracts first: `openapi.yaml`, event record, new migration, topic in `deploy/values.yaml`
 - [ ] One service per PR, or the label `cross-cutting` with a reason

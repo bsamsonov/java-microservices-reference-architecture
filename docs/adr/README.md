@@ -22,7 +22,7 @@ Eight records carry the story of the repository; the rest follow from them.
 | [0025](0025-ai-agent-as-a-participant.md) | Built to be extended by a developer working with an AI agent |
 
 ## Rules
-- Records are dated when written. ADR-0001 to ADR-0035 were written on 2026-10-22 for decisions taken while the templates were built;
+- Records are dated when written. ADR-0001 to ADR-0036 were written on 2026-10-22 for decisions taken while the templates were built;
   a record that replaces an earlier decision names its number D-n.
 - An ADR names a generation (Java 25, Spring Boot 4, Kafka 4), not a minor or patch version: exact versions live in `pom.xml`,
   `compose/compose.yaml` and `platform/`, and change without a new ADR. A move to a new generation is a new ADR or an update of the old one.
@@ -71,6 +71,7 @@ Eight records carry the story of the repository; the rest follow from them.
 | [0033](0033-lgtm-observability-backends.md) | Observability backends: Grafana LGTM (Loki, Grafana, Tempo, Prometheus) | Observability | Accepted | QD5, QD6, QD7 |  |
 | [0034](0034-repository-rules-as-code.md) | Repository rules as code: protected main, frozen ADRs, one service per pull request | Process | Accepted | QD2 |  |
 | [0035](0035-security-scanning-in-ci.md) | Security scanning in CI: gitleaks, CodeQL and dependency review | Process | Accepted | QD2, QD4 |  |
+| [0036](0036-conventional-commits.md) | Commit messages: Conventional Commits from 2026-10-22, checked in CI | Process | Accepted | QD1, QD2 |  |
 
 ## Notes
 - Schema registry: covered by [ADR-0005](0005-event-format-json-with-json-schema.md) as a deferred step.

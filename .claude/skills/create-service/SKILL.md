@@ -152,7 +152,8 @@ Kafka CLI: the `kafka-native` image has no scripts, so use
 ## 7. Documentation and commits
 - Rewrite `services/<svc>/README.md` following the reference: structure, tests with their count, how to run.
 - Add a row for the service to the "Repository map" table in `AGENTS.md`.
-- Commits in English, one logical unit each: `Add <svc>: <one phrase about the domain>`, then `Wire <svc> into compose, Tilt and platform`.
+- Commits in English, one logical unit each, Conventional Commits (ADR-0036): `feat(<svc>): add <svc>, <one phrase about the domain>`,
+  then `build(<svc>): wire <svc> into compose, Tilt and platform`.
 
 ## Report to the user
 Briefly: which domain assumptions were made, which endpoints and events appeared, the `verify` result (test count),

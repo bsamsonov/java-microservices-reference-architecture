@@ -1,4 +1,6 @@
 version: 2
+# Commit messages follow Conventional Commits (ADR-0036): build(deps): bump ...
+# Maven and Docker updates touch every service, so their PRs carry the label cross-cutting (pr-scope, ADR-0034).
 updates:
   - package-ecosystem: maven
     directories:
@@ -7,6 +9,8 @@ updates:
       - /services/catalog-service
     schedule:
       interval: weekly
+    commit-message: {prefix: build, include: scope}
+    labels: [dependencies, cross-cutting]
     groups:
       # first match wins: a Spring Boot minor stays in its own PR (AGENTS.md names the version)
       spring-boot-minor:
@@ -18,6 +22,7 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    commit-message: {prefix: ci, include: scope}
     groups:
       actions-minor-patch:
         update-types: [minor, patch]
@@ -28,6 +33,8 @@ updates:
       - /services/catalog-service
     schedule:
       interval: weekly
+    commit-message: {prefix: build, include: scope}
+    labels: [dependencies, cross-cutting]
     ignore:
       # the JDK is pinned to the LTS line (ADR-0008); a new major is a decision, not an update
       - dependency-name: eclipse-temurin

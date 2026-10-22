@@ -256,6 +256,40 @@ commit_all
 run pr-scope.sh
 expect "pr-scope: services in separate commits fail" 1
 
+# commit-msg: commit_all uses the message "change", so these cases commit by hand
+msg_case() { # msg_case <name> <exit code> <subject>
+  new_repo
+  echo "x" >> docs/guide.md
+  git commit -q -am "$3"
+  run commit-msg.sh
+  expect "$1" "$2"
+}
+msg_case "commit-msg: type and subject is ok" 0 "docs: explain the outbox"
+msg_case "commit-msg: type, scope and subject is ok" 0 "fix(orders-service): keep the Flyway history in public"
+msg_case "commit-msg: breaking change mark is ok" 0 "feat(catalog-service)!: drop the v1 endpoint"
+msg_case "commit-msg: git revert subject is ok" 0 'Revert "docs: explain the outbox"'
+msg_case "commit-msg: plain sentence fails" 1 "Add the outbox metric"
+msg_case "commit-msg: unknown type fails" 1 "feature: add the outbox metric"
+msg_case "commit-msg: upper-case scope fails" 1 "fix(Orders): keep the history"
+msg_case "commit-msg: missing space fails" 1 "fix:keep the history"
+msg_case "commit-msg: fixup fails" 1 "fixup! docs: explain the outbox"
+msg_case "commit-msg: 73 chars fail" 1 "docs: $(printf 'x%.0s' $(seq 1 67))"
+
+new_repo
+echo "x" >> docs/guide.md
+git commit -q -am "build(deps): bump the maven-minor-patch group across 3 directories with 5 updates" \
+  --author "dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>"
+run commit-msg.sh
+expect "commit-msg: long Dependabot subject is ok" 0
+
+new_repo
+echo "x" >> docs/guide.md
+git commit -q -am "docs: one good commit"
+echo "y" >> docs/guide.md
+git commit -q -am "Add a bad one"
+run commit-msg.sh
+expect "commit-msg: one bad commit among good ones fails" 1 "Add a bad one"
+
 echo
 echo "passed: $passed, failed: $failed"
 ((failed == 0))

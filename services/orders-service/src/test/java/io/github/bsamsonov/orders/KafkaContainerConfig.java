@@ -11,6 +11,7 @@ public class KafkaContainerConfig {
     @Bean
     @ServiceConnection
     KafkaContainer kafka() {
-        return new KafkaContainer("apache/kafka-native:4.3.1");
+        // JVM image, same version as compose: the GraalVM kafka-native image segfaults now and then on GitHub runners
+        return new KafkaContainer("apache/kafka:4.3.1");
     }
 }

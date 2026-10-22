@@ -17,6 +17,10 @@ spring:
     url: jdbc:postgresql://localhost:5432/orders
     username: orders
     password: orders
+  flyway:
+    # history in public, where the first run puts it: the user is named after the service, so once a migration creates
+    # that schema, "$user" in search_path would point a restart at a schema without history (FlywayRestartTest)
+    default-schema: public
   jpa:
     open-in-view: false
     hibernate:

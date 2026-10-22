@@ -11,6 +11,7 @@ public class PostgresContainerConfig {
     @Bean
     @ServiceConnection
     PostgreSQLContainer postgres() {
-        return new PostgreSQLContainer("postgres:18-alpine");
+        // user named after the service, as in compose and k3d (ADR-0007): it decides which schema "$user" in search_path finds
+        return new PostgreSQLContainer("postgres:18-alpine").withUsername("catalog");
     }
 }

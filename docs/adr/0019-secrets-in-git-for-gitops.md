@@ -1,6 +1,7 @@
 # ADR-0019: Secrets for GitOps: SOPS with age, decrypted for Argo CD
 
-- **Status:** Accepted (owner, 2026-10-22); not implemented yet, comes together with ADR-0018
+- **Status:** Accepted (owner, 2026-10-22)
+- **Implemented:** no, comes together with ADR-0018
 - **Date:** 2026-10-22
 - **Drivers:** QD4, QD6
 - **Risks:** part of R8 (secrets are not encrypted)

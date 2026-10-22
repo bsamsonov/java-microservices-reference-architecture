@@ -1,6 +1,7 @@
 # ADR-NNNN: <short title: the choice, not the problem>
 
 - **Status:** Proposed | Accepted | Deferred | Rejected | Superseded by ADR-NNNN
+- **Implemented:** optional: yes | partly: what is missing | no, when (the only line besides Status that changes after acceptance, ADR-0034)
 - **Date:** YYYY-MM-DD
 - **Drivers:** QD-x, QD-y (see [`docs/architecture/README.md`](../architecture/README.md#2-quality-drivers))
 - **Replaces:** ADR-NNNN or an earlier decision number D-n, if any

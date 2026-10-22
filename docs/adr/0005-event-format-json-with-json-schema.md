@@ -1,6 +1,7 @@
 # ADR-0005: Event format: JSON now, JSON Schema and AsyncAPI next; registry and binary formats deferred
 
-- **Status:** Accepted (JSON in force; JSON Schema and AsyncAPI planned)
+- **Status:** Accepted
+- **Implemented:** partly: JSON is in force; JSON Schema and AsyncAPI are planned
 - **Date:** 2026-10-22
 - **Drivers:** QD2, QD3
 

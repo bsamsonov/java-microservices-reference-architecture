@@ -8,7 +8,7 @@
 A runnable microservice platform and two service templates on Java 25 and Spring Boot 4.1, for architects and Java teams
 who want new services built quickly with an AI coding agent while the build enforces the architecture rules.
 
-Three services, Postgres, Kafka, Keycloak, OpenTelemetry, a shared dashboard, SLOs and alerts. The same jars and images run
+It has three services on Postgres, Kafka, Keycloak and OpenTelemetry, with a shared dashboard, SLOs and alerts. The same jars and images run
 on a laptop with Docker Compose and on Kubernetes with k3d and Helm ([ADR-0017](docs/adr/0017-two-run-modes-same-artifacts.md)).
 
 ```mermaid
@@ -70,13 +70,13 @@ In priority order. Each one is a scenario with a measurable response; the full t
 
 | ID | Driver | Evidence |
 |---|---|---|
-| QD1 | **Fast, AI-assisted service onboarding**: "create service X" gives a service that builds, passes the tests and shows up on the dashboard, alerts and SLOs with no edits to observability files | [`create-service`](.claude/skills/create-service/SKILL.md) built `notifications` and `catalog`; scaffolded copies of both templates pass `./mvnw verify`. The one-day target is not measured yet |
-| QD2 | **Architecture rules enforced by the build**, so AI speed stays safe | [`ModularityTest`](services/orders-service/src/test/java/io/github/bsamsonov/orders/ModularityTest.java), [`HexagonArchitectureTest`](services/orders-service/src/test/java/io/github/bsamsonov/orders/HexagonArchitectureTest.java), [`ModuleSchemaTest`](services/orders-service/src/test/java/io/github/bsamsonov/orders/ModuleSchemaTest.java), [`ArchitectureTest`](services/catalog-service/src/test/java/io/github/bsamsonov/catalog/ArchitectureTest.java); [ADR-0024](docs/adr/0024-architecture-rules-as-tests.md) |
-| QD3 | **No lost business events**: an accepted order's event reaches every consumer at least once, even if Kafka is down at that moment | [`OutboxRedeliveryIntegrationTest`](services/orders-service/src/test/java/io/github/bsamsonov/orders/OutboxRedeliveryIntegrationTest.java), [`NotificationsFlowIntegrationTest`](services/notifications-service/src/test/java/io/github/bsamsonov/notifications/NotificationsFlowIntegrationTest.java) (duplicate, DLT); [ADR-0003](docs/adr/0003-outbox-on-modulith-event-registry.md), [ADR-0004](docs/adr/0004-idempotent-consumers-retries-and-dlt.md) |
-| QD4 | **Secure baseline**: 401 without a token, 403 without the permission; in Kubernetes a service reaches only what it needs | 401/403 tests per endpoint, e.g. [`OrderControllerTest`](services/orders-service/src/test/java/io/github/bsamsonov/orders/order/adapter/in/web/OrderControllerTest.java); [`default-deny.yaml`](platform/manifests/apps/default-deny.yaml); [ADR-0023](docs/adr/0023-keycloak-resource-server-network-policy.md) |
-| QD5 | **Observable by default**: one trace from HTTP through the outbox and Kafka to the consumer, `trace_id` in every log line, an SLO alert on a user-visible failure | [screenshots below](#screenshots); alert rules unit-tested by [`check-alerting.sh`](observability/check-alerting.sh); [ADR-0020](docs/adr/0020-opentelemetry-through-spring-boot.md), [ADR-0022](docs/adr/0022-alerting-prometheus-rules-alertmanager-pyrra.md) |
-| QD6 | **One artifact, two run modes**: the same jar and image in Compose and Kubernetes, only environment variables differ | [`compose.yaml`](compose/compose.yaml) and [`deploy/values.yaml`](services/orders-service/deploy/values.yaml) of each service; [ADR-0017](docs/adr/0017-two-run-modes-same-artifacts.md) |
-| QD7 | **Runs on a developer laptop** | `make demo` on one machine; k3d on a single node, `make -C platform up` in about 8 minutes |
+| QD1 | Fast, AI-assisted service onboarding: "create service X" gives a service that builds, passes the tests and shows up on the dashboard, alerts and SLOs with no edits to observability files | [`create-service`](.claude/skills/create-service/SKILL.md) built `notifications` and `catalog`; scaffolded copies of both templates pass `./mvnw verify`. The one-day target is not measured yet |
+| QD2 | Architecture rules enforced by the build, so AI speed stays safe | [`ModularityTest`](services/orders-service/src/test/java/io/github/bsamsonov/orders/ModularityTest.java), [`HexagonArchitectureTest`](services/orders-service/src/test/java/io/github/bsamsonov/orders/HexagonArchitectureTest.java), [`ModuleSchemaTest`](services/orders-service/src/test/java/io/github/bsamsonov/orders/ModuleSchemaTest.java), [`ArchitectureTest`](services/catalog-service/src/test/java/io/github/bsamsonov/catalog/ArchitectureTest.java); [ADR-0024](docs/adr/0024-architecture-rules-as-tests.md) |
+| QD3 | No lost business events: an accepted order's event reaches every consumer at least once, even if Kafka is down at that moment | [`OutboxRedeliveryIntegrationTest`](services/orders-service/src/test/java/io/github/bsamsonov/orders/OutboxRedeliveryIntegrationTest.java), [`NotificationsFlowIntegrationTest`](services/notifications-service/src/test/java/io/github/bsamsonov/notifications/NotificationsFlowIntegrationTest.java) (duplicate, DLT); [ADR-0003](docs/adr/0003-outbox-on-modulith-event-registry.md), [ADR-0004](docs/adr/0004-idempotent-consumers-retries-and-dlt.md) |
+| QD4 | Secure baseline: 401 without a token, 403 without the permission; in Kubernetes a service reaches only what it needs | 401/403 tests per endpoint, e.g. [`OrderControllerTest`](services/orders-service/src/test/java/io/github/bsamsonov/orders/order/adapter/in/web/OrderControllerTest.java); [`default-deny.yaml`](platform/manifests/apps/default-deny.yaml); [ADR-0023](docs/adr/0023-keycloak-resource-server-network-policy.md) |
+| QD5 | Observable by default: one trace from HTTP through the outbox and Kafka to the consumer, `trace_id` in every log line, an SLO alert on a user-visible failure | [screenshots below](#screenshots); alert rules unit-tested by [`check-alerting.sh`](observability/check-alerting.sh); [ADR-0020](docs/adr/0020-opentelemetry-through-spring-boot.md), [ADR-0022](docs/adr/0022-alerting-prometheus-rules-alertmanager-pyrra.md) |
+| QD6 | One artifact, two run modes: the same jar and image in Compose and Kubernetes, only environment variables differ | [`compose.yaml`](compose/compose.yaml) and [`deploy/values.yaml`](services/orders-service/deploy/values.yaml) of each service; [ADR-0017](docs/adr/0017-two-run-modes-same-artifacts.md) |
+| QD7 | Runs on a developer laptop | `make demo` on one machine; k3d on a single node, `make -C platform up` in about 8 minutes |
 
 ## Start here: eight decisions
 
@@ -85,28 +85,28 @@ All 33 records, with options, costs and "when to choose differently", are in [`d
 | ADR | Why read it |
 |---|---|
 | [0001](docs/adr/0001-modulith-inside-each-microservice.md) | Service boundaries vs module boundaries: microservices with a modular monolith inside |
-| [0002](docs/adr/0002-integrate-services-through-events.md) | Services integrate through events, not synchronous calls |
+| [0002](docs/adr/0002-integrate-services-through-events.md) | Services integrate through domain events in Kafka |
 | [0003](docs/adr/0003-outbox-on-modulith-event-registry.md) | How an event survives a broker outage: the outbox |
 | [0005](docs/adr/0005-event-format-json-with-json-schema.md) | The event contract and how it evolves without breaking consumers |
 | [0007](docs/adr/0007-database-per-service-schema-per-module.md) | Who owns which data |
 | [0017](docs/adr/0017-two-run-modes-same-artifacts.md) | One artifact on a laptop and in Kubernetes |
-| [0024](docs/adr/0024-architecture-rules-as-tests.md) | Rules enforced by the build, not by review |
+| [0024](docs/adr/0024-architecture-rules-as-tests.md) | Architecture rules are tests that fail the build |
 | [0025](docs/adr/0025-ai-agent-as-a-participant.md) | Built to be extended by a developer working with an AI agent |
 
 ## Screenshots
 
 Taken in Compose mode after `make demo`: a few minutes of synthetic traffic, then Postgres stopped for about ten minutes under load, then started again.
 
-**The "Spring services" dashboard** ([ADR-0021](docs/adr/0021-dashboards-as-code.md)): one dashboard for every service, filtered by the `application` label.
-Traffic, the outage (5xx share at 100 %, p95 at the 30 s connection timeout, listener errors) and the recovery.
+The "Spring services" dashboard is shared by every service and filtered by the `application` label ([ADR-0021](docs/adr/0021-dashboards-as-code.md)).
+It shows the traffic, the outage (5xx share at 100 %, p95 at the 30 s connection timeout, listener errors) and the recovery.
 
 ![Spring services dashboard](docs/images/dashboard.png)
 
-**One trace through two services**: `POST /orders`, the outbox, `orders.events` in Kafka and the listener in `notifications-service`.
+One trace covers two services: `POST /orders`, the outbox, `orders.events` in Kafka and the listener in `notifications-service`.
 
 ![Trace of an order in Tempo](docs/images/trace.png)
 
-**An SLO alert** ([`http-availability.yaml`](observability/slo/http-availability.yaml)): the error ratio over 5 minutes and 1 hour crosses the fast-burn threshold,
+During the outage the error ratio of the availability SLO ([`http-availability.yaml`](observability/slo/http-availability.yaml)) over 5 minutes and 1 hour crosses the fast-burn threshold,
 and `HttpAvailabilityBudgetBurn` goes to the `pager` receiver; the cause alerts (DB pool, Kafka listener) go to `chat` ([`alertmanager.yaml`](observability/alertmanager/alertmanager.yaml)).
 
 ![SLO burn rate during the outage](docs/images/slo-burn-rate.png)
@@ -141,14 +141,13 @@ Ask an AI coding agent to "create service X", or follow the same steps by hand: 
 .claude/skills/create-service/scaffold.sh --from catalog products   # template 2 (catalog-service)
 ```
 
-Then the domain is replaced, the tests from the table in [`AGENTS.md`](AGENTS.md#tests-adr-0031-what-to-add-with-a-feature) are written,
-and the service is wired into Compose, Tilt and the platform. "Done" is defined in [`AGENTS.md`](AGENTS.md#done-when).
+Then the agent (or you) replaces the domain, writes the tests from the table in [`AGENTS.md`](AGENTS.md#tests-adr-0031-what-to-add-with-a-feature)
+and wires the service into Compose, Tilt and the platform. "Done" is defined in [`AGENTS.md`](AGENTS.md#done-when).
 
 ## How AI was used
 
 The architect set the goals and drivers, chose between options and reviewed the results; an AI coding agent researched options, wrote the code,
-tests and documents, and the build checked its work. Who decided what, which checks caught which mistakes, and the limits of this approach:
-[`docs/ai-workflow.md`](docs/ai-workflow.md).
+tests and documents, and the build checked its work. [`docs/ai-workflow.md`](docs/ai-workflow.md) shows who decided what, which checks caught the agent's mistakes, and where the approach falls short.
 
 ## Roadmap: what is deliberately not done
 

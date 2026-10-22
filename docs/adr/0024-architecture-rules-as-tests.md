@@ -19,12 +19,13 @@ Option 1. Checks in the repository:
 `OutboxRedeliveryIntegrationTest` for the delivery guarantee, `observability/check-alerting.sh` (`promtool`, `amtool`, `pint`, runbooks) and `.gitleaks.toml` for secrets.
 A failing architecture test is fixed in the code; a rule is never weakened for a feature (`AGENTS.md`).
 Decisions are ADRs in this folder (MADR, with "when to choose differently"); a decision changes through a new ADR.
-CI that runs all checks on every push is planned (roadmap B4).
+CI (`.github/workflows/ci.yml`) runs them on every push and pull request: `./mvnw verify` per service, the image build, `helm lint` and `kubeconform` for the chart,
+`observability/check-alerting.sh` and a check that the generated SLO rules are committed. `gitleaks` is not in CI yet; it runs by hand.
 
 ## Consequences
 - **Good:** the rules hold without a reviewer; an agent learns them from the failure message; reasons survive people leaving.
 - **Cost:** tests to maintain when the structure changes on purpose; some rules can be checked only in part (dynamic SQL across schemas, see ADR-0007) or not at all (business naming);
-  until CI exists the checks run only when someone runs them.
+  the secret scan runs only when someone runs it.
 
 ## When to choose differently
 - A large organisation with a central quality platform: run the same rules there, keep the tests close to the code anyway.

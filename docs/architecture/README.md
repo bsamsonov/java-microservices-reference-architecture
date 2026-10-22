@@ -2,7 +2,7 @@
 
 A lightweight [arc42](https://arc42.org/) description of the reference architecture: what it is for, which qualities drive it,
 how it is structured (C4 diagrams in Mermaid), how the main scenarios run, and what is knowingly missing.
-Decisions are recorded separately in [`docs/decisions.md`](../decisions.md); each one names the drivers below that it serves.
+Decisions are recorded separately as ADRs in [`docs/adr/`](../adr/README.md) (entries not yet migrated: [`docs/decisions.md`](../decisions.md)); each one names the drivers below that it serves.
 
 ## 1. Goals
 
@@ -259,7 +259,7 @@ and the cause alert `SpringDbPoolExhausted` (warning) goes to chat. Measured tim
 
 ## 9. Decisions
 
-Recorded in [`docs/decisions.md`](../decisions.md). Mapping to drivers:
+ADRs with their drivers are indexed in [`docs/adr/`](../adr/README.md). The entries below are the earlier list in [`docs/decisions.md`](../decisions.md), mapped to drivers:
 
 | Decision | Drivers |
 |---|---|
@@ -289,5 +289,5 @@ Known and accepted for now; each has a condition for fixing it.
 | R6 | Single replica, no PodDisruptionBudget or autoscaling; Kafka storage in k3d is ephemeral | not representative of production availability | out of scope for a laptop; chart options when needed |
 | R7 | Deployment to Kubernetes is driven from the laptop (Tilt); no CI yet | the "change in git reaches the cluster" path is not shown | CI with the architecture and alerting checks, then GitOps with Argo CD |
 | R8 | Security gaps listed in [`security/README.md`](../../security/README.md): no ownership checks, no service-to-service auth, no Kafka ACLs, secrets not encrypted | acceptable for one trusted local platform only | close per the conditions listed there |
-| R9 | The service image is built from a prebuilt jar | `docker build` from a clean clone needs a Maven build first | decide on the image build in an ADR (`grafana/otel-lgtm` is pinned to 0.37.0) |
+| R9 | The service image is built from a prebuilt jar | `docker build` from a clean clone needs a Maven build first | image build decided in [ADR-0013](../adr/0013-container-image-dockerfile.md) (cost accepted); `grafana/otel-lgtm` is pinned to 0.37.0 |
 | R10 | ~~Infrastructure versions differ between modes~~ **Closed.** Kafka 4.3.1, PostgreSQL 18 and `grafana/otel-lgtm` 0.37.0 are pinned and match in compose, Testcontainers and k3d (the CNPG `Cluster` pins `imageName`) | a bug can show up in one mode only | keep the versions in step: change all places together (rule in `AGENTS.md`) |

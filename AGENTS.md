@@ -2,7 +2,8 @@
 
 The repository holds Java service templates: Spring Boot 4.1, Spring Modulith 2.1, Java 25, Maven, Postgres, Kafka, OpenTelemetry, Helm/k3d and Docker Compose.
 The goal of the templates: on "create service X", assemble a service quickly from a sample. Only the business logic is discussed; the infrastructure comes from the template.
-Decisions D1–D11 and their rationale are in `docs/decisions.md`. A decision is never changed silently: update `docs/decisions.md` first.
+Decisions and their rationale are ADRs in `docs/adr/` (index and template there); entries not yet migrated are D1–D12 in `docs/decisions.md`.
+A decision is never changed silently: write or update the ADR first.
 
 ## Repository map
 | Path | What |
@@ -19,7 +20,8 @@ Decisions D1–D11 and their rationale are in `docs/decisions.md`. A decision is
 | `platform/` | Kubernetes mode: k3d, CloudNativePG, Strimzi, Keycloak, kube-prometheus-stack, Loki, Tempo, OTel Collector, NetworkPolicy |
 | `Tiltfile` | dev loop in k3d: `spring_service('<name>')` per service |
 | `docs/architecture/` | architecture overview (arc42-lite): quality drivers QD1–QD8, C4 in Mermaid, scenarios, risks R1–R9 |
-| `docs/decisions.md` | decisions (ADR-lite) |
+| `docs/adr/` | architecture decision records (MADR): options, cost, when to choose differently |
+| `docs/decisions.md` | earlier short decisions D1–D12, being migrated to `docs/adr/` |
 
 ## Commands
 All commands run from the service folder (`services/<name>`) unless stated otherwise.
@@ -107,7 +109,7 @@ Infrastructure versions (Postgres, Kafka, otel-lgtm) are pinned and equal in com
 2. Contracts are updated: `openapi.yaml`, the event, the migration, the topic in `deploy/values.yaml`.
 3. The tests from the table above exist.
 4. If infrastructure or configuration changed: the service starts in compose (`--profile apps`), the `POST` scenario answers, and the trace and logs are visible in Grafana.
-5. The service README (structure, tests) is updated, and so are `docs/decisions.md` and `docs/architecture/` if a decision or a driver changed.
+5. The service README (structure, tests) is updated, and so are `docs/adr/` and `docs/architecture/` if a decision or a driver changed.
 6. The commit message is in English, one logical unit per commit.
 
 ## Never

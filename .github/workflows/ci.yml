@@ -65,6 +65,7 @@ jobs:
       # CRDs (Strimzi KafkaTopic, Prometheus ServiceMonitor) have no schemas in the default catalog,
       # so -ignore-missing-schemas skips them; core kinds are still validated strictly.
       - name: Validate rendered manifests
+        shell: bash   # adds pipefail: a failing helm template must fail the step
         run: |
           for values in services/*/deploy/values.yaml; do
             helm template svc charts/spring-service -f "$values" \

@@ -25,11 +25,14 @@ The staleness monitor (`spring.modulith.events.staleness.*`) is off: in Modulith
 so after an outage longer than the threshold it marks resubmissions already in flight as failed and they are sent twice.
 Enable it when listeners can hang without the process dying.
 On a database created before the switch to `delete`, run `delete from event_publication where completion_date is not null` once.
+**Only services that publish events have the outbox.** A consumer-only service (`notifications-service`) and a CRUD service (`catalog-service`) have no
+`event_publication` table; the `create-service` skill removes it when a service publishes nothing, and brings it back when it starts publishing.
 
 ## Consequences
 - **Good:** no extra component or library; the outbox is part of the framework the services already use; an event published while Kafka is down arrives without a restart.
 - **Cost:** delivery is at least once, and a restart with several replicas republishes rows still in flight on other replicas (absorbed by ADR-0004).
-  No ordering guarantee per aggregate across retries. No metric or alert on the backlog yet (R1).
+  No ordering guarantee per aggregate across retries. No metric or alert on the backlog yet (R1); planned in template 1, so every publishing service gets it:
+  gauges for the number of unfinished publications and the age of the oldest one, and a `warning` alert when the oldest is older than a few minutes.
 
 ## When to choose differently
 - Ordering per aggregate or high throughput matters: a **dedicated outbox library** (option 2), at the cost of one more library and its tables.

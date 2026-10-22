@@ -17,7 +17,7 @@ At the same time the system must fit on a laptop (QD7) and run the same way in b
 ## Decision
 Option 1. Compose runs one Postgres and creates a database per service (`compose/postgres-init/<db>.sql`);
 k3d runs one CloudNativePG cluster and creates them with CNPG `Database` resources (`platform/manifests/databases/`).
-Inside a service each module has its own schema (`orders`, `audit`) and its own Flyway migrations (`V<n>__<module>_<what>.sql`).
+Inside a service each module has its own schema (`orders`, `audit`) and its own Flyway migrations (`V<n>__<schema>_<what>.sql`).
 Reading or writing another module's or another service's tables is forbidden (`AGENTS.md`).
 **Each service has its own database user** that owns its database and everything Flyway creates in it; CONNECT is revoked from PUBLIC,
 so no other user can open the database. Compose creates the user in `compose/postgres-init/<db>.sql`; k3d declares it as a CNPG managed role
@@ -28,8 +28,8 @@ Modules inside one service share the service's user: they share one transaction,
 - **Good:** one database server to run on a laptop; a module or a service can move to its own server by changing a URL; schemas make ownership visible.
 - **Cost:** the services share one server, so they share its failure, its resources and its version.
   A new service adds its user in two places in k3d (the `Database` file and the role in `postgres.yaml`).
-  Schemas of modules inside a service stay a convention for now: no test checks the SQL a module runs (a test is planned:
-  entity schema, migration prefix and schema names in SQL must match the module).
+  Schemas of modules inside a service are checked by `ModuleSchemaTest` (every `@Table` names a schema, a schema is used by one module only,
+  a migration touches only the schema in its name). It reads `@Table` and SQL string literals; unqualified or dynamically built SQL is not seen.
   Cross-service reports need events or a read model, not joins.
 
 ## When to choose differently

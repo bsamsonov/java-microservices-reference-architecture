@@ -15,7 +15,7 @@ A rule must fail the build with a message that says what to do instead (QD2). De
 
 ## Decision
 Option 1. Checks in the repository:
-`ModularityTest` (Spring Modulith `verify()`), `HexagonArchitectureTest` and `ArchitectureTest` (ArchUnit), 401 and 403 tests per access rule,
+`ModularityTest` (Spring Modulith `verify()`), `HexagonArchitectureTest` and `ArchitectureTest` (ArchUnit), `ModuleSchemaTest` (a schema per module), 401 and 403 tests per access rule,
 `OutboxRedeliveryIntegrationTest` for the delivery guarantee, `observability/check-alerting.sh` (`promtool`, `amtool`, `pint`, runbooks) and `.gitleaks.toml` for secrets.
 A failing architecture test is fixed in the code; a rule is never weakened for a feature (`AGENTS.md`).
 Decisions are ADRs in this folder (MADR, with "when to choose differently"); a decision changes through a new ADR.
@@ -23,7 +23,7 @@ CI that runs all checks on every push is planned (roadmap B4).
 
 ## Consequences
 - **Good:** the rules hold without a reviewer; an agent learns them from the failure message; reasons survive people leaving.
-- **Cost:** tests to maintain when the structure changes on purpose; some rules cannot be checked (business naming, SQL across schemas, see ADR-0007);
+- **Cost:** tests to maintain when the structure changes on purpose; some rules can be checked only in part (dynamic SQL across schemas, see ADR-0007) or not at all (business naming);
   until CI exists the checks run only when someone runs them.
 
 ## When to choose differently

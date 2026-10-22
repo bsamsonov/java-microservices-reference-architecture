@@ -102,7 +102,7 @@ How it works: `security/README.md`. Permissions are named `<schema>:read` and `<
 
 Every test class of the reference is rewritten for the new domain; the set of classes stays the same: aggregate unit test, `@WebMvcTest`,
 `@DataJpaTest`, `@ApplicationModuleTest` with `Scenario`, and `<Name>FlowIntegrationTest` (HTTP → database → audit → Kafka topic `<schema>.events`, empty outbox).
-`ModularityTest`, `HexagonArchitectureTest` and the Testcontainers configuration stay unchanged.
+`ModularityTest`, `HexagonArchitectureTest`, `ModuleSchemaTest` and the Testcontainers configuration stay unchanged.
 The CRUD variant has no domain unit test; the other tests remain.
 In the consumer variant the module publishes nothing, so `Scenario` is not needed: the module test calls the use case and checks the state.
 Outbound ports (the delivery channel) are replaced in the module test by a hand-written `@Primary` fake bean; mocks are not allowed there.

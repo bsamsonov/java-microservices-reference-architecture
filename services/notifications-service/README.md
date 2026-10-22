@@ -31,7 +31,7 @@ io.github.bsamsonov.notifications
 - **Observability:** `spring.kafka.listener.observation-enabled` continues the trace from the Kafka headers.
   One trace: `http post /orders` (orders-service) → `orders.events send` → `orders.events process` → `OrderEventsListener.on`.
 
-## Tests (ADR-0031): `./mvnw verify`, 25 tests, all green
+## Tests (ADR-0031): `./mvnw verify`, 28 tests, all green
 | Level | Class |
 |---|---|
 | Unit | `NotificationTest`: status transitions, finality |
@@ -39,7 +39,7 @@ io.github.bsamsonov.notifications
 | JPA slice | `JpaNotificationRepositoryTest`: mapping, ordering, database uniqueness of `source_event_id` |
 | Module | `NotificationModuleTest` (`@ApplicationModuleTest`): SENT, a repeat is skipped, channel failure → FAILED (fake channel, not a mock) |
 | Integration | `NotificationsFlowIntegrationTest`: records in `orders.events` → HTTP API; duplicate and unknown type; broken JSON, missing `customerId`, missing header → DLT |
-| Architecture | `ModularityTest`, `HexagonArchitectureTest` |
+| Architecture | `ModularityTest`, `HexagonArchitectureTest`, `ModuleSchemaTest` |
 
 ## Run
 - Tests: `./mvnw verify` (needs Docker).

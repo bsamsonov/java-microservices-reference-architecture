@@ -22,7 +22,7 @@ io.github.bsamsonov.orders
 - Observability: `/actuator/prometheus`, health probes, traces and logs over OTLP (`OpenTelemetryLoggingConfig`),
   trace context in Kafka headers; `/actuator/modulith` shows the module map.
 
-## Tests (ADR-0031): `./mvnw verify`, 23 tests, all green
+## Tests (ADR-0031): `./mvnw verify`, 26 tests, all green
 | Level | Class |
 |---|---|
 | Unit | `OrderTest` |
@@ -31,7 +31,7 @@ io.github.bsamsonov.orders
 | Module | `OrderModuleTest` (`@ApplicationModuleTest`, `Scenario`) |
 | Integration | `OrdersFlowIntegrationTest`: HTTP → database → audit → Kafka, 409 on a repeated cancel, empty outbox |
 | Integration | `OutboxRedeliveryIntegrationTest`: Kafka paused → order placed → publication `FAILED` → Kafka resumed → event in `orders.events`, outbox empty, no restart |
-| Architecture | `ModularityTest` (Modulith verify + docs in `target/spring-modulith-docs`), `HexagonArchitectureTest` (ArchUnit) |
+| Architecture | `ModularityTest` (Modulith verify + docs in `target/spring-modulith-docs`), `HexagonArchitectureTest` (ArchUnit), `ModuleSchemaTest` (a schema per module, migrations by schema) |
 
 `ModularityTest` was checked to fail when the `audit` module touches an internal class of `order`.
 

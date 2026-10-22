@@ -62,13 +62,14 @@ Rules. Tests enforce them: a violation fails `./mvnw verify`.
    - `application` does not know about `adapter`;
    - `adapter.in` does not touch `adapter.out`;
    - `@Entity` lives only in `adapter.out.persistence`, `@RestController` only in `adapter.in.web`.
-4. **Each module has its own database schema** (`orders`, `audit`, …). Other modules' tables are never read or written.
+4. **Each module has its own database schema** (`orders`, `audit`, …). Other modules' tables are never read or written (checked by `ModuleSchemaTest`:
+   every `@Table` names its schema, a schema is used by one module only, a migration touches only the schema in its name).
 5. **A CRUD module without business rules** may skip the separate domain model. This is the simplified variant of ADR-0030; it is marked in the module's `package-info.java`.
 
 ## Contracts: the file first, then the code
 - **HTTP.** Edit `src/main/resources/api/openapi.yaml` first. The `<Tag>Api` interface and DTOs with the `Dto` suffix are generated at build time into `target/generated-sources`. Generated code is never edited or committed. Errors are returned as `application/problem+json`.
 - **Events.** An event is a `record` in the module's root package and always has `UUID eventId` and `Instant occurredAt`. It goes to Kafka through `@Externalized("<module>.events::#{#this.<aggregateId>().toString()}")`: topic `<module>.events`, key = aggregate id. When an event is published to a topic for the first time, add the topic to `deploy/values.yaml` (`kafka.topics`).
-- **Migrations.** Flyway, files `src/main/resources/db/migration/V<n>__<module>_<what>.sql`. An applied migration is never changed; write a new one instead. `ddl-auto` stays `validate`.
+- **Migrations.** Flyway, files `src/main/resources/db/migration/V<n>__<schema>_<what>.sql` (the module's schema). An applied migration is never changed; write a new one instead. `ddl-auto` stays `validate`.
 - **Outbox (ADR-0003).** The `event_publication` table comes from Spring Modulith, its migration is `V3`. The event is written in the same transaction as the data and delivered after commit.
   A failed delivery stays in the table and `OutboxResubmission` resubmits it on a schedule; a delivered row is deleted (`completion-mode: delete`), so the table holds only the backlog.
 - **Idempotency.** Every event handler must survive redelivery. Usually a unique `event_id` and `on conflict do nothing`.
@@ -98,7 +99,7 @@ Rules. Tests enforce them: a violation fails `./mvnw verify`.
 | use case publishes an event | `@ApplicationModuleTest` and `Scenario` (`OrderModuleTest`) |
 | end-to-end scenario through HTTP, database, event and Kafka | `@SpringBootTest` and Testcontainers (`OrdersFlowIntegrationTest`) |
 | handler of other services' Kafka events (duplicate, DLT) | `@SpringBootTest` and Testcontainers (`NotificationsFlowIntegrationTest`) |
-| new module or package | nothing to write: `ModularityTest` and `HexagonArchitectureTest` pick it up |
+| new module or package | nothing to write: `ModularityTest`, `HexagonArchitectureTest` and `ModuleSchemaTest` pick it up |
 
 Test containers are configured in `TestcontainersConfiguration`, which imports `PostgresContainerConfig` (Postgres 18) and `KafkaContainerConfig` (Kafka 4.3). Mocks are allowed only in the web slice (`@MockitoBean` for the use case). Module and integration tests use a real database and Kafka.
 

@@ -1,8 +1,7 @@
 # How this repository was built with an AI coding agent
 
-This page covers goal 3 of the [architecture overview](architecture/README.md#1-goals): it shows how an architect delivers
-a platform like this one with an AI coding agent. The human makes and records the decisions, the agent implements them,
-and the build checks the rules. It describes what each side did, how the build catches the agent's mistakes, and what this approach does not solve.
+Goal 3 of the [architecture overview](architecture/README.md#1-goals) is to show how an architect delivers a platform like this one
+with an AI coding agent. The human makes and records the decisions, the agent implements them, and the build checks the rules.
 
 ## Who did what
 
@@ -35,16 +34,16 @@ an agent is likely to break has a test ([ADR-0024](adr/0024-architecture-rules-a
 
 Examples from this repository:
 
-- **A rule is proven by breaking it.** Each rule of `ModuleSchemaTest` was seen failing on an injected violation before the commit
-  (commit `71610e3`). A test that has never failed may check nothing.
-- **A failing test first.** The outbox fix started with `OutboxRedeliveryIntegrationTest`: Kafka paused, an order placed, Kafka resumed, the event
-  must arrive without a restart. The test was red until `OutboxResubmission` was written (commit `488ff62`, [ADR-0003](adr/0003-outbox-on-modulith-event-registry.md)).
-- **A gap in the checks becomes a check.** The first SLO alerts had no `summary`, so the notification had no text. The fix added `summary`
-  to the SLO files and a `pint` rule that requires it on every alert ([`.pint.hcl`](../observability/prometheus/.pint.hcl)).
-- **Found by a manual run, then pinned by a test.** In compose, a page size above the limit returned 500 instead of 400: the constraint on the
-  generated OpenAPI interface had no exception handler. Now `ProductExceptionHandler` maps it, and `pageSizeAboveLimitIsRejectedByContract` keeps it so.
-- **Found in a fault run, then pinned by a rule test.** A broken Kafka message did not fire the listener alert: the error counter is created
-  with the value 1, so `rate()` sees no growth on the first failure. The rule now also fires on a series that appeared in the last 10 minutes,
+- Each rule of `ModuleSchemaTest` was seen failing on an injected violation before the commit (commit `71610e3`),
+  because a test that has never failed may check nothing.
+- The outbox fix started with a red `OutboxRedeliveryIntegrationTest`: Kafka paused, an order placed, Kafka resumed, and the event
+  must arrive without a restart. It turned green once `OutboxResubmission` was written (commit `488ff62`, [ADR-0003](adr/0003-outbox-on-modulith-event-registry.md)).
+- The first SLO alerts had no `summary`, so the notification had no text. The fix added `summary` to the SLO files
+  and a `pint` rule that requires it on every alert ([`.pint.hcl`](../observability/prometheus/.pint.hcl)).
+- A manual run in compose showed that a page size above the limit returned 500 instead of 400: the constraint on the
+  generated OpenAPI interface had no exception handler. `ProductExceptionHandler` now maps it, and `pageSizeAboveLimitIsRejectedByContract` keeps it so.
+- In a fault run, a broken Kafka message did not fire the listener alert. The error counter is created with the value 1,
+  so `rate()` sees no growth on the first failure. The rule now also fires on a series that appeared in the last 10 minutes,
   and a `promtool` case with exactly that input keeps it so ([`spring-services.rules.yaml`](../observability/prometheus/rules/spring-services.rules.yaml)).
 
 ## AGENTS.md and the create-service skill
@@ -66,12 +65,13 @@ without edits, because they group by the `application` label ([ADR-0021](adr/002
 
 ## Limits
 
-- **QD1 is a target, not a measurement.** "From 'create service X' to a green build in both modes within one working day" has not been timed.
+- The QD1 target, "from 'create service X' to a green build in both modes within one working day", has not been timed.
   A comparison of several models on the same `create-service` task is planned.
-- **A rule without a test is only a request.** Logging rules (no personal data, business events at INFO) and the OpenAPI-first order are not checked by the build.
-- **Tests check structure, not design.** The build stops a module from reading another module's table. It does not tell whether the module boundary is in the right place. That stays with the architect.
-- **The agent's reports need checking.** "Verified" in the documents means a run whose output was read, and some checks were done once, on one laptop
+- Some rules have no test, and the build does not check them: the logging rules (no personal data, business events at INFO) and the OpenAPI-first order.
+  For an agent such a rule is only a request.
+- The build stops a module from reading another module's table. Whether the module boundary is in the right place is a design question, and it stays with the architect.
+- The agent's reports need checking. "Verified" in the documents means a run whose output was read, and some checks were done once, on one laptop
   (see the "Status" column of the [quality drivers](architecture/README.md#2-quality-drivers)).
-- **The ADRs were written after the fact.** ADR-0001 to ADR-0033 were written on one day for decisions taken while the templates were built
-  ([ADR index](adr/README.md#rules)). They record the reasoning, but they were not written before each decision.
-- **One tool's format.** The skill uses one agent tool's format. `AGENTS.md` is portable; the skill becomes a checklist in other tools.
+- ADR-0001 to ADR-0033 were written on one day for decisions taken while the templates were built ([ADR index](adr/README.md#rules)).
+  They record the reasoning after the fact.
+- The skill uses one agent tool's format. `AGENTS.md` is portable; in other tools the skill becomes a checklist.

@@ -5,7 +5,7 @@ The format is [MADR 4](https://adr.github.io/madr/) with two additions: the qual
 (QD1–QD7 in [`docs/architecture/README.md`](../architecture/README.md#2-quality-drivers)) and one or two links of evidence.
 New records start from [`template.md`](template.md).
 
-The earlier short list D1–D12 is mapped to ADRs in the column "Was" (and in [`docs/decisions.md`](../decisions.md), kept so old references resolve).
+The earlier short list D1–D12 (still named in some commit messages) is mapped to ADRs in the column "Was".
 
 ## Start here
 Eight records carry the story of the repository; the rest follow from them.
@@ -23,7 +23,7 @@ Eight records carry the story of the repository; the rest follow from them.
 
 ## Rules
 - Records are dated when written. ADR-0001 to ADR-0033 were written on 2026-10-22 for decisions taken while the templates were built;
-  the earlier short list is in [`docs/decisions.md`](../decisions.md).
+  each names the earlier decision number D-n it replaces.
 - An ADR names a generation (Java 25, Spring Boot 4, Kafka 4), not a minor or patch version: exact versions live in `pom.xml`,
   `compose/compose.yaml` and `platform/`, and change without a new ADR. A move to a new generation is a new ADR or an update of the old one.
 - A decision is never changed silently. To change it, write a new ADR and mark the old one "Superseded by ADR-NNNN"; do not rewrite history.

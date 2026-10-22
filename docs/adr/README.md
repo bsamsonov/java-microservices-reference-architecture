@@ -7,6 +7,20 @@ New records start from [`template.md`](template.md).
 
 The earlier short list D1–D12 is mapped to ADRs in the column "Was" (and in [`docs/decisions.md`](../decisions.md), kept so old references resolve).
 
+## Start here
+Eight records carry the story of the repository; the rest follow from them.
+
+| ADR | Why read it |
+|---|---|
+| [0001](0001-modulith-inside-each-microservice.md) | Service boundaries vs module boundaries: microservices with a modular monolith inside |
+| [0002](0002-integrate-services-through-events.md) | Services integrate through events, not synchronous calls |
+| [0003](0003-outbox-on-modulith-event-registry.md) | How an event survives a broker outage: the outbox |
+| [0005](0005-event-format-json-with-json-schema.md) | The event contract and how it evolves without breaking consumers |
+| [0007](0007-database-per-service-schema-per-module.md) | Who owns which data |
+| [0017](0017-two-run-modes-same-artifacts.md) | One artifact on a laptop and in Kubernetes |
+| [0024](0024-architecture-rules-as-tests.md) | Rules enforced by the build, not by review |
+| [0025](0025-ai-agent-as-a-participant.md) | Built to be extended by a developer working with an AI agent |
+
 ## Rules
 - Records are dated when written. ADR-0001 to ADR-0033 were written on 2026-10-22 for decisions taken while the templates were built;
   the earlier short list is in [`docs/decisions.md`](../decisions.md).

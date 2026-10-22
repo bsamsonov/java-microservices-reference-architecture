@@ -11,6 +11,11 @@ updates:
       interval: weekly
     commit-message: {prefix: build, include: scope}
     labels: [dependencies, cross-cutting]
+    ignore:
+      # the logback appender is not in the Spring Boot BOM: its minor follows the OpenTelemetry SDK Boot manages
+      # (pom.xml, otel-instrumentation.version), so it is raised by hand together with the Spring Boot update
+      - dependency-name: "io.opentelemetry.instrumentation:*"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
     groups:
       # first match wins: a Spring Boot minor stays in its own PR (AGENTS.md names the version)
       spring-boot-minor:

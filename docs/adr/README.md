@@ -53,7 +53,7 @@ Eight records carry the story of the repository; the rest follow from them.
 | [0015](0015-operators-for-postgres-and-kafka.md) | Postgres and Kafka in Kubernetes through operators (CloudNativePG, Strimzi) | Platform | Accepted | QD6, QD7 | D3 |
 | [0016](0016-k3d-and-tilt-for-local-kubernetes.md) | k3d and Tilt for local Kubernetes and the inner dev loop | Platform | Accepted | QD1, QD7 | D4 |
 | [0017](0017-two-run-modes-same-artifacts.md) | Two run modes, Docker Compose and Kubernetes, with the same artifacts and pinned versions | Platform | Accepted | QD6, QD7 |  |
-| [0018](0018-gitops-with-argo-cd.md) | GitOps delivery with Argo CD | Platform | Accepted (not implemented yet, roadmap B5) | QD6 |  |
+| [0018](0018-gitops-with-argo-cd.md) | GitOps delivery with Argo CD | Platform | Accepted (not implemented yet, see the [Roadmap](../../README.md#roadmap-what-is-deliberately-not-done)) | QD6 |  |
 | [0019](0019-secrets-in-git-for-gitops.md) | Secrets for GitOps: SOPS with age, decrypted for Argo CD | Platform | Accepted (not implemented yet, with ADR-0018) | QD4, QD6 |  |
 | [0020](0020-opentelemetry-through-spring-boot.md) | Telemetry through Spring Boot's OpenTelemetry support (Micrometer, OTLP), not the Java agent | Observability | Accepted | QD5, QD6 |  |
 | [0021](0021-dashboards-as-code.md) | Dashboards as code, one set for both modes, filtered by the application label | Observability | Accepted | QD1, QD5, QD6 | D9 |

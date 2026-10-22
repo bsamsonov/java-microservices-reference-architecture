@@ -20,8 +20,8 @@ Kubernetes runs it through the CloudNativePG operator; compose and tests run the
 
 ## Consequences
 - **Good:** the most used database among developers; first-class support in Spring Modulith, Flyway and Testcontainers; a mature Kubernetes operator.
-- **Cost:** the modes run different major versions today: 17 in compose and tests, 18.6 in k3d through the CNPG default image (risk R10).
-  The fix is one pinned version, PostgreSQL 18, in all three places. SQL written for PostgreSQL is not portable as-is.
+- **Cost:** the version must be pinned in three places (compose, Testcontainers, the CNPG `Cluster`); today all run PostgreSQL 18 (ADR-0017).
+  SQL written for PostgreSQL is not portable as-is.
 
 ## When to choose differently
 - The company runs and operates another engine (MySQL, Oracle, SQL Server): use it; the services depend on a few PostgreSQL features only.

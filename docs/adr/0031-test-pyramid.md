@@ -23,7 +23,7 @@ Deferred: mutation testing (PIT), starting with the domain module, in CI; contra
 
 ## Consequences
 - **Good:** each test proves one thing at the cheapest level that can prove it; the outbox and DLT behaviour is tested with a real broker.
-- **Cost:** `./mvnw verify` needs Docker and takes minutes, not seconds; Testcontainers versions must follow the platform (risk R10).
+- **Cost:** `./mvnw verify` needs Docker and takes minutes, not seconds; Testcontainers images must follow the platform versions (ADR-0017).
 
 ## When to choose differently
 - No Docker in CI: run the slices and module tests against a shared test database, accepting slower feedback and shared state.

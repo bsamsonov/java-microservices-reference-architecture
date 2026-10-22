@@ -24,7 +24,7 @@ Dead letters go to `<topic>.DLT` (ADR-0004). Compose runs `apache/kafka-native`;
 - **Good:** replay and retention for new consumers and for recovery; the most common event backbone in Java teams; first-class support
   in Spring for Apache Kafka and Spring Modulith externalization; a CNCF operator (Strimzi) for Kubernetes.
 - **Cost:** more resources and concepts (partitions, consumer groups, offsets) than a queue broker; partition count is a long-lived decision.
-  The modes run different versions today: 4.0.0 in compose and tests, 4.3.1 in k3d, client 4.2.1 from the Boot BOM (risk R10); the fix is one pinned 4.2.x or 4.3.x.
+  The broker is pinned to 4.3.1 in compose, Testcontainers and k3d (ADR-0017); the client comes from the Boot BOM (4.2.1), which Kafka's protocol compatibility covers.
 
 ## When to choose differently
 - Work queues, per-message routing, priorities and no need for replay: **RabbitMQ**.

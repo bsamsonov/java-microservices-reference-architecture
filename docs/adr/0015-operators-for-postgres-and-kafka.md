@@ -22,7 +22,7 @@ Both operators expose metrics to Prometheus (PodMonitor).
 ## Consequences
 - **Good:** day-2 operations (failover, upgrades, users, topics) are declarative; the same approach a production platform on Kubernetes would use; both are CNCF projects.
 - **Cost:** two operators and their CRDs to keep current (Strimzi 1.x dropped `v1beta2`); single instances and ephemeral Kafka storage in k3d (risk R6);
-  the CNPG image is not pinned, so k3d runs a different PostgreSQL major than compose (risk R10).
+  the CNPG default image follows the operator release, so the `Cluster` pins `imageName` to PostgreSQL 18.6 to match compose and tests (ADR-0017).
 
 ## When to choose differently
 - Production in a cloud: **managed Postgres and Kafka**; the services do not change, only the addresses and secrets.

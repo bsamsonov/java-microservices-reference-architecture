@@ -1,6 +1,6 @@
 # ADR-0017: Two run modes, Docker Compose and Kubernetes, with the same artifacts and pinned versions
 
-- **Status:** Accepted (version pinning not done yet, risk R10)
+- **Status:** Accepted
 - **Date:** 2026-10-22
 - **Drivers:** QD5, QD6
 
@@ -21,7 +21,8 @@ Rule: **infrastructure versions are pinned and equal in compose, Testcontainers 
 ## Consequences
 - **Good:** fast daily loop; the Kubernetes mode is real, not a slide; every observability file is tested in two environments.
 - **Cost:** two sets of infrastructure definitions to keep in step; differences between `otel-lgtm` and kube-prometheus-stack (OTLP push vs scraping)
-  must be absorbed by the service config. The pinning rule is not met yet: Kafka 4.0.0 vs 4.3.1, PostgreSQL 17 vs 18.6, `otel-lgtm:latest` (R10, R9).
+  must be absorbed by the service config. Every infrastructure upgrade touches compose, the Testcontainers configs and the cluster manifests together.
+  The rule was broken once (Kafka 4.0.0 vs 4.3.1, PostgreSQL 17 vs 18.6, `otel-lgtm:latest`; risk R10) and is now met: Kafka 4.3.1, PostgreSQL 18, `otel-lgtm` 0.37.0.
 
 ## When to choose differently
 - The team develops against a shared remote cluster: **Kubernetes only**, with Tilt or a remote dev environment.
@@ -29,4 +30,4 @@ Rule: **infrastructure versions are pinned and equal in compose, Testcontainers 
 
 ## Evidence
 - [`compose/compose.yaml`](../../compose/compose.yaml) and [`platform/README.md`](../../platform/README.md): the same scenario verified in both modes.
-- [Architecture overview, risk R10](../architecture/README.md#10-risks-and-technical-debt).
+- [Architecture overview, risk R10 (closed)](../architecture/README.md#10-risks-and-technical-debt); the rule is in `AGENTS.md`.

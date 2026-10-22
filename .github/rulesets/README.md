@@ -5,7 +5,7 @@ applied by the repository owner after a change.
 
 | File | Ruleset |
 |---|---|
-| `main.json` | Protects the default branch: no deletion or force push, linear history, pull request with resolved conversations, rebase merge only, required checks on a branch up to date with `main`: CI (`services (...)`, `platform`, `alerting`) and governance (`adr-guard`, `pr-scope`, `governance-scripts`). No bypass, the owner included. |
+| `main.json` | Protects the default branch: no deletion or force push, linear history, pull request with resolved conversations, rebase merge only, required checks on a branch up to date with `main`: CI (`services (...)`, `platform`, `alerting`) governance (`adr-guard`, `pr-scope`, `governance-scripts`) and security (`Secrets scan (gitleaks)`, `Analyze (java-kotlin)`); no new CodeQL high or critical alert or error. No bypass, the owner included. |
 
 ## Apply
 

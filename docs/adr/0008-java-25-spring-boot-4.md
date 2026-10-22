@@ -21,7 +21,8 @@ Base images are `eclipse-temurin:25-jre`.
 ## Consequences
 - **Good:** no forced major upgrade for years; Oracle Premier support for Java 25 runs to 09.2030; one consistent generation across Spring projects.
 - **Cost:** a new major means fewer answers online and some libraries arriving later.
-  AI agents were trained mostly on Boot 3 code and propose Boot 3 APIs and property names; the build and the tests catch this, `AGENTS.md` names the versions.
+  An AI agent may propose Boot 3 APIs and dependencies (`@MockBean` instead of `@MockitoBean`, `flyway-core` without `spring-boot-starter-flyway`,
+  Jackson 2 imports); the build and the tests catch this, and `AGENTS.md` names the versions.
 
 ## When to choose differently
 - The company platform, base images or app servers are on Java 21: **Java 21 LTS**, and the Boot version that platform supports.

@@ -21,8 +21,8 @@ A move to the DLT is logged at WARN.
 
 ## Consequences
 - **Good:** duplicates are harmless; a poison message stops nothing; the rule is simple enough for an AI agent to repeat in every new handler (QD8).
-- **Cost:** a unique key per consumer table; in-place retries hold the partition for a few seconds; nothing replays the DLT yet,
-  and there is no alert on DLT traffic.
+- **Cost:** a unique key per consumer table; in-place retries hold the partition for a few seconds; nothing replays the DLT yet.
+  A move to the DLT is visible only in the log for now; a `warning` alert on records published to a DLT is planned (counter in the recoverer, rule by `application`).
 
 ## When to choose differently
 - The side effect is a write to Kafka only (consume, transform, produce): **Kafka transactions** (option 2) give exactly-once inside Kafka.

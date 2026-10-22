@@ -60,4 +60,4 @@ Sent `POST /orders` (4 orders), then queried the Prometheus, Tempo and Loki APIs
 - Trace: a single Tempo trace contains `http post /orders` (SERVER) → `OrderController.placeOrder` → `AuditLogListener.on(OrderPlaced)` → `orders.events send` (PRODUCER),
   so the context survives the outbox all the way to Kafka.
 - Logs: the `Order placed: id=…` line reaches Loki with a `trace_id` label, and that `trace_id` leads to the same trace in Tempo.
-- Outbox: every row in `event_publication` got a `completion_date`. The `orders.events` topic is created automatically.
+- Outbox: every row in `event_publication` got a `completion_date` (since D12 a delivered row is deleted instead). The `orders.events` topic is created automatically.

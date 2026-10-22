@@ -67,7 +67,8 @@ Rules. Tests enforce them: a violation fails `./mvnw verify`.
 - **HTTP.** Edit `src/main/resources/api/openapi.yaml` first. The `<Tag>Api` interface and DTOs with the `Dto` suffix are generated at build time into `target/generated-sources`. Generated code is never edited or committed. Errors are returned as `application/problem+json`.
 - **Events.** An event is a `record` in the module's root package and always has `UUID eventId` and `Instant occurredAt`. It goes to Kafka through `@Externalized("<module>.events::#{#this.<aggregateId>().toString()}")`: topic `<module>.events`, key = aggregate id. When an event is published to a topic for the first time, add the topic to `deploy/values.yaml` (`kafka.topics`).
 - **Migrations.** Flyway, files `src/main/resources/db/migration/V<n>__<module>_<what>.sql`. An applied migration is never changed; write a new one instead. `ddl-auto` stays `validate`.
-- **Outbox.** The `event_publication` table comes from Spring Modulith, its migration is `V3`. The event is written in the same transaction as the data and delivered after commit.
+- **Outbox (D12).** The `event_publication` table comes from Spring Modulith, its migration is `V3`. The event is written in the same transaction as the data and delivered after commit.
+  A failed delivery stays in the table and `OutboxResubmission` resubmits it on a schedule; a delivered row is deleted (`completion-mode: delete`), so the table holds only the backlog.
 - **Idempotency.** Every event handler must survive redelivery. Usually a unique `event_id` and `on conflict do nothing`.
 - **Access (D11).** Every endpoint requires a permission `<service>:<action>`. A new endpoint means four edits (details in `security/README.md`):
   role and group in `security/keycloak/realm-blueprints.json`, a line in `SecurityConfig`, the permission and `401`/`403` responses in `openapi.yaml`, tests for 401 and 403.

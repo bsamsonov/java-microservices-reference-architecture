@@ -59,7 +59,7 @@ and otherwise `KubeControllerManagerDown`, `KubeSchedulerDown` and `KubeProxyDow
   After deleting a resource run `./mvnw clean …`: without `clean` the old file stays in `target/classes` and lands in the jar.
 - After `k3d cluster stop` / `start` the Kafka pod (`blueprints-dual-0`) appears only after about 5 minutes: the first Strimzi
   reconciliation waits for its timeout. Storage is ephemeral, so messages are lost; the topic operator recreates topics from KafkaTopic.
-  While the broker is down the outbox keeps events in `event_publication`; Modulith republishes them when the service restarts (`republish-outstanding-events-on-restart`).
+  While the broker is down the outbox keeps events in `event_publication`; `OutboxResubmission` resends them every 30 s once the broker is back, without a restart (D12).
 - Right after `tilt ci` the ingress may answer 502 while pods are replaced; it passes after a few seconds.
 - With the host disk 90 % full the kubelet evicted every pod (default threshold 10–15 %). `k3d/cluster.yaml`
   lowers the threshold to 2 GB free and keeps a single node. Keep at least 20 GB free for the cluster and the service images.

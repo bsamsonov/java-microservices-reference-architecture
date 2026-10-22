@@ -69,7 +69,7 @@ Sample: `services/notifications-service`. Differences from the reference:
   `spring.kafka.listener.observation-enabled: true` (the trace continues from the headers). A producer is needed only for the DLT,
   with the default (String) serializers; the reference's `ByteArraySerializer` is not needed.
 - **Publishes no events** → remove the outbox: `spring-modulith-starter-jdbc`, `spring-modulith-events-kafka`, `V3__event_publication.sql`,
-  the `spring.modulith.events` block; the `audit` module is not needed either. If the service starts publishing later, bring them back from the reference.
+  the `spring.modulith.events` and `outbox` blocks, `OutboxResubmission` and `OutboxRedeliveryIntegrationTest`; the `audit` module is not needed either. If the service starts publishing later, bring them back from the reference.
 - **`values.yaml`**: the source topic belongs to the producer; the consumer declares only `<topic>.DLT`.
 - If the producer's event lacks data (as `customerId` in `OrderCancelled` once did), add the field at the producer
   in a separate commit: adding a field is compatible. Old messages without the field go to the DLT, as expected.

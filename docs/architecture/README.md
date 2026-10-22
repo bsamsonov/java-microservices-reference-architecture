@@ -29,7 +29,7 @@ Ordered by priority. Each driver is stated as a scenario with a measurable respo
 | ID | Driver | Scenario (stimulus → response, measure) | Status |
 |---|---|---|---|
 | QD1 | **Fast, consistent service onboarding** | A developer or agent creates a service from a template → it builds, passes all tests and runs in both modes; it appears in the shared dashboard, alerts and SLOs **with no edits** to observability files. Target: one to two days for a service with real business logic | automated: scaffolded copies of both templates pass `./mvnw verify`; dashboards, rules and SLOs group by the `application` label |
-| QD2 | **No lost business events** | An order is accepted → its `OrderPlaced` event reaches every consumer at least once, even if Kafka is down at that moment; a duplicate delivery changes nothing; a poison message does not block the partition | partly: outbox and idempotency are tested; a broken message goes to the DLT (verified). An event published while Kafka is down waits for a service restart (risk R1) |
+| QD2 | **No lost business events** | An order is accepted → its `OrderPlaced` event reaches every consumer at least once, even if Kafka is down at that moment; a duplicate delivery changes nothing; a poison message does not block the partition | automated: `OutboxRedeliveryIntegrationTest` (Kafka paused → order → Kafka resumed → event delivered, no restart, D12); idempotency is tested; a broken message goes to the DLT (verified) |
 | QD3 | **Observable by default** | Any request can be followed across services: one trace from HTTP through the outbox and Kafka to the consumer; every log line carries `trace_id`. A user-visible failure fires an SLO alert. Measure: availability 99.5 % and 99 % of requests under 500 ms over 28 days; in the outage test the fast-burn alert reached Alertmanager in about 3.5 minutes | verified; alert rules are unit-tested (`promtool test`, `pint`) |
 | QD4 | **Architecture rules enforced by the build** | A change crosses a module boundary, puts JPA into the domain or a controller into persistence → `./mvnw verify` fails with a message that says what to do instead | automated: `ModularityTest`, `HexagonArchitectureTest`, `ArchitectureTest` |
 | QD5 | **One artifact, two run modes** | The same jar and image run in Docker Compose and in Kubernetes; only environment variables differ. The same dashboard, rule and SLO files serve both modes | verified |
@@ -273,6 +273,7 @@ Recorded in [`docs/decisions.md`](../decisions.md). Mapping to drivers:
 | D9 dashboards as code, one set for both modes | QD1, QD3, QD5 |
 | D10 Prometheus rules, Alertmanager, SLOs via Pyrra | QD3 |
 | D11 Keycloak, resource server in every service, NetworkPolicy | QD7 |
+| D12 outbox: scheduled resubmission, delete on completion | QD2 |
 
 ## 10. Risks and technical debt
 
@@ -280,7 +281,7 @@ Known and accepted for now; each has a condition for fixing it.
 
 | ID | Risk or debt | Impact | Plan |
 |---|---|---|---|
-| R1 | The outbox republishes incomplete events **only on restart**; `event_publication` is never cleaned up | an event published while Kafka is down waits for a restart (QD2); the table grows | periodic resubmission and a completion mode, with a test "Kafka down → order → Kafka up → event delivered" |
+| R1 | Outbox (after D12): with several replicas a restart republishes rows still in flight on other replicas; no metric or alert on the outbox backlog yet | duplicate deliveries (absorbed by idempotent consumers); a long outage is visible only through the Kafka send errors | backlog gauge (`event_publication` row count) and an alert, together with the broker outage experiment (B8) |
 | R2 | The event contract is implicit: the consumer resolves the type from the producer's Java class name (`__TypeId__`) | renaming a record or a consumer in another language breaks integration | explicit type header (CloudEvents) and JSON Schema / AsyncAPI, checked in producer tests |
 | R3 | Services are copies of a template with no upgrade path; versions live in each `pom.xml` | ten services drift to ten stacks | parent POM / BOM and one internal starter |
 | R4 | No variant for a synchronous call to another service | the template covers only event-driven integration | `RestClient` / HTTP interface with timeouts, retry, circuit breaker and a contract test |

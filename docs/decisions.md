@@ -16,6 +16,7 @@ reference projects (among them the eazybytes microservices course and the HMCTS 
 | D9 | Dashboards | **JSON in `observability/grafana/dashboards/`**, one set for compose and k3d | a new service appears on the dashboard without edits |
 | D10 | Alerting | **Prometheus rules + Alertmanager**, SLOs through Pyrra (`pyrra generate`) | short rules, `promtool test` and `pint`, independent of Grafana |
 | D11 | Security | **Keycloak (OIDC) + every service is an OAuth2 Resource Server**, permissions in the `permissions` claim, NetworkPolicy in Kubernetes | the standard Spring stack; a service's access policy fits in one method; no gateway, no mesh |
+| D12 | Outbox delivery | **Spring Modulith event publication registry** + scheduled resubmission of failed publications + `completion-mode: delete` | an event published while Kafka is down arrives without a restart; the table holds only the backlog; no extra outbox library |
 
 To revoke a decision, do not delete its row: mark it "revoked (date, reason)".
 
@@ -112,3 +113,24 @@ C (the full set: service-to-service authentication, gateway, Kafka ACLs, Vault, 
   validating tokens in a gateway instead of the services creates a single point of failure and trusts the internal network.
 - **Not included (level C, later or as a separate project):** service-to-service authentication and mTLS, API gateway, Kafka SASL/ACL,
   resource ownership checks, encrypted secrets in git (SOPS + age, together with GitOps), Vault, image signing. The list with revisit conditions is in `security/README.md`.
+
+### D12. Outbox delivery: Modulith registry, scheduled resubmission, delete on completion
+Problem (template review, risk R1): with only `republish-outstanding-events-on-restart` an event whose Kafka send failed
+stayed in `event_publication` until the pod restarted, and completed rows were never removed.
+- **Failed publications are resubmitted on a schedule.** `OutboxResubmission` (root package of template 1) calls
+  `FailedEventPublications.resubmit(…)` every `outbox.resubmission.interval` (30 s) for publications older than `outbox.resubmission.min-age` (10 s).
+  The registry claims a row with a conditional update (`FAILED` → `RESUBMITTED`), so several replicas do not resubmit the same row twice.
+  Failed in-process listeners (the audit module) are retried the same way. There is no attempt limit: a broker outage must not drop events.
+- **Completed publications are deleted** (`spring.modulith.events.completion-mode: delete`): the table holds only the backlog, and its size is the outbox lag.
+  Rows completed before the switch stay (the registry deletes only on completion): on an existing database run `delete from event_publication where completion_date is not null` once.
+- **A crash in the middle of a publication** (row stuck in `PUBLISHED` or `PROCESSING`) is still covered by `republish-outstanding-events-on-restart`:
+  in Kubernetes a crashed pod restarts. With several replicas a restart also republishes rows in flight on other replicas; consumers are idempotent (`eventId`), so this costs duplicates, not errors.
+- **The staleness monitor (`spring.modulith.events.staleness.*`) is not enabled.** In Modulith 2.1 it ages every status by the publication date,
+  so after an outage longer than the threshold it marks resubmissions that are already in flight as failed, and they are sent twice;
+  it also logs three INFO lines per check. Enable it when listeners can hang without the process dying.
+- **Checked by** `OutboxRedeliveryIntegrationTest`: the broker is paused, an order is placed, the publication becomes `FAILED`,
+  the broker is resumed, the event reaches `orders.events` and the table is empty, with no restart.
+- **Alternatives.** Externalization mode `outbox` with the Namastack or JobRunr starter (a real outbox processor with its own polling,
+  ordering and retries; relational databases only for Namastack): choose it when ordering per aggregate or high throughput matters,
+  at the cost of one more library and its tables. Debezium CDC on the outbox table: no polling in the service and the lowest latency,
+  but Kafka Connect becomes part of the platform. Both are overkill for a reference service with idempotent consumers.

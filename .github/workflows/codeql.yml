@@ -1,0 +1,34 @@
+name: CodeQL
+
+# Static security analysis of the Java code (ADR-0035). The ruleset blocks a merge that adds a high or critical alert.
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  schedule:
+    - cron: "17 3 * * 1"   # weekly, catches new queries on unchanged code
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    name: Analyze (java-kotlin)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      security-events: write
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v7
+      # build-mode none: no Maven build, so generated OpenAPI code is not analysed
+      - uses: github/codeql-action/init@v4
+        with:
+          languages: java-kotlin
+          build-mode: none
+          queries: security-and-quality
+      - uses: github/codeql-action/analyze@v4
+        with:
+          category: "/language:java-kotlin"

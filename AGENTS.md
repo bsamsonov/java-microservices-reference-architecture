@@ -21,7 +21,7 @@ A decision is never changed silently: write or update the ADR first.
 | `Tiltfile` | dev loop in k3d: `spring_service('<name>')` per service |
 | `docs/architecture/` | architecture overview (arc42-lite): quality drivers QD1–QD7, C4 in Mermaid, scenarios, risks R1–R9 |
 | `docs/adr/` | architecture decision records (MADR): options, cost, when to choose differently |
-| `.github/` | CI (`ci.yml`), repository rules (`governance.yml`, `scripts/`, `rulesets/main.json`, ADR-0034), Dependabot |
+| `.github/` | CI (`ci.yml`: tests, images, chart, alerting, gitleaks, dependency review; `codeql.yml`, ADR-0035), repository rules (`governance.yml`, `scripts/`, `rulesets/main.json`, ADR-0034), Dependabot |
 
 ## Commands
 All commands run from the service folder (`services/<name>`) unless stated otherwise.

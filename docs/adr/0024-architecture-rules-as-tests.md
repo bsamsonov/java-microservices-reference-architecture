@@ -3,6 +3,7 @@
 - **Status:** Accepted
 - **Date:** 2026-10-22
 - **Drivers:** QD2
+- **Amended by:** ADR-0035, secret scan and CodeQL run in CI
 
 ## Context and drivers
 Rules that live only in a document are broken first by whoever did not read it, and an AI agent produces code faster than a reviewer reads it (QD2).

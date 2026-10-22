@@ -79,3 +79,6 @@ jobs:
       - uses: actions/checkout@v7
       # The script runs pyrra, promtool, amtool and pint in pinned containers
       - run: observability/check-alerting.sh
+      # The script regenerates the SLO rules; committed copies must match
+      - name: Generated rules are up to date
+        run: git diff --exit-code -- observability/prometheus/generated/

@@ -23,3 +23,9 @@ The earlier short list D1–D12 lives in [`docs/decisions.md`](../decisions.md) 
 | [0005](0005-event-format-json-with-json-schema.md) | Event format: JSON now, JSON Schema and AsyncAPI next; registry and binary formats deferred | System | Accepted (partly planned) | QD2, QD8 | |
 | [0006](0006-api-first-openapi.md) | API-first: OpenAPI file, generated interfaces | System | Accepted | QD1, QD4, QD8 | |
 | [0007](0007-database-per-service-schema-per-module.md) | A database per service and a schema per module | System | Accepted | QD4, QD5, QD6 | |
+| [0008](0008-java-25-spring-boot-4.md) | Java 25 and Spring Boot 4.1 | Stack | Accepted | QD1, QD8 | |
+| [0009](0009-postgresql.md) | PostgreSQL as the database for every service | Stack | Accepted | QD5, QD6 | |
+| [0010](0010-kafka-as-event-broker.md) | Apache Kafka as the event broker | Stack | Accepted | QD2, QD5, QD6 | D3 (in part) |
+| [0011](0011-flyway-migrations.md) | Flyway SQL migrations, forward only | Stack | Accepted | QD1, QD4, QD8 | |
+| [0012](0012-maven-build.md) | Maven with the wrapper as the build tool | Stack | Accepted | QD1, QD8 | D5 |
+| [0013](0013-container-image-dockerfile.md) | Container image from a layered Dockerfile over a prebuilt jar | Stack | Accepted | QD5, QD6 | |

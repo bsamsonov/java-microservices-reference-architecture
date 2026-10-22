@@ -1,6 +1,6 @@
 # Architecture decision records
 
-Each record states one choice, the options that were considered, what it costs and, most importantly, **when to choose differently**.
+Each record states one choice, the options that were considered, what it costs and when to choose differently.
 The format is [MADR 4](https://adr.github.io/madr/) with two additions: the quality drivers it serves
 (QD1–QD7 in [`docs/architecture/README.md`](../architecture/README.md#2-quality-drivers)) and one or two links of evidence.
 New records start from [`template.md`](template.md).
@@ -13,17 +13,17 @@ Eight records carry the story of the repository; the rest follow from them.
 | ADR | Why read it |
 |---|---|
 | [0001](0001-modulith-inside-each-microservice.md) | Service boundaries vs module boundaries: microservices with a modular monolith inside |
-| [0002](0002-integrate-services-through-events.md) | Services integrate through events, not synchronous calls |
+| [0002](0002-integrate-services-through-events.md) | Services integrate through domain events in Kafka |
 | [0003](0003-outbox-on-modulith-event-registry.md) | How an event survives a broker outage: the outbox |
 | [0005](0005-event-format-json-with-json-schema.md) | The event contract and how it evolves without breaking consumers |
 | [0007](0007-database-per-service-schema-per-module.md) | Who owns which data |
 | [0017](0017-two-run-modes-same-artifacts.md) | One artifact on a laptop and in Kubernetes |
-| [0024](0024-architecture-rules-as-tests.md) | Rules enforced by the build, not by review |
+| [0024](0024-architecture-rules-as-tests.md) | Architecture rules are tests that fail the build |
 | [0025](0025-ai-agent-as-a-participant.md) | Built to be extended by a developer working with an AI agent |
 
 ## Rules
 - Records are dated when written. ADR-0001 to ADR-0033 were written on 2026-10-22 for decisions taken while the templates were built;
-  each names the earlier decision number D-n it replaces.
+  a record that replaces an earlier decision names its number D-n.
 - An ADR names a generation (Java 25, Spring Boot 4, Kafka 4), not a minor or patch version: exact versions live in `pom.xml`,
   `compose/compose.yaml` and `platform/`, and change without a new ADR. A move to a new generation is a new ADR or an update of the old one.
 - A decision is never changed silently. To change it, write a new ADR and mark the old one "Superseded by ADR-NNNN"; do not rewrite history.

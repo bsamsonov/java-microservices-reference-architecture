@@ -154,9 +154,9 @@ Both modes run the same images; addresses come from environment variables (QD5).
 | | Docker Compose (`compose/`) | Kubernetes (`platform/`, k3d) |
 |---|---|---|
 | Purpose | daily development and demos | showing the platform: operators, Helm, NetworkPolicy |
-| Postgres | one `postgres:17` container, a database per service from init scripts | CloudNativePG cluster `pg`, a `Database` resource per service |
-| Kafka | `apache/kafka-native` single node | Strimzi, KRaft, `KafkaTopic` from each service's values |
-| Observability | `grafana/otel-lgtm` (all-in-one) + Alertmanager container; services push metrics over OTLP | kube-prometheus-stack, Loki, Tempo, OTel Collector; Prometheus scrapes `/actuator/prometheus` |
+| Postgres | one `postgres:18` container, a database per service from init scripts | CloudNativePG cluster `pg`, a `Database` resource per service |
+| Kafka | `apache/kafka-native:4.3.1` single node | Strimzi, KRaft, `KafkaTopic` from each service's values |
+| Observability | `grafana/otel-lgtm:0.37.0` (all-in-one) + Alertmanager container; services push metrics over OTLP | kube-prometheus-stack, Loki, Tempo, OTel Collector; Prometheus scrapes `/actuator/prometheus` |
 | Identity | Keycloak container | Keycloak in `infra` |
 | Services | profile `apps`, ports 8080–8082 | shared Helm chart `charts/spring-service`, Tilt, ingress `*.localhost:8080` |
 | Network | one Docker network | namespace `apps` is default-deny; each service may reach `infra`, the collector and DNS |
@@ -289,5 +289,5 @@ Known and accepted for now; each has a condition for fixing it.
 | R6 | Single replica, no PodDisruptionBudget or autoscaling; Kafka storage in k3d is ephemeral | not representative of production availability | out of scope for a laptop; chart options when needed |
 | R7 | Deployment to Kubernetes is driven from the laptop (Tilt); no CI yet | the "change in git reaches the cluster" path is not shown | CI with the architecture and alerting checks, then GitOps with Argo CD |
 | R8 | Security gaps listed in [`security/README.md`](../../security/README.md): no ownership checks, no service-to-service auth, no Kafka ACLs, secrets not encrypted | acceptable for one trusted local platform only | close per the conditions listed there |
-| R9 | The service image is built from a prebuilt jar; `grafana/otel-lgtm` is not pinned | `docker build` from a clean clone needs a Maven build first; compose may change under you | decide on the image build in an ADR; pin the image |
-| R10 | Infrastructure versions differ between modes: Kafka 4.0 in compose and tests but 4.3 in k3d; PostgreSQL 17 in compose and tests but 18 in k3d (CNPG default image, not pinned) | a bug can show up in one mode only; QD5 holds for the service artifact, not for the infrastructure | pin one version per component for compose, Testcontainers and the cluster |
+| R9 | The service image is built from a prebuilt jar | `docker build` from a clean clone needs a Maven build first | decide on the image build in an ADR (`grafana/otel-lgtm` is pinned to 0.37.0) |
+| R10 | ~~Infrastructure versions differ between modes~~ **Closed.** Kafka 4.3.1, PostgreSQL 18 and `grafana/otel-lgtm` 0.37.0 are pinned and match in compose, Testcontainers and k3d (the CNPG `Cluster` pins `imageName`) | a bug can show up in one mode only | keep the versions in step: change all places together (rule in `AGENTS.md`) |

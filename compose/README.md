@@ -5,8 +5,8 @@ The Kubernetes mode lives in `../platform/` (k3d + Helm). Services do not know w
 
 | Component | Address from the host | Address from containers |
 |---|---|---|
-| Postgres 17 (db/user/pass `orders`/`app`/`app`) | `localhost:5432` | `postgres:5432` |
-| Kafka 4.0 (KRaft, single node) | `localhost:9092` | `kafka:19092` |
+| Postgres 18 (db/user/pass `orders`/`app`/`app`) | `localhost:5432` | `postgres:5432` |
+| Kafka 4.3 (KRaft, single node) | `localhost:9092` | `kafka:19092` |
 | Grafana (admin/admin) | http://localhost:3000 | |
 | OTLP gRPC / HTTP | `localhost:4317` / `localhost:4318` | `lgtm:4317` / `lgtm:4318` |
 | Prometheus (rules and alerts: `/alerts`) | http://localhost:9090 | |
@@ -40,7 +40,7 @@ Dashboards. The "Spring services" dashboard from `../observability/grafana/` is 
 Alerts (D10). otel-lgtm gets its own copy of the Prometheus config, `alerting/prometheus.yaml`: the image config plus `rule_files` and the Alertmanager address.
 Rules come from `../observability/prometheus/`; `alerting/watchdog.rules.yaml` exists only in compose (in k3d Watchdog ships with kube-prometheus-stack).
 Alertmanager is a separate container configured from `../observability/alertmanager/`; Grafana uses it as a data source (`alerting/grafana-alertmanager-datasource.yaml`).
-When the `otel-lgtm` image is upgraded, compare the copy with the original: `docker run --rm --entrypoint cat grafana/otel-lgtm /otel-lgtm/prometheus.yaml`.
+When the `otel-lgtm` image is upgraded, compare the copy with the original: `docker run --rm --entrypoint cat grafana/otel-lgtm:0.37.0 /otel-lgtm/prometheus.yaml`.
 After editing the files: `docker compose -f compose/compose.yaml restart lgtm alertmanager`. Details in `../observability/README.md` and `../docs/alerting.md`.
 
 ## Verified: security (D11)

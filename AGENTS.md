@@ -98,7 +98,9 @@ Rules. Tests enforce them: a violation fails `./mvnw verify`.
 | handler of other services' Kafka events (duplicate, DLT) | `@SpringBootTest` and Testcontainers (`NotificationsFlowIntegrationTest`) |
 | new module or package | nothing to write: `ModularityTest` and `HexagonArchitectureTest` pick it up |
 
-Test containers are configured in `TestcontainersConfiguration`, which imports `PostgresContainerConfig` (Postgres 17) and `KafkaContainerConfig` (Kafka 4.0). Mocks are allowed only in the web slice (`@MockitoBean` for the use case). Module and integration tests use a real database and Kafka.
+Test containers are configured in `TestcontainersConfiguration`, which imports `PostgresContainerConfig` (Postgres 18) and `KafkaContainerConfig` (Kafka 4.3). Mocks are allowed only in the web slice (`@MockitoBean` for the use case). Module and integration tests use a real database and Kafka.
+
+Infrastructure versions (Postgres, Kafka, otel-lgtm) are pinned and equal in compose, Testcontainers and the cluster manifests: change all places together, never use `latest`.
 
 ## Done when
 1. `./mvnw verify` is green. A failing architecture test is fixed in the code; a rule is never weakened for a feature.

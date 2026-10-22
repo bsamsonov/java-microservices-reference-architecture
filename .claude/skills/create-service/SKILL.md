@@ -147,7 +147,7 @@ and Loki has the business log line with its `trace_id`.
 Queries without the UI: Loki and Tempo are reachable through the Grafana proxy, `curl -u admin:admin localhost:3000/api/datasources/proxy/uid/{loki|tempo}/…`
 (for example `/api/traces/<trace_id>` in Tempo). For a consumer, check that the trace has spans of both services (`… send` → `… process`).
 Kafka CLI: the `kafka-native` image has no scripts, so use
-`docker run --rm --network blueprints_default apache/kafka:4.0.0 /opt/kafka/bin/kafka-console-consumer.sh --bootstrap-server kafka:19092 …`. Deploy to k3d (`make -C platform up`, `tilt ci`) only when the user asks.
+`docker run --rm --network blueprints_default apache/kafka:4.3.1 /opt/kafka/bin/kafka-console-consumer.sh --bootstrap-server kafka:19092 …`. Deploy to k3d (`make -C platform up`, `tilt ci`) only when the user asks.
 
 ## 7. Documentation and commits
 - Rewrite `services/<svc>/README.md` following the reference: structure, tests with their count, how to run.

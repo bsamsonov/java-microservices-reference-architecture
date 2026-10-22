@@ -27,7 +27,8 @@ Eight records carry the story of the repository; the rest follow from them.
 - An ADR names a generation (Java 25, Spring Boot 4, Kafka 4), not a minor or patch version: exact versions live in `pom.xml`,
   `compose/compose.yaml` and `platform/`, and change without a new ADR. A move to a new generation is a new ADR or an update of the old one.
 - A decision is never changed silently. To change it, write a new ADR and mark the old one "Superseded by ADR-NNNN"; do not rewrite history.
-- An `Accepted`, `Rejected` or `Superseded` ADR is frozen: a pull request may change only its `Status` and `Implemented` lines.
+- An `Accepted`, `Rejected` or `Superseded` ADR is frozen: a pull request may change only its `Status` and `Implemented` lines and add `Amended by` lines.
+  A partial change is a new ADR that `Amends` the old one; a full change `Supersedes` it.
   CI (`adr-guard`, [ADR-0034](0034-repository-rules-as-code.md)) fails on any other edit; the label `adr-amend` lets a typo or link fix through.
 - A rule that can be checked is checked by a test or a script, and the ADR links to it.
 

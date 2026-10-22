@@ -136,6 +136,19 @@ run adr-guard.sh
 expect "adr-guard: Implemented change plus body edit fails" 1 "0006-implemented.md"
 
 new_repo
+sed -i '/^- \*\*Date:/a - **Amended by:** ADR-0099, the Java version' docs/adr/0001-accepted.md
+commit_all
+run adr-guard.sh
+expect "adr-guard: add Amended by line to Accepted is ok" 0
+
+new_repo
+sed -i '/^- \*\*Date:/a - **Amended by:** ADR-0099' docs/adr/0001-accepted.md
+echo "more" >> docs/adr/0001-accepted.md
+commit_all
+run adr-guard.sh
+expect "adr-guard: Amended by plus body edit fails" 1 "amends it"
+
+new_repo
 git rm -q docs/adr/0001-accepted.md
 commit_all
 run adr-guard.sh

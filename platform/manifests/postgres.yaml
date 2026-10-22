@@ -6,6 +6,7 @@ metadata:
   name: pg
   namespace: infra
 spec:
+  imageName: ghcr.io/cloudnative-pg/postgresql:18.6-system-trixie   # pinned: same as the compose and test Postgres major
   instances: 1
   storage: {size: 2Gi}
   bootstrap:

@@ -34,7 +34,7 @@ The earlier short list D1–D12 is mapped to ADRs in the column "Was" (and in [`
 | [0016](0016-k3d-and-tilt-for-local-kubernetes.md) | k3d and Tilt for local Kubernetes and the inner dev loop | Platform | Accepted | QD6, QD1 | D4 |
 | [0017](0017-two-run-modes-same-artifacts.md) | Two run modes, Docker Compose and Kubernetes, with the same artifacts and pinned versions | Platform | Accepted | QD5, QD6 |  |
 | [0018](0018-gitops-with-argo-cd.md) | GitOps delivery with Argo CD | Platform | Accepted (not implemented yet, roadmap B5) | QD5 |  |
-| [0019](0019-secrets-in-git-for-gitops.md) | Secrets for GitOps: SOPS with age, decrypted for Argo CD | Platform | Accepted (implemented with ADR-0018) | QD7, QD5 |  |
+| [0019](0019-secrets-in-git-for-gitops.md) | Secrets for GitOps: SOPS with age, decrypted for Argo CD | Platform | Accepted (not implemented yet, with ADR-0018) | QD7, QD5 |  |
 | [0020](0020-opentelemetry-through-spring-boot.md) | Telemetry through Spring Boot's OpenTelemetry support (Micrometer, OTLP), not the Java agent | Observability | Accepted | QD3, QD5 |  |
 | [0021](0021-dashboards-as-code.md) | Dashboards as code, one set for both modes, filtered by the application label | Observability | Accepted | QD1, QD3, QD5 | D9 |
 | [0022](0022-alerting-prometheus-rules-alertmanager-pyrra.md) | Alerting: Prometheus rules, Alertmanager, SLOs through Pyrra | Observability | Accepted | QD3, QD4 | D10 |

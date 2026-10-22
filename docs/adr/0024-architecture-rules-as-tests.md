@@ -2,11 +2,11 @@
 
 - **Status:** Accepted
 - **Date:** 2026-10-22
-- **Drivers:** QD4, QD8
+- **Drivers:** QD2
 
 ## Context and drivers
-Rules that live only in a document are broken first by whoever did not read it, and an AI agent produces code faster than a reviewer reads it (QD8).
-A rule must fail the build with a message that says what to do instead (QD4). Decisions need a place where their reasons and limits are kept.
+Rules that live only in a document are broken first by whoever did not read it, and an AI agent produces code faster than a reviewer reads it (QD2).
+A rule must fail the build with a message that says what to do instead (QD2). Decisions need a place where their reasons and limits are kept.
 
 ## Considered options
 1. **Executable checks for every rule that can be checked, ADRs for the reasons**.

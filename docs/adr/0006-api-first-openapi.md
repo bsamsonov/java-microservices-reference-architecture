@@ -2,12 +2,12 @@
 
 - **Status:** Accepted
 - **Date:** 2026-10-22
-- **Drivers:** QD1, QD4, QD8
+- **Drivers:** QD1, QD2
 
 ## Context and drivers
-An HTTP contract change must be visible in a diff and reviewed before the code (QD4).
-An AI agent working from a file produces a predictable controller; generating the interface removes a class of mismatches between docs and code (QD8).
-Errors and access rules (401, 403, permissions) are part of the contract (QD7).
+An HTTP contract change must be visible in a diff and reviewed before the code (QD2).
+An AI agent working from a file produces a predictable controller; generating the interface removes a class of mismatches between docs and code (QD2).
+Errors and access rules (401, 403, permissions) are part of the contract (QD4).
 
 ## Considered options
 1. **API-first**: `src/main/resources/api/openapi.yaml` is the source; `openapi-generator` creates the `<Tag>Api` interface and `*Dto` classes at build time.

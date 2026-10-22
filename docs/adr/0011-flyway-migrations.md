@@ -2,12 +2,12 @@
 
 - **Status:** Accepted
 - **Date:** 2026-10-22
-- **Drivers:** QD1, QD4, QD8
+- **Drivers:** QD1, QD2
 
 ## Context and drivers
 Each module owns its schema (ADR-0007), and its tables change with the code. The schema change must be a file in the diff,
-applied the same way in tests, compose and Kubernetes, and checked against the mapping at startup (QD4).
-An AI agent must be able to write a migration without learning a changelog format (QD8).
+applied the same way in tests, compose and Kubernetes, and checked against the mapping at startup (QD2).
+An AI agent must be able to write a migration without learning a changelog format (QD2).
 
 ## Considered options
 1. **Flyway** with plain SQL files: `V<n>__<module>_<what>.sql`.

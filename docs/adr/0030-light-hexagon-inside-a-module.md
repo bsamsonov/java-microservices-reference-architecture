@@ -2,13 +2,13 @@
 
 - **Status:** Accepted
 - **Date:** 2026-10-22
-- **Drivers:** QD4, QD8
+- **Drivers:** QD2
 - **Replaces:** D6 (the structure inside a module; the system level is ADR-0001)
 - **Level:** service; details in the service READMEs and `AGENTS.md`
 
 ## Context and drivers
-Business rules must be testable without Spring and must not depend on the database or the web layer (QD4).
-At the same time a full hexagon everywhere doubles classes and mapping in simple modules, and an AI agent multiplies that boilerplate (QD8).
+Business rules must be testable without Spring and must not depend on the database or the web layer (QD2).
+At the same time a full hexagon everywhere doubles classes and mapping in simple modules, and an AI agent multiplies that boilerplate (QD2).
 
 ## Considered options
 1. **Light hexagon per module**: `domain` (no Spring or JPA), `application` (use cases, ports), `adapter.in.web`, `adapter.out.persistence`; CRUD modules may skip the domain model.

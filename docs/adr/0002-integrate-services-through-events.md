@@ -2,13 +2,13 @@
 
 - **Status:** Accepted
 - **Date:** 2026-10-22
-- **Drivers:** QD2, QD3
+- **Drivers:** QD3, QD5
 - **Replaces:** D2 (audit through domain events in Kafka)
 
 ## Context and drivers
-`orders-service` must accept an order even when the services that react to it are down or slow (QD2).
+`orders-service` must accept an order even when the services that react to it are down or slow (QD3).
 Audit and notifications only react to what happened; they do not need to answer the caller.
-The flow must still be traceable end to end (QD3).
+The flow must still be traceable end to end (QD5).
 
 ## Considered options
 1. **Domain events through Kafka**: the producer publishes a fact; consumers react on their own time.

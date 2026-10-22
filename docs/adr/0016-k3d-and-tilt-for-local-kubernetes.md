@@ -2,11 +2,11 @@
 
 - **Status:** Accepted
 - **Date:** 2026-10-22
-- **Drivers:** QD6, QD1
+- **Drivers:** QD1, QD7
 - **Replaces:** D4
 
 ## Context and drivers
-The Kubernetes mode must run on one laptop (QD6) and a code change must reach the cluster in seconds, not through a manual build-push-deploy.
+The Kubernetes mode must run on one laptop (QD7) and a code change must reach the cluster in seconds, not through a manual build-push-deploy.
 
 ## Considered options
 1. **k3d** (k3s in Docker, with a local registry) and **Tilt** (`spring_service('<name>')` in the `Tiltfile`).

@@ -2,12 +2,12 @@
 
 - **Status:** Accepted
 - **Date:** 2026-10-22
-- **Drivers:** QD1, QD3, QD5
+- **Drivers:** QD1, QD5, QD6
 - **Replaces:** D9 (the dashboard part; its alerting part was replaced by D10, now ADR-0022)
 
 ## Context and drivers
 A new service must appear on the dashboards without anyone editing them (QD1). The same dashboard must work with OTLP push in compose
-and with scraping in Kubernetes (QD5), and a broken panel must be visible in review (QD3).
+and with scraping in Kubernetes (QD6), and a broken panel must be visible in review (QD5).
 
 ## Considered options
 1. **Grafana dashboard JSON in git** (`observability/grafana/dashboards/`), provisioned in both modes; one shared dashboard filtered by `application`.

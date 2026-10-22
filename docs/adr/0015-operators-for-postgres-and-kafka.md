@@ -2,12 +2,12 @@
 
 - **Status:** Accepted
 - **Date:** 2026-10-22
-- **Drivers:** QD5, QD6
+- **Drivers:** QD6, QD7
 - **Replaces:** D3 (Strimzi; CloudNativePG was added with the same reasoning)
 
 ## Context and drivers
 The Kubernetes mode shows how a platform runs stateful infrastructure; no cloud account is allowed (constraint), so managed services are not an option here.
-Databases and topics for a new service should be declared as resources, next to the service, not created by hand (QD1, QD5).
+Databases and topics for a new service should be declared as resources, next to the service, not created by hand (QD1, QD6).
 
 ## Considered options
 1. **Operators**: CloudNativePG for Postgres, Strimzi (KRaft) for Kafka; `Database` and `KafkaTopic` as custom resources.

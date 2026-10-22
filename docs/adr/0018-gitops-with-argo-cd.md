@@ -2,7 +2,7 @@
 
 - **Status:** Accepted (not implemented yet, roadmap B5)
 - **Date:** 2026-10-22
-- **Drivers:** QD5
+- **Drivers:** QD6
 - **Risks:** closes R7 when implemented
 
 ## Context and drivers

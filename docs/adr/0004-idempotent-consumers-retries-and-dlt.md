@@ -2,11 +2,11 @@
 
 - **Status:** Accepted
 - **Date:** 2026-10-22
-- **Drivers:** QD2, QD3
+- **Drivers:** QD3, QD5
 
 ## Context and drivers
 The outbox (ADR-0003) and Kafka deliver at least once, so a consumer sees duplicates after restarts and rebalances.
-A message that can never be processed must not block its partition, and a failure must be visible (QD2, QD3).
+A message that can never be processed must not block its partition, and a failure must be visible (QD3, QD5).
 
 ## Considered options
 1. **Idempotent handler keyed by `eventId`, a few in-place retries, then `<topic>.DLT`**.
@@ -20,7 +20,7 @@ then `DeadLetterPublishingRecoverer` sends the original record to `orders.events
 A move to the DLT is logged at WARN.
 
 ## Consequences
-- **Good:** duplicates are harmless; a poison message stops nothing; the rule is simple enough for an AI agent to repeat in every new handler (QD8).
+- **Good:** duplicates are harmless; a poison message stops nothing; the rule is simple enough for an AI agent to repeat in every new handler (QD2).
 - **Cost:** a unique key per consumer table; in-place retries hold the partition for a few seconds; nothing replays the DLT yet.
   A move to the DLT is visible only in the log for now; a `warning` alert on records published to a DLT is planned (counter in the recoverer, rule by `application`).
 

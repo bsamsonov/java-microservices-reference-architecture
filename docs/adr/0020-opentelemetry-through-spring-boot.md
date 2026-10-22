@@ -2,11 +2,11 @@
 
 - **Status:** Accepted
 - **Date:** 2026-10-22
-- **Drivers:** QD3, QD5
+- **Drivers:** QD5, QD6
 
 ## Context and drivers
-Every request must be traceable from HTTP through the outbox and Kafka to the consumer, with `trace_id` in every log line (QD3).
-The telemetry setup must be the same in both modes and visible in the service's configuration (QD5).
+Every request must be traceable from HTTP through the outbox and Kafka to the consumer, with `trace_id` in every log line (QD5).
+The telemetry setup must be the same in both modes and visible in the service's configuration (QD6).
 
 ## Considered options
 1. **Spring Boot native**: Micrometer Observation for metrics and traces, `spring-boot-starter-opentelemetry`, OTLP export; the OTel Logback appender for logs.

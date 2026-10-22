@@ -2,12 +2,12 @@
 
 - **Status:** Accepted
 - **Date:** 2026-10-22
-- **Drivers:** QD5, QD6
+- **Drivers:** QD6, QD7
 - **Risks:** decides the image-build part of R9
 
 ## Context and drivers
-The same image must run in compose and in Kubernetes (QD5). The jar is already built and tested by `./mvnw` and by Tilt,
-and a rebuild in the dev loop must be fast on a laptop (QD6). The image should use a known base and run as non-root.
+The same image must run in compose and in Kubernetes (QD6). The jar is already built and tested by `./mvnw` and by Tilt,
+and a rebuild in the dev loop must be fast on a laptop (QD7). The image should use a known base and run as non-root.
 
 ## Considered options
 1. **Dockerfile over a prebuilt jar**: the jar is extracted into Spring Boot layers (`-Djarmode=tools extract --layers`), dependencies first.

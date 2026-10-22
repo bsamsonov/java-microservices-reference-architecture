@@ -2,12 +2,12 @@
 
 - **Status:** Accepted
 - **Date:** 2026-10-22
-- **Drivers:** QD1, QD4, QD8
+- **Drivers:** QD1, QD2
 - **Replaces:** D6 (the system-level part; the structure inside a module is ADR-0030)
 
 ## Context and drivers
-The repository is a template for many services, built by developers working with an AI agent (QD8).
-Each service must keep its internal structure without a reviewer policing it (QD4), and a new service must start from a known shape (QD1).
+The repository is a template for many services, built by developers working with an AI agent (QD2).
+Each service must keep its internal structure without a reviewer policing it (QD2), and a new service must start from a known shape (QD1).
 Service boundaries are expensive to move once there is a network, a database and a topic between them;
 module boundaries inside one deployable are cheap to move, as long as something enforces them.
 

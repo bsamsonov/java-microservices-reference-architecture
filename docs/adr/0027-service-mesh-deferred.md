@@ -2,12 +2,12 @@
 
 - **Status:** Deferred
 - **Date:** 2026-10-22
-- **Drivers:** QD6, QD7
+- **Drivers:** QD4, QD7
 
 ## Context and drivers
 Services talk to each other only through Kafka today (ADR-0002); there is no synchronous call between services (risk R4).
 NetworkPolicy already limits what a pod can reach (ADR-0023). A mesh adds mTLS, L7 policies, retries and traffic metrics, at the cost of
-control-plane components, per-node or per-pod proxies and memory on a laptop (QD6).
+control-plane components, per-node or per-pod proxies and memory on a laptop (QD7).
 
 ## Considered options
 1. **No mesh now**; NetworkPolicy for L3/L4 isolation; OAuth2 tokens for users.

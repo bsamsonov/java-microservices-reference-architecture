@@ -2,7 +2,7 @@
 
 - **Status:** Deferred
 - **Date:** 2026-10-22
-- **Drivers:** QD6, QD7
+- **Drivers:** QD4, QD7
 
 ## Context and drivers
 External traffic enters through the k3d ingress (`*.localhost:8080`). Each service validates tokens itself (ADR-0023), so a gateway is not needed for authentication.

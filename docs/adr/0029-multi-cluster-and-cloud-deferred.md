@@ -2,10 +2,10 @@
 
 - **Status:** Deferred
 - **Date:** 2026-10-22
-- **Drivers:** QD6
+- **Drivers:** QD7
 
 ## Context and drivers
-The platform runs on one laptop with no cloud account (constraint, QD6). Single replicas, no PodDisruptionBudget, no autoscaling and ephemeral Kafka storage
+The platform runs on one laptop with no cloud account (constraint, QD7). Single replicas, no PodDisruptionBudget, no autoscaling and ephemeral Kafka storage
 are recorded as risk R6: the setup is not representative of production availability, and that is accepted.
 
 ## Considered options

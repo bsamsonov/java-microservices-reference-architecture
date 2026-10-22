@@ -2,12 +2,12 @@
 
 - **Status:** Accepted (owner, 2026-10-22)
 - **Date:** 2026-10-22
-- **Drivers:** QD3, QD5, QD6
+- **Drivers:** QD5, QD6, QD7
 
 ## Context and drivers
 Services emit traces and logs over OTLP and expose metrics for Prometheus (ADR-0020). Something must store them and show one request across all three:
-a trace from HTTP through Kafka to the consumer, and its log lines found by `trace_id` (QD3). The same backends must serve both modes (QD5)
-and fit on a laptop (QD6). Because services speak only OTLP and Prometheus, the backend is a platform choice: the OTel Collector decides where data goes,
+a trace from HTTP through Kafka to the consumer, and its log lines found by `trace_id` (QD5). The same backends must serve both modes (QD6)
+and fit on a laptop (QD7). Because services speak only OTLP and Prometheus, the backend is a platform choice: the OTel Collector decides where data goes,
 and changing the backend does not touch service code.
 
 ## Considered options

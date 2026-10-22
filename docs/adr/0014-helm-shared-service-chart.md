@@ -2,7 +2,7 @@
 
 - **Status:** Accepted
 - **Date:** 2026-10-22
-- **Drivers:** QD1, QD5
+- **Drivers:** QD1, QD6
 - **Replaces:** D1
 
 ## Context and drivers

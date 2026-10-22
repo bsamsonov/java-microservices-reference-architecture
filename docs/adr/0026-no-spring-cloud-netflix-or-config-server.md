@@ -2,11 +2,11 @@
 
 - **Status:** Rejected (Eureka, Spring Cloud Config) for this platform
 - **Date:** 2026-10-22
-- **Drivers:** QD5, QD6
+- **Drivers:** QD6, QD7
 
 ## Context and drivers
 Many Spring microservice courses and older reference projects start with Eureka, a Config Server and a Spring Cloud Gateway.
-This platform runs on Kubernetes and compose, which already provide names and configuration (QD5), and every extra server costs laptop memory (QD6).
+This platform runs on Kubernetes and compose, which already provide names and configuration (QD6), and every extra server costs laptop memory (QD7).
 
 ## Considered options
 1. **Platform-native**: Kubernetes Service DNS and compose service names for discovery; environment variables, ConfigMaps and Secrets for configuration.

@@ -2,12 +2,12 @@
 
 - **Status:** Accepted
 - **Date:** 2026-10-22
-- **Drivers:** QD1, QD8
+- **Drivers:** QD1, QD2
 - **Replaces:** D5
 
 ## Context and drivers
 Each service is built on its own, from a template copied many times (QD1). Developers and an AI agent change the build often:
-a dependency, a plugin option, a generator setting. The build should be easy to read and hard to make clever (QD8).
+a dependency, a plugin option, a generator setting. The build should be easy to read and hard to make clever (QD2).
 
 ## Considered options
 1. **Maven** with the wrapper (`./mvnw`), one `pom.xml` per service.

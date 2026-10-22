@@ -2,12 +2,12 @@
 
 - **Status:** Accepted
 - **Date:** 2026-10-22
-- **Drivers:** QD1, QD8
+- **Drivers:** QD1, QD2
 
 ## Context and drivers
 A template is copied into services that will live for years (QD1). Starting on an older generation means a major upgrade
 in every copy soon after it is created (risk R3: copies drift and have no upgrade path).
-The stack must be mainstream enough that developers and AI agents know it (QD8).
+The stack must be mainstream enough that developers and AI agents know it (QD2).
 
 ## Considered options
 1. **Java 25 LTS, Spring Boot 4** (Spring Framework 7, Spring Security 7, Spring Modulith 2).

@@ -2,11 +2,11 @@
 
 - **Status:** Accepted
 - **Date:** 2026-10-22
-- **Drivers:** QD8, QD1
+- **Drivers:** QD1, QD2
 
 ## Context and drivers
 The templates are built to be extended by a developer working with an AI coding agent. The agent must find the rules,
-the order of work and the commands without a person repeating them, and its mistakes must be caught by the build (QD8).
+the order of work and the commands without a person repeating them, and its mistakes must be caught by the build (QD2).
 Creating a service with real business logic should take one to two days (QD1).
 
 ## Considered options

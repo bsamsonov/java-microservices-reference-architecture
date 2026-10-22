@@ -2,12 +2,12 @@
 
 - **Status:** Accepted (per-service database user planned)
 - **Date:** 2026-10-22
-- **Drivers:** QD4, QD5, QD6
+- **Drivers:** QD2, QD6, QD7
 
 ## Context and drivers
 A service that reads another service's tables couples their releases more tightly than any API.
 Inside a service, modules must be extractable later (ADR-0001), so they must not share tables either.
-At the same time the system must fit on a laptop (QD6) and run the same way in both modes (QD5).
+At the same time the system must fit on a laptop (QD7) and run the same way in both modes (QD6).
 
 ## Considered options
 1. **One Postgres server per mode, a database per service, a schema per module**, migrations per module.

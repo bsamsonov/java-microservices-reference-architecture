@@ -2,13 +2,13 @@
 
 - **Status:** Accepted
 - **Date:** 2026-10-22
-- **Drivers:** QD1, QD8
+- **Drivers:** QD1, QD2
 - **Replaces:** D8
 - **Level:** service
 
 ## Context and drivers
 Template 1 has a rich domain mapped to tables; template 2 is a small CRUD without business rules.
-Hibernate's features (first-level cache, cascades, lazy loading, dirty checking) help the first and are a frequent source of bugs in the second, also for AI agents (QD8).
+Hibernate's features (first-level cache, cascades, lazy loading, dirty checking) help the first and are a frequent source of bugs in the second, also for AI agents (QD2).
 
 ## Considered options
 1. **JPA (Hibernate) in template 1, Spring Data JDBC in template 2**.

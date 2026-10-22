@@ -2,7 +2,7 @@
 
 - **Status:** Accepted (JSON in force; JSON Schema and AsyncAPI planned)
 - **Date:** 2026-10-22
-- **Drivers:** QD2, QD8
+- **Drivers:** QD2, QD3
 
 ## Context and drivers
 Events are JSON produced by Modulith externalization. The consumer has its own copy of the message records

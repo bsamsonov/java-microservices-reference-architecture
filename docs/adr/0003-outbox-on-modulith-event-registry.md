@@ -2,13 +2,13 @@
 
 - **Status:** Accepted
 - **Date:** 2026-10-22
-- **Drivers:** QD2, QD6
+- **Drivers:** QD3, QD7
 - **Replaces:** D12
 
 ## Context and drivers
-An order and its `OrderPlaced` event must be stored atomically: no order without an event, no event without an order (QD2).
+An order and its `OrderPlaced` event must be stored atomically: no order without an event, no event without an order (QD3).
 Writing to Postgres and Kafka in one transaction is not possible, so the event is stored in the same database transaction and sent after commit.
-The solution must run on a laptop without extra infrastructure (QD6). Risk R1 records what remains open.
+The solution must run on a laptop without extra infrastructure (QD7). Risk R1 records what remains open.
 
 ## Considered options
 1. **Spring Modulith event publication registry** (`event_publication` table) with externalization to Kafka, scheduled resubmission and delete on completion.

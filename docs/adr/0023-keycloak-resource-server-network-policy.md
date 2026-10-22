@@ -2,11 +2,11 @@
 
 - **Status:** Accepted
 - **Date:** 2026-10-22
-- **Drivers:** QD7, QD8
+- **Drivers:** QD2, QD4
 - **Replaces:** D11
 
 ## Context and drivers
-Every endpoint must require a valid token with the right permission (QD7), the rule must be easy for an agent to follow and checked by tests (QD8),
+Every endpoint must require a valid token with the right permission (QD4), the rule must be easy for an agent to follow and checked by tests (QD2),
 and a compromised pod must not reach everything in the cluster. Three levels were considered: A (decision only), B (working minimum), C (full set).
 
 ## Considered options

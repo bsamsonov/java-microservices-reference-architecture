@@ -19,7 +19,7 @@ A decision is never changed silently: write or update the ADR first.
 | `compose/` | laptop mode: Postgres, Kafka, Keycloak, Grafana LGTM, services in the `apps` profile |
 | `platform/` | Kubernetes mode: k3d, CloudNativePG, Strimzi, Keycloak, kube-prometheus-stack, Loki, Tempo, OTel Collector, NetworkPolicy |
 | `Tiltfile` | dev loop in k3d: `spring_service('<name>')` per service |
-| `docs/architecture/` | architecture overview (arc42-lite): quality drivers QD1–QD8, C4 in Mermaid, scenarios, risks R1–R9 |
+| `docs/architecture/` | architecture overview (arc42-lite): quality drivers QD1–QD7, C4 in Mermaid, scenarios, risks R1–R9 |
 | `docs/adr/` | architecture decision records (MADR): options, cost, when to choose differently |
 | `docs/decisions.md` | map of the earlier decision numbers D1–D12 to ADRs |
 

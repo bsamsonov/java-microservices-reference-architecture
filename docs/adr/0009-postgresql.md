@@ -2,11 +2,11 @@
 
 - **Status:** Accepted
 - **Date:** 2026-10-22
-- **Drivers:** QD5, QD6
+- **Drivers:** QD6, QD7
 
 ## Context and drivers
 Every service needs a relational database for its aggregates, its migrations and the outbox table (ADR-0003).
-It must run the same way in compose, in Testcontainers and in Kubernetes (QD5) and stay small enough for a laptop (QD6).
+It must run the same way in compose, in Testcontainers and in Kubernetes (QD6) and stay small enough for a laptop (QD7).
 No cloud account is allowed (constraint), so managed databases appear only as alternatives.
 
 ## Considered options

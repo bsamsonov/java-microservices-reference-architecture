@@ -2,11 +2,11 @@
 
 - **Status:** Accepted
 - **Date:** 2026-10-22
-- **Drivers:** QD5, QD6
+- **Drivers:** QD6, QD7
 
 ## Context and drivers
 Daily work needs a light stack on a laptop; showing the platform needs Kubernetes. A k3d cluster needs about 20 GB of free disk and more memory,
-while compose runs the whole system in about 3.5 GB of images (QD6). Whatever runs in one mode must behave the same in the other (QD5).
+while compose runs the whole system in about 3.5 GB of images (QD7). Whatever runs in one mode must behave the same in the other (QD6).
 
 ## Considered options
 1. **Two modes**: compose for daily work, k3d for the platform; services do not know which one they run in.

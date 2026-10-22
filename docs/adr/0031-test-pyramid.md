@@ -2,12 +2,12 @@
 
 - **Status:** Accepted
 - **Date:** 2026-10-22
-- **Drivers:** QD2, QD4
+- **Drivers:** QD2, QD3
 - **Replaces:** D7
 - **Level:** service; the table "what to add with a feature" is in `AGENTS.md`
 
 ## Context and drivers
-The guarantees that matter (no lost events, idempotency, access rules, module boundaries) must be proven by tests that run on every build (QD2, QD4).
+The guarantees that matter (no lost events, idempotency, access rules, module boundaries) must be proven by tests that run on every build (QD3, QD2).
 Integration with Postgres and Kafka must be tested against the real thing, not mocks.
 
 ## Considered options

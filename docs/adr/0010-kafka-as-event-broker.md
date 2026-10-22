@@ -2,12 +2,12 @@
 
 - **Status:** Accepted
 - **Date:** 2026-10-22
-- **Drivers:** QD2, QD5, QD6
+- **Drivers:** QD3, QD6, QD7
 - **Replaces:** D3 in part (the broker); running it through Strimzi is ADR-0015
 
 ## Context and drivers
 Services integrate through events (ADR-0002). Events must survive consumer downtime, a new consumer should be able to read history,
-and events of one aggregate must stay in order (QD2). The broker must run on a laptop and in Kubernetes (QD5, QD6).
+and events of one aggregate must stay in order (QD3). The broker must run on a laptop and in Kubernetes (QD6, QD7).
 
 ## Considered options
 1. **Apache Kafka** (KRaft, no ZooKeeper): a partitioned log with retention and replay.

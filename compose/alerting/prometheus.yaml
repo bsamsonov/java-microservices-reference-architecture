@@ -1,6 +1,6 @@
 # Prometheus config for grafana/otel-lgtm in compose = the image's /otel-lgtm/prometheus.yaml
 # plus rule_files and alerting (the only blueprints additions are marked below).
-# Re-copy the upstream part when the otel-lgtm image changes: docker run --rm --entrypoint cat grafana/otel-lgtm /otel-lgtm/prometheus.yaml
+# Re-copy the upstream part when the otel-lgtm image changes: docker run --rm --entrypoint cat grafana/otel-lgtm:0.37.0 /otel-lgtm/prometheus.yaml
 ---
 global:
   scrape_native_histograms: true

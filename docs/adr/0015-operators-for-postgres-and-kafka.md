@@ -15,14 +15,14 @@ Databases and topics for a new service should be declared as resources, next to 
 3. **Managed services** (RDS or Cloud SQL, MSK or Confluent Cloud).
 
 ## Decision
-Option 1. `platform/manifests/postgres.yaml` (one CNPG `Cluster`) and `kafka.yaml` (Strimzi, KRaft, Kafka 4.3.1 on Strimzi 1.3.0).
+Option 1. `platform/manifests/postgres.yaml` (one CNPG `Cluster`) and `kafka.yaml` (Strimzi, Kafka 4 in KRaft mode).
 A service's database is a CNPG `Database` in `platform/manifests/databases/`; its topics are `KafkaTopic` objects rendered by the service chart (ADR-0014).
 Both operators expose metrics to Prometheus (PodMonitor).
 
 ## Consequences
 - **Good:** day-2 operations (failover, upgrades, users, topics) are declarative; the same approach a production platform on Kubernetes would use; both are CNCF projects.
 - **Cost:** two operators and their CRDs to keep current (Strimzi 1.x dropped `v1beta2`); single instances and ephemeral Kafka storage in k3d (risk R6);
-  the CNPG default image follows the operator release, so the `Cluster` pins `imageName` to PostgreSQL 18.6 to match compose and tests (ADR-0017).
+  the CNPG default image follows the operator release, so the `Cluster` pins `imageName` to the same PostgreSQL version as compose and tests (ADR-0017).
 
 ## When to choose differently
 - Production in a cloud: **managed Postgres and Kafka**; the services do not change, only the addresses and secrets.
@@ -30,6 +30,6 @@ Both operators expose metrics to Prometheus (PodMonitor).
 - A throwaway demo cluster: a plain chart is enough, but it shows less.
 
 ## Evidence
-- [Strimzi releases](https://github.com/strimzi/strimzi-kafka-operator/releases): 1.3.0 supports Kafka 4.2.0–4.3.1;
+- [Strimzi releases](https://github.com/strimzi/strimzi-kafka-operator/releases): each release lists the Kafka versions it supports;
   [CloudNativePG at CNCF](https://www.cncf.io/projects/cloudnativepg/) (Sandbox since 2025-01).
 - [`platform/README.md`](../../platform/README.md), section "Verified: the platform".

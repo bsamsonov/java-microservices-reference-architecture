@@ -34,4 +34,4 @@ None of these steps undoes the previous one: AsyncAPI can describe Avro payloads
 
 ## Evidence
 - [`OrderEventsListener`](../../services/notifications-service/src/main/java/io/github/bsamsonov/notifications/notification/adapter/in/kafka/OrderEventsListener.java): type resolution from `__TypeId__` today.
-- [AsyncAPI 3.0 specification](https://www.asyncapi.com/docs/reference/specification/v3.0.0): the message `schemaFormat` field accepts JSON Schema, Avro and others.
+- [AsyncAPI 3 specification](https://www.asyncapi.com/docs/reference/specification/v3.0.0): the message `schemaFormat` field accepts JSON Schema, Avro and others.

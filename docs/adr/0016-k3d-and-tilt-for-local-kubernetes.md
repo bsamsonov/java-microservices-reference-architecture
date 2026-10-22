@@ -30,4 +30,4 @@ Tilt is the developer's loop; delivery from git is Argo CD's job (ADR-0018).
 
 ## Evidence
 - [`Tiltfile`](../../Tiltfile) and [`platform/README.md`](../../platform/README.md), section "Verified: services in the cluster".
-- [k3d](https://k3d.io/) (5.9.0 in use) and [Tilt documentation](https://docs.tilt.dev/).
+- [k3d](https://k3d.io/) and [Tilt documentation](https://docs.tilt.dev/).

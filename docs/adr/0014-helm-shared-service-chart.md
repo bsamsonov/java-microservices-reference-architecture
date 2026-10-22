@@ -22,7 +22,7 @@ Argo CD will deploy the same chart (ADR-0018). Platform components come from the
 ## Consequences
 - **Good:** a new service is one values file; a fix in the chart reaches every service; Helm is the packaging most Java teams and vendors use.
 - **Cost:** Go templates are harder to read than YAML patches; a chart change affects all services at once and has no tests yet
-  (`helm lint` and `kubeconform` are planned in CI). Helm 3 reaches end of security fixes on 2026-11-11, so the README must name Helm 4.
+  (`helm lint` and `kubeconform` are planned in CI). Helm 3 is at the end of its support, so the README must name Helm 4.
 
 ## When to choose differently
 - Only environment overlays of plain manifests, no templating: **Kustomize**.
@@ -30,4 +30,4 @@ Argo CD will deploy the same chart (ADR-0018). Platform components come from the
 
 ## Evidence
 - [`charts/spring-service`](../../charts/spring-service/values.yaml) and [`services/orders-service/deploy/values.yaml`](../../services/orders-service/deploy/values.yaml).
-- [Helm 4 released](https://helm.sh/blog/helm-4-released/) (2025-11-12).
+- [Helm 4 released](https://helm.sh/blog/helm-4-released/).

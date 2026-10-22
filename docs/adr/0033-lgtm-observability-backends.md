@@ -17,7 +17,7 @@ and changing the backend does not touch service code.
 4. **One columnar store for all signals**: ClickStack (ClickHouse and HyperDX) or SigNoz.
 
 ## Decision
-Option 1. Compose runs `grafana/otel-lgtm:0.37.0` (all in one, for development); k3d runs kube-prometheus-stack, Loki, Tempo and an OTel Collector
+Option 1. Compose runs `grafana/otel-lgtm`, pinned (all in one, for development); k3d runs kube-prometheus-stack, Loki, Tempo and an OTel Collector
 that sends traces to Tempo and logs to Loki (`platform/values/`). Grafana has the three data sources with the same uids in both modes,
 and links traces to logs both ways. Dashboards are ADR-0021, alerts ADR-0022.
 

@@ -30,4 +30,4 @@ Each endpoint lists its permission and its `401` and `403` responses in the file
 
 ## Evidence
 - [`openapi.yaml` of orders-service](../../services/orders-service/src/main/resources/api/openapi.yaml).
-- [openapi-generator, Spring generator options](https://openapi-generator.tech/docs/generators/spring/); version 7.26.0 is in use.
+- [openapi-generator, Spring generator options](https://openapi-generator.tech/docs/generators/spring/).

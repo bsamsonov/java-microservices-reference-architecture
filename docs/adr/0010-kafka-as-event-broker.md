@@ -24,7 +24,7 @@ Dead letters go to `<topic>.DLT` (ADR-0004). Compose runs `apache/kafka-native`;
 - **Good:** replay and retention for new consumers and for recovery; the most common event backbone in Java teams; first-class support
   in Spring for Apache Kafka and Spring Modulith externalization; a CNCF operator (Strimzi) for Kubernetes.
 - **Cost:** more resources and concepts (partitions, consumer groups, offsets) than a queue broker; partition count is a long-lived decision.
-  The broker is pinned to 4.3.1 in compose, Testcontainers and k3d (ADR-0017); the client comes from the Boot BOM (4.2.1), which Kafka's protocol compatibility covers.
+  The broker version is pinned and equal in compose, Testcontainers and k3d (ADR-0017); the client comes from the Boot BOM and may be a minor version behind, which Kafka's protocol compatibility covers.
 
 ## When to choose differently
 - Work queues, per-message routing, priorities and no need for replay: **RabbitMQ**.
@@ -34,5 +34,5 @@ Dead letters go to `<topic>.DLT` (ADR-0004). Compose runs `apache/kafka-native`;
 - In a cloud: a managed Kafka (MSK, Confluent Cloud) instead of Strimzi.
 
 ## Evidence
-- [Apache Kafka downloads](https://kafka.apache.org/community/downloads/): 4.3.1 released on 2026-06-25.
-- [Strimzi releases](https://github.com/strimzi/strimzi-kafka-operator/releases): Strimzi 1.3.0 supports Kafka 4.2.0–4.3.1.
+- [Apache Kafka downloads](https://kafka.apache.org/community/downloads/): Kafka 4 runs in KRaft mode only, without ZooKeeper.
+- [Strimzi releases](https://github.com/strimzi/strimzi-kafka-operator/releases): the operator that runs it in Kubernetes (ADR-0015).

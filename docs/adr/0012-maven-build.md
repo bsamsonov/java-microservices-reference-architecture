@@ -17,9 +17,10 @@ a dependency, a plugin option, a generator setting. The build should be easy to 
 Option 1. Versions come from the Spring Boot parent and BOMs; the OpenAPI generator, Flyway and tests are plugin configuration, not scripts.
 
 ## Consequences
-- **Good:** the most used build tool in the Java ecosystem. A POM is declarative: the build is data in a fixed structure, not a program,
-  so an AI agent finds the place to change and produces the same shape every time; `mvn help:effective-pom` shows the resolved build.
-  One lifecycle (`verify`) for every service.
+- **Good:** the most used build tool in the Java ecosystem. The build is declared, the way infrastructure is declared as code:
+  the POM states what the build consists of (dependencies, plugins, their settings) in a fixed structure, and Maven's lifecycle decides how to run it.
+  There is one place for each kind of change and little room for custom logic, so a developer or an AI agent produces the same shape every time,
+  and a reviewer reads a diff of settings, not of code. `mvn help:effective-pom` shows the resolved build. One lifecycle (`verify`) for every service.
 - **Cost:** XML is verbose; custom build logic needs a plugin; no build cache or incremental compilation out of the box, so large builds are slower.
   Versions are repeated in every service's POM until a parent POM or BOM exists (risk R3).
 

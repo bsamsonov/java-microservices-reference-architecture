@@ -16,7 +16,7 @@ An AI agent must be able to write a migration without learning a changelog forma
 
 ## Decision
 Option 1. Migrations live in `src/main/resources/db/migration`, one module per file name prefix. An applied migration is never changed; a fix is a new migration.
-`ddl-auto` stays `validate`, so the JPA mapping is checked against the migrated schema in every test run. Flyway comes from the Boot BOM (12.4.0).
+`ddl-auto` stays `validate`, so the JPA mapping is checked against the migrated schema in every test run. Flyway comes from the Boot BOM.
 
 ## Consequences
 - **Good:** migrations are plain SQL, readable by anyone who knows PostgreSQL; Boot runs them at startup with no extra setup; the order is in the file name.
@@ -24,7 +24,7 @@ Option 1. Migrations live in `src/main/resources/db/migration`, one module per f
   SQL is database-specific. Two branches that add `V4` collide and must be renumbered before merge.
 
 ## When to choose differently
-- Rollbacks must be scripted and tested per change, the same changelog must run on several database engines, or the team prefers changelogs in YAML or XML: **Liquibase** (5.0.3 as of 2026-10).
+- Rollbacks must be scripted and tested per change, the same changelog must run on several database engines, or the team prefers changelogs in YAML or XML: **Liquibase**.
 - Throwaway prototypes only: Hibernate schema generation; never for a schema that holds data.
 
 ## Evidence

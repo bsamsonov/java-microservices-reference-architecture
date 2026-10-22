@@ -35,4 +35,4 @@ A new subdomain starts as a module; it becomes a service only when it needs its 
 ## Evidence
 - [`ModularityTest`](../../services/orders-service/src/test/java/io/github/bsamsonov/orders/ModularityTest.java) and
   [`HexagonArchitectureTest`](../../services/orders-service/src/test/java/io/github/bsamsonov/orders/HexagonArchitectureTest.java): the boundaries are build checks.
-- [Spring Modulith 2.1 releases](https://github.com/spring-projects/spring-modulith/releases): 2.1.0 GA on 2026-06-11, 2.1.1 on 2026-08-26.
+- [Spring Modulith releases](https://github.com/spring-projects/spring-modulith/releases): an actively released Spring project, versioned with Spring Boot.

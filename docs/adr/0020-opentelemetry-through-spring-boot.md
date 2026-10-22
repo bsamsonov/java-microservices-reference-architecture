@@ -23,7 +23,7 @@ Option 1. Traces and logs go over OTLP to the address in `MANAGEMENT_OPENTELEMET
   one model (Observation) for metrics and traces, consistent with Actuator.
 - **Cost:** metric and attribute names follow Micrometer, which does not always match OTel semantic conventions
   (example: `jvm_threads_live_threads` when scraped, `jvm_threads_live` over OTLP; queries absorb it). The OTel SDK version follows the Boot BOM
-  (1.62.0 in Boot 4.1) and lags the agent (2.32 is built on SDK 1.66.0). Libraries without Micrometer instrumentation are not traced automatically.
+  and usually lags the one the agent is built on by a few minor versions. Libraries without Micrometer instrumentation are not traced automatically.
 
 ## When to choose differently
 - Instrumenting applications you cannot change, or wanting the widest library coverage with OTel conventions out of the box: the **Java agent**.

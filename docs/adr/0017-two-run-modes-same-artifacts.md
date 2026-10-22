@@ -22,7 +22,8 @@ Rule: **infrastructure versions are pinned and equal in compose, Testcontainers 
 - **Good:** fast daily loop; the Kubernetes mode is real, not a slide; every observability file is tested in two environments.
 - **Cost:** two sets of infrastructure definitions to keep in step; differences between `otel-lgtm` and kube-prometheus-stack (OTLP push vs scraping)
   must be absorbed by the service config. Every infrastructure upgrade touches compose, the Testcontainers configs and the cluster manifests together.
-  The rule was broken once (Kafka 4.0.0 vs 4.3.1, PostgreSQL 17 vs 18.6, `otel-lgtm:latest`; risk R10) and is now met: Kafka 4.3.1, PostgreSQL 18, `otel-lgtm` 0.37.0.
+  The rule was broken once (risk R10: Kafka and PostgreSQL majors differed between compose and k3d, `otel-lgtm` was `latest`) and is now met; the versions live in `compose/compose.yaml`,
+  the Testcontainers configs and `platform/manifests/`.
 
 ## When to choose differently
 - The team develops against a shared remote cluster: **Kubernetes only**, with Tilt or a remote dev environment.

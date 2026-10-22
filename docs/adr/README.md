@@ -8,6 +8,10 @@ New records start from [`template.md`](template.md).
 The earlier short list D1–D12 is mapped to ADRs in the column "Was" (and in [`docs/decisions.md`](../decisions.md), kept so old references resolve).
 
 ## Rules
+- Records are dated when written. ADR-0001 to ADR-0033 were written on 2026-10-22 for decisions taken while the templates were built;
+  the earlier short list is in [`docs/decisions.md`](../decisions.md).
+- An ADR names a generation (Java 25, Spring Boot 4, Kafka 4), not a minor or patch version: exact versions live in `pom.xml`,
+  `compose/compose.yaml` and `platform/`, and change without a new ADR. A move to a new generation is a new ADR or an update of the old one.
 - A decision is never changed silently. To change it, write a new ADR and mark the old one "Superseded by ADR-NNNN"; do not rewrite history.
 - An accepted ADR is edited only to fix facts or links.
 - A rule that can be checked is checked by a test or a script, and the ADR links to it.
@@ -23,7 +27,7 @@ The earlier short list D1–D12 is mapped to ADRs in the column "Was" (and in [`
 | [0005](0005-event-format-json-with-json-schema.md) | Event format: JSON now, JSON Schema and AsyncAPI next; registry and binary formats deferred | System | Accepted (JSON in force; JSON Schema and AsyncAPI planned) | QD2, QD8 |  |
 | [0006](0006-api-first-openapi.md) | API-first: OpenAPI file, generated interfaces | System | Accepted | QD1, QD4, QD8 |  |
 | [0007](0007-database-per-service-schema-per-module.md) | A database per service and a schema per module | System | Accepted (per-service database user planned) | QD4, QD5, QD6 |  |
-| [0008](0008-java-25-spring-boot-4.md) | Java 25 and Spring Boot 4.1 | Stack | Accepted | QD1, QD8 |  |
+| [0008](0008-java-25-spring-boot-4.md) | Java 25 and Spring Boot 4 | Stack | Accepted | QD1, QD8 |  |
 | [0009](0009-postgresql.md) | PostgreSQL as the database for every service | Stack | Accepted | QD5, QD6 |  |
 | [0010](0010-kafka-as-event-broker.md) | Apache Kafka as the event broker | Stack | Accepted | QD2, QD5, QD6 | D3 (in part) |
 | [0011](0011-flyway-migrations.md) | Flyway SQL migrations, forward only | Stack | Accepted | QD1, QD4, QD8 |  |

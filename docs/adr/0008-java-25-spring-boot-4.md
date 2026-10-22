@@ -1,4 +1,4 @@
-# ADR-0008: Java 25 and Spring Boot 4.1
+# ADR-0008: Java 25 and Spring Boot 4
 
 - **Status:** Accepted
 - **Date:** 2026-10-22
@@ -10,12 +10,12 @@ in every copy soon after it is created (risk R3: copies drift and have no upgrad
 The stack must be mainstream enough that developers and AI agents know it (QD8).
 
 ## Considered options
-1. **Java 25 LTS, Spring Boot 4.1** (Spring Framework 7, Spring Security 7.1, Spring Modulith 2.1).
+1. **Java 25 LTS, Spring Boot 4** (Spring Framework 7, Spring Security 7, Spring Modulith 2).
 2. **Java 21 LTS, Spring Boot 3.x**: the previous generation, the most common in running systems.
 3. **Quarkus or Micronaut**: frameworks built around fast startup, low memory and native images.
 
 ## Decision
-Option 1: the latest LTS and the latest Boot generation, versions from the Boot BOM (Boot 4.1.1, Modulith 2.1.1, Security 7.1.1 as of 2026-10).
+Option 1: the latest LTS and the latest Boot generation. Minor and patch versions come from the Boot BOM and follow its releases; the ADR fixes only the generation.
 Base images are `eclipse-temurin:25-jre`.
 
 ## Consequences
@@ -30,4 +30,4 @@ Base images are `eclipse-temurin:25-jre`.
 
 ## Evidence
 - [Oracle Java SE support roadmap](https://www.oracle.com/java/technologies/java-se-support-roadmap.html): Java 25 is an LTS release.
-- [`pom.xml` of orders-service](../../services/orders-service/pom.xml): `spring-boot-starter-parent` 4.1.1, `java.version` 25.
+- [`pom.xml` of orders-service](../../services/orders-service/pom.xml): `spring-boot-starter-parent` and `java.version`.

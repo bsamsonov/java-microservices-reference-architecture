@@ -31,5 +31,5 @@ CI that runs all checks on every push is planned (roadmap B4).
 - A prototype that will be thrown away: a short README is enough.
 
 ## Evidence
-- [ArchUnit](https://www.archunit.org/) (1.5.1 in use) and [Spring Modulith: verifying application module structure](https://docs.spring.io/spring-modulith/reference/verification.html).
+- [ArchUnit](https://www.archunit.org/) and [Spring Modulith: verifying application module structure](https://docs.spring.io/spring-modulith/reference/verification.html).
 - [`HexagonArchitectureTest`](../../services/orders-service/src/test/java/io/github/bsamsonov/orders/HexagonArchitectureTest.java).

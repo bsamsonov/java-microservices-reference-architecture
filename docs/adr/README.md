@@ -48,8 +48,8 @@ The earlier short list D1–D12 is mapped to ADRs in the column "Was" (and in [`
 | [0030](0030-light-hexagon-inside-a-module.md) | Inside a module: a light hexagon (domain, application, adapters) | Service level | Accepted | QD4, QD8 | D6 (in part) |
 | [0031](0031-test-pyramid.md) | Test pyramid: unit, slices, module, integration, architecture | Service level | Accepted | QD2, QD4 | D7 |
 | [0032](0032-jpa-for-rich-domain-jdbc-for-crud.md) | Persistence: JPA in template 1, Spring Data JDBC in template 2 | Service level | Accepted | QD1, QD8 | D8 |
+| [0033](0033-lgtm-observability-backends.md) | Observability backends: Grafana LGTM (Loki, Grafana, Tempo, Prometheus) | Observability | Accepted | QD3, QD5, QD6 |  |
 
-## Not written yet
-- **Log, trace and metric backends: LGTM (Grafana, Loki, Tempo, Prometheus) vs ELK / OpenSearch vs one columnar store (ClickStack, SigNoz).**
-  The owner wants to discuss it before the ADR. Today the stack is LGTM in both modes (ADR-0017, ADR-0021).
+## Notes
 - Schema registry: covered by [ADR-0005](0005-event-format-json-with-json-schema.md) as a deferred step.
+- Numbers follow the order of writing, not the groups; use the Group column.

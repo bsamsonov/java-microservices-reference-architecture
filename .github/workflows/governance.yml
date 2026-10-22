@@ -1,0 +1,50 @@
+name: Governance
+
+# labeled/unlabeled re-run the checks, so adding adr-amend or cross-cutting takes effect at once
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: governance-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  adr-guard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      # A final ADR (Accepted, Rejected, Superseded) changes only by a new ADR; label adr-amend allows a fix
+      - run: .github/scripts/adr-guard.sh "$BASE_SHA" "$HEAD_SHA"
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          ADR_AMEND: ${{ contains(github.event.pull_request.labels.*.name, 'adr-amend') }}
+
+  pr-scope:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      # One service per PR; label cross-cutting allows several
+      - run: .github/scripts/pr-scope.sh "$BASE_SHA" "$HEAD_SHA"
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          CROSS_CUTTING: ${{ contains(github.event.pull_request.labels.*.name, 'cross-cutting') }}
+
+  governance-scripts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - run: .github/scripts/tests/run.sh

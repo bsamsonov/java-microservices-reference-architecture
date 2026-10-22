@@ -121,7 +121,7 @@ A new service without a policy is isolated, not open. Compose has no network pol
 | Ownership: `customerId` comes from the request body, not from the token | the template shows the mechanism; ownership is a business rule of each domain | first real customer-facing API |
 | Service-to-service auth (client credentials or mTLS) | services call each other only through Kafka inside the platform | a synchronous call between services or a third party |
 | Kafka authentication and ACLs (Strimzi `KafkaUser`) | one trusted platform | several teams or tenants on one cluster |
-| Encrypted secrets in git (SOPS + age) | planned together with Flux (GitOps), which decrypts them | with GitOps |
+| Encrypted secrets in git (SOPS + age) | planned together with GitOps (Argo CD); the tool (SOPS via KSOPS or helm-secrets, Sealed Secrets, External Secrets) is chosen in an ADR | with GitOps |
 | One database user `app` for all services | local platform; schemas are separated | a shared or production database |
 | Keycloak in dev mode, password grant, demo passwords | quick local start | any shared environment: production mode, own database, authorization code flow |
 | API gateway, rate limiting, image signing | out of scope of the template | public exposure, supply-chain requirements |

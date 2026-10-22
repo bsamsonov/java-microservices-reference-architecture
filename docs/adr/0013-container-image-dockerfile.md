@@ -3,7 +3,7 @@
 - **Status:** Accepted
 - **Date:** 2026-10-22
 - **Drivers:** QD6, QD7
-- **Risks:** decides the image-build part of R9
+- **Risks:** R9, accepted with this decision
 
 ## Context and drivers
 The same image must run in compose and in Kubernetes (QD6). The jar is already built and tested by `./mvnw` and by Tilt,

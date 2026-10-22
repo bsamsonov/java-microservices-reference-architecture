@@ -1,6 +1,6 @@
 # ADR-0019: Secrets for GitOps: SOPS with age, decrypted for Argo CD
 
-- **Status:** Proposed (needs the owner's decision; implemented together with ADR-0018)
+- **Status:** Accepted (owner, 2026-10-22; implemented together with ADR-0018)
 - **Date:** 2026-10-22
 - **Drivers:** QD7, QD5
 - **Risks:** part of R8 (secrets are not encrypted)
@@ -16,7 +16,7 @@ Argo CD has no built-in decryption.
 2. **Sealed Secrets**: a controller in the cluster decrypts `SealedSecret` objects encrypted with the cluster's public key; Argo CD needs nothing extra.
 3. **External Secrets Operator** with a vault (OpenBao or Vault, a cloud secret manager): git holds only references.
 
-## Decision (proposed)
+## Decision
 Option 1. The age key lives outside the cluster (developer machine, CI secret) and is loaded into a new cluster as one Secret, so recreating k3d costs nothing.
 Encrypted files can be read outside the cluster for review and recovery. The same files can feed compose later if needed.
 Compose keeps its local demo values.

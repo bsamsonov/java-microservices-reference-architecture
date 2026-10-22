@@ -20,6 +20,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.simple.JdbcClient;
+import org.springframework.kafka.core.KafkaAdmin;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 import org.springframework.test.web.servlet.assertj.MvcTestResult;
 
@@ -58,8 +59,14 @@ class OutboxRedeliveryIntegrationTest {
     @Autowired
     KafkaContainer kafka;
 
+    @Autowired
+    KafkaAdmin kafkaAdmin;
+
     @Test
     void eventPlacedWhileKafkaIsDownIsDeliveredWhenKafkaIsBack() {
+        // the observed send asks KafkaAdmin for the cluster id; against a paused broker its Admin.close()
+        // waits with no timeout, so the send never fails. Fetched now, the id is cached for the whole test
+        assertThat(kafkaAdmin.clusterId()).isNotNull();
         var docker = kafka.getDockerClient();
         docker.pauseContainerCmd(kafka.getContainerId()).exec();
         UUID id;

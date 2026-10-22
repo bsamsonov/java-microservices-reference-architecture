@@ -1,0 +1,81 @@
+{
+  "name": "main",
+  "target": "branch",
+  "enforcement": "active",
+  "bypass_actors": [],
+  "conditions": {
+    "ref_name": {
+      "exclude": [],
+      "include": [
+        "~DEFAULT_BRANCH"
+      ]
+    }
+  },
+  "rules": [
+    {
+      "type": "deletion"
+    },
+    {
+      "type": "non_fast_forward"
+    },
+    {
+      "type": "required_linear_history"
+    },
+    {
+      "type": "pull_request",
+      "parameters": {
+        "required_approving_review_count": 0,
+        "dismiss_stale_reviews_on_push": false,
+        "required_reviewers": [],
+        "require_code_owner_review": false,
+        "require_last_push_approval": false,
+        "required_review_thread_resolution": true,
+        "require_extra_approval_for_unattributed_changes": true,
+        "allowed_merge_methods": [
+          "rebase"
+        ]
+      }
+    },
+    {
+      "type": "required_status_checks",
+      "parameters": {
+        "strict_required_status_checks_policy": true,
+        "do_not_enforce_on_create": false,
+        "required_status_checks": [
+          {
+            "context": "services (orders-service)",
+            "integration_id": 15368
+          },
+          {
+            "context": "services (notifications-service)",
+            "integration_id": 15368
+          },
+          {
+            "context": "services (catalog-service)",
+            "integration_id": 15368
+          },
+          {
+            "context": "platform",
+            "integration_id": 15368
+          },
+          {
+            "context": "alerting",
+            "integration_id": 15368
+          },
+          {
+            "context": "adr-guard",
+            "integration_id": 15368
+          },
+          {
+            "context": "pr-scope",
+            "integration_id": 15368
+          },
+          {
+            "context": "governance-scripts",
+            "integration_id": 15368
+          }
+        ]
+      }
+    }
+  ]
+}

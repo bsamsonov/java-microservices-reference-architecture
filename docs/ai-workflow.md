@@ -72,6 +72,6 @@ without edits, because they group by the `application` label ([ADR-0021](adr/002
 - The build stops a module from reading another module's table. Whether the module boundary is in the right place is a design question, and it stays with the architect.
 - The agent's reports need checking. "Verified" in the documents means a run whose output was read, and some checks were done once, on one laptop
   (see the "Status" column of the [quality drivers](architecture/README.md#2-quality-drivers)).
-- ADR-0001 to ADR-0033 were written on one day for decisions taken while the templates were built ([ADR index](adr/README.md#rules)).
+- ADR-0001 to ADR-0034 were written on one day for decisions taken while the templates were built ([ADR index](adr/README.md#rules)).
   They record the reasoning after the fact.
 - The skill uses one agent tool's format. `AGENTS.md` is portable; in other tools the skill becomes a checklist.

@@ -22,12 +22,13 @@ Eight records carry the story of the repository; the rest follow from them.
 | [0025](0025-ai-agent-as-a-participant.md) | Built to be extended by a developer working with an AI agent |
 
 ## Rules
-- Records are dated when written. ADR-0001 to ADR-0033 were written on 2026-10-22 for decisions taken while the templates were built;
+- Records are dated when written. ADR-0001 to ADR-0034 were written on 2026-10-22 for decisions taken while the templates were built;
   a record that replaces an earlier decision names its number D-n.
 - An ADR names a generation (Java 25, Spring Boot 4, Kafka 4), not a minor or patch version: exact versions live in `pom.xml`,
   `compose/compose.yaml` and `platform/`, and change without a new ADR. A move to a new generation is a new ADR or an update of the old one.
 - A decision is never changed silently. To change it, write a new ADR and mark the old one "Superseded by ADR-NNNN"; do not rewrite history.
-- An accepted ADR is edited only to fix facts or links.
+- An `Accepted`, `Rejected` or `Superseded` ADR is frozen: a pull request may change only its `Status` and `Implemented` lines.
+  CI (`adr-guard`, [ADR-0034](0034-repository-rules-as-code.md)) fails on any other edit; the label `adr-amend` lets a typo or link fix through.
 - A rule that can be checked is checked by a test or a script, and the ADR links to it.
 
 ## Index
@@ -67,6 +68,7 @@ Eight records carry the story of the repository; the rest follow from them.
 | [0031](0031-test-pyramid.md) | Test pyramid: unit, slices, module, integration, architecture | Service level | Accepted | QD2, QD3 | D7 |
 | [0032](0032-jpa-for-rich-domain-jdbc-for-crud.md) | Persistence: JPA in template 1, Spring Data JDBC in template 2 | Service level | Accepted | QD1, QD2 | D8 |
 | [0033](0033-lgtm-observability-backends.md) | Observability backends: Grafana LGTM (Loki, Grafana, Tempo, Prometheus) | Observability | Accepted | QD5, QD6, QD7 |  |
+| [0034](0034-repository-rules-as-code.md) | Repository rules as code: protected main, frozen ADRs, one service per pull request | Process | Accepted | QD2 |  |
 
 ## Notes
 - Schema registry: covered by [ADR-0005](0005-event-format-json-with-json-schema.md) as a deferred step.

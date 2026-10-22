@@ -1,0 +1,9 @@
+# Owners per area (ADR-0034). Review by a code owner is not required while the repository has one maintainer;
+# a team that adopts the template puts its teams here and turns the requirement on in .github/rulesets/main.json.
+*                               @bsamsonov
+/services/orders-service/       @bsamsonov
+/services/notifications-service/ @bsamsonov
+/services/catalog-service/      @bsamsonov
+/docs/adr/                      @bsamsonov
+/.github/                       @bsamsonov
+/AGENTS.md                      @bsamsonov

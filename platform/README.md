@@ -26,7 +26,8 @@ Commands: `make up`, `make status`, `make down`. Requires docker, k3d, kubectl a
 `make up`, then `tilt ci` from the repository root: the three services (`orders`, `notifications`, `catalog`) run in namespace `apps`, all Ready.
 Stop the compose stack first (`docker compose -f compose/compose.yaml --profile apps stop`):
 the k3d ingress takes port 8080, and both stacks at once do not fit into laptop memory.
-- the `catalog` and `notifications` databases are created through CNPG `Database` (`APPLIED=true`); KafkaTopic `orders.events` (3 partitions) and `orders.events.DLT` are Ready;
+- every service has its own Postgres user (CNPG managed role, secret `pg-<db>`) and database (CNPG `Database`, `APPLIED=true`);
+  CONNECT is revoked from PUBLIC, so `catalog` gets `permission denied for database "orders"` (verified 2026-10-22); KafkaTopic `orders.events` (3 partitions) and `orders.events.DLT` are Ready;
 - ingress `*.localhost:8080`: CRUD in catalog, an order and its cancellation in orders → two SENT notifications in notifications;
 - Tempo: one trace across `orders-service` and `notifications-service`; Loki: logs of both services by `trace_id`
   (in OTLP logs it is structured metadata: `{service_name=~".+"} | trace_id="…"`);

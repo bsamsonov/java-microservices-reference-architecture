@@ -3,7 +3,7 @@
 - **Status:** Proposed | Accepted | Deferred | Rejected | Superseded by ADR-NNNN
 - **Date:** YYYY-MM-DD
 - **Drivers:** QD-x, QD-y (see [`docs/architecture/README.md`](../architecture/README.md#2-quality-drivers))
-- **Replaces:** D-n in [`docs/decisions.md`](../decisions.md), if any
+- **Replaces:** ADR-NNNN or an earlier decision number D-n, if any
 
 ## Context and drivers
 What forces the decision: the problem, the constraints, the quality drivers it serves and the risks (R-x) it touches.

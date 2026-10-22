@@ -2,7 +2,7 @@
 
 The repository holds Java service templates: Spring Boot 4.1, Spring Modulith 2.1, Java 25, Maven, Postgres, Kafka, OpenTelemetry, Helm/k3d and Docker Compose.
 The goal of the templates: on "create service X", assemble a service quickly from a sample. Only the business logic is discussed; the infrastructure comes from the template.
-Decisions and their rationale are ADRs in `docs/adr/` (index and template there); `docs/decisions.md` maps the earlier numbers D1–D12 to them.
+Decisions and their rationale are ADRs in `docs/adr/` (index and template there; the index also maps the earlier numbers D1–D12 to ADRs).
 A decision is never changed silently: write or update the ADR first.
 
 ## Repository map
@@ -21,7 +21,6 @@ A decision is never changed silently: write or update the ADR first.
 | `Tiltfile` | dev loop in k3d: `spring_service('<name>')` per service |
 | `docs/architecture/` | architecture overview (arc42-lite): quality drivers QD1–QD7, C4 in Mermaid, scenarios, risks R1–R9 |
 | `docs/adr/` | architecture decision records (MADR): options, cost, when to choose differently |
-| `docs/decisions.md` | map of the earlier decision numbers D1–D12 to ADRs |
 
 ## Commands
 All commands run from the service folder (`services/<name>`) unless stated otherwise.

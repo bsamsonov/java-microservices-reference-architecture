@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Fails when a PR changes an ADR that is final (Accepted, Rejected, Superseded) in the base ref.
-# Allowed on a final ADR: the "Status" line and the "Implemented" line. See ADR-0034.
+# Allowed on a final ADR: the "Status", "Implemented" and "Amended by" lines. See ADR-0034.
 # Usage: adr-guard.sh <base-ref> <head-ref>; ADR_AMEND=true turns failures into a warning.
 set -euo pipefail
 
@@ -25,7 +25,7 @@ is_final() {
 
 # The ADR text without the lines that may change on a final ADR
 body_of() {
-  git show "$1:$2" | grep -v -e '^- \*\*Status:\*\*' -e '^- \*\*Implemented:\*\*' || true
+  git show "$1:$2" | grep -v -e '^- \*\*Status:\*\*' -e '^- \*\*Implemented:\*\*' -e '^- \*\*Amended by:\*\*' || true
 }
 
 failures=()
@@ -46,7 +46,7 @@ while IFS=$'\t' read -r code path new_path; do
     *)
       is_final "$path" || continue
       if ! diff -q <(body_of "$merge_base" "$path") <(body_of "$head" "$path") > /dev/null; then
-        failures+=("$path is $(status_of "$path"): write a new ADR that supersedes it (and set this one to \"Superseded by ADR-NNNN\"), or add the label adr-amend for a typo fix. See ADR-0034.")
+        failures+=("$path is $(status_of "$path"): write a new ADR that supersedes it (set this one to \"Superseded by ADR-NNNN\") or amends it (add \"- **Amended by:** ADR-NNNN\" here), or add the label adr-amend for a typo fix. See ADR-0034.")
       fi
       ;;
   esac

@@ -21,12 +21,14 @@ Option 1.
   changes only through a pull request, merged only by rebase, linear history, no force push or deletion, review threads resolved,
   and the CI checks are required on a branch that is up to date with `main`. The repository settings allow rebase merges only and delete merged branches.
 - **`adr-guard`** (`.github/scripts/adr-guard.sh`, workflow `governance.yml`): an ADR whose status is `Accepted`, `Rejected` or `Superseded` is frozen.
-  A pull request may change only its `Status` line (to mark it superseded) and its `Implemented` line, which records progress
-  (`- **Implemented:** no, roadmap B5`). Anything else fails with "write a new ADR that supersedes it". `Proposed` and `Deferred` records stay editable.
+  A pull request may change only its `Status` line (to mark it superseded), its `Implemented` line, which records progress
+  (`- **Implemented:** no, roadmap B5`), and add `Amended by` lines. A new record that replaces the whole decision supersedes it;
+  one that changes a part says `Amends: ADR-NNNN` and adds `Amended by: ADR-MMMM, <what>` to the old one, which stays in force. Anything else fails with "write a new ADR that supersedes it". `Proposed` and `Deferred` records stay editable.
   The label `adr-amend` lets a typo or a broken link through, visibly.
 - **`pr-scope`** (`.github/scripts/pr-scope.sh`): a pull request changes at most one `services/<name>/`. Shared folders (`charts/`, `observability/`,
   `compose/`, `docs/`) do not count. The label `cross-cutting` lets a change that must land together through, such as a fix applied to every template.
   Inside a service the module boundaries are already checked by `ModularityTest`, `HexagonArchitectureTest` and `ModuleSchemaTest` (ADR-0024).
+- **Templates and copies:** a pull request template with a checklist, and `.github/rulesets/README.md` with the commands that apply the ruleset.
 - **`CODEOWNERS`** names an owner per service and for `docs/adr/`, `.github/` and `AGENTS.md`. Code owner review is not required:
   with one maintainer it would block every pull request. A team that adopts the template turns it on.
 

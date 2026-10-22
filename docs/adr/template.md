@@ -5,6 +5,8 @@
 - **Date:** YYYY-MM-DD
 - **Drivers:** QD-x, QD-y (see [`docs/architecture/README.md`](../architecture/README.md#2-quality-drivers))
 - **Replaces:** ADR-NNNN or an earlier decision number D-n, if any
+- **Amends:** ADR-NNNN, what part, if this record changes only part of an earlier decision
+- **Amended by:** ADR-NNNN, what changed in 3-6 words (added to the earlier record, one line per amendment)
 
 ## Context and drivers
 What forces the decision: the problem, the constraints, the quality drivers it serves and the risks (R-x) it touches.

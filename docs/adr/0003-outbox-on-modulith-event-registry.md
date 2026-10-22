@@ -3,7 +3,7 @@
 - **Status:** Accepted
 - **Date:** 2026-10-22
 - **Drivers:** QD2, QD6
-- **Replaces:** D12 (the delivery details stay there until part 2 of the ADR migration)
+- **Replaces:** D12
 
 ## Context and drivers
 An order and its `OrderPlaced` event must be stored atomically: no order without an event, no event without an order (QD2).
@@ -19,7 +19,12 @@ The solution must run on a laptop without extra infrastructure (QD6). Risk R1 re
 Option 1. The event row is written in the business transaction and published after commit. A failed publication stays in the table;
 `OutboxResubmission` resubmits it every 30 s, and several replicas do not resubmit the same row twice (conditional update `FAILED` → `RESUBMITTED`).
 Completed rows are deleted (`completion-mode: delete`), so the table size is the outbox lag. A crash in the middle of a publication
-is covered by `republish-outstanding-events-on-restart`. The details and why the staleness monitor is off are in D12.
+is covered by `republish-outstanding-events-on-restart`; in Kubernetes a crashed pod restarts.
+There is no attempt limit: a broker outage must not drop events. Failed in-process listeners (the audit module) are retried the same way.
+The staleness monitor (`spring.modulith.events.staleness.*`) is off: in Modulith 2.1 it ages every status by the publication date,
+so after an outage longer than the threshold it marks resubmissions already in flight as failed and they are sent twice.
+Enable it when listeners can hang without the process dying.
+On a database created before the switch to `delete`, run `delete from event_publication where completion_date is not null` once.
 
 ## Consequences
 - **Good:** no extra component or library; the outbox is part of the framework the services already use; an event published while Kafka is down arrives without a restart.

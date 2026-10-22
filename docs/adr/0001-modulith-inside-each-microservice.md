@@ -3,7 +3,7 @@
 - **Status:** Accepted
 - **Date:** 2026-10-22
 - **Drivers:** QD1, QD4, QD8
-- **Replaces:** D6 (the system-level part; the package layout inside a module stays in D6)
+- **Replaces:** D6 (the system-level part; the structure inside a module is ADR-0030)
 
 ## Context and drivers
 The repository is a template for many services, built by developers working with an AI agent (QD8).

@@ -3,7 +3,7 @@
 - **Status:** Accepted
 - **Date:** 2026-10-22
 - **Drivers:** QD2, QD5, QD6
-- **Replaces:** D3 in part (Strimzi in the cluster); the platform side moves to a platform ADR
+- **Replaces:** D3 in part (the broker); running it through Strimzi is ADR-0015
 
 ## Context and drivers
 Services integrate through events (ADR-0002). Events must survive consumer downtime, a new consumer should be able to read history,

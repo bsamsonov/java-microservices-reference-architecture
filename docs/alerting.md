@@ -1,6 +1,6 @@
 # Alerting: how it works and how to add an alert
 
-The decision and its rationale: D10 in `docs/decisions.md`.
+The decision and its rationale: ADR-0022 in `docs/adr/`.
 
 ## Flow
 

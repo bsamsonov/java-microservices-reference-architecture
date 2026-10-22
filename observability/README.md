@@ -1,4 +1,4 @@
-# observability: dashboards and alerts as code (D9, D10)
+# observability: dashboards and alerts as code (ADR-0021, ADR-0022)
 
 One set of files for both infrastructure modes.
 

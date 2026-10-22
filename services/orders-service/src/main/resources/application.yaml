@@ -34,7 +34,7 @@ spring:
       jdbc:
         schema-initialization:
           enabled: false             # table comes from Flyway V3
-      # outbox (D12): rows stuck after a crash are republished on restart; failed ones are resubmitted on a schedule
+      # outbox (ADR-0003): rows stuck after a crash are republished on restart; failed ones are resubmitted on a schedule
       republish-outstanding-events-on-restart: true
       completion-mode: delete        # a delivered publication leaves the table: event_publication holds only the backlog
 

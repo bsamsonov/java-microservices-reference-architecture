@@ -1,6 +1,6 @@
 # catalog-service: template 2 (a small CRUD microservice)
 
-Decisions: `docs/decisions.md`, D6 (variant 2) and D8. A product catalog: create, read, paging, update with optimistic locking, delete.
+Decisions: ADR-0001 (template 2) and ADR-0032 in `docs/adr/`. A product catalog: create, read, paging, update with optimistic locking, delete.
 The template for a service without business rules that needs no events.
 Once invariants, several subdomains or Kafka events appear, use template 1 (`orders-service`).
 
@@ -10,7 +10,7 @@ Once invariants, several subdomains or Kafka events appear, use template 1 (`ord
 | Modularity | Spring Modulith, `ModularityTest` | package by feature, ArchUnit (`ArchitectureTest`) |
 | Inside a feature | `domain` / `application` / `adapter` | one package: controller, service, aggregate, repository; all package-private |
 | Model | domain aggregate + separate JPA entity | the Spring Data JDBC aggregate is the model |
-| Persistence (D8) | Spring Data JPA, `ddl-auto: validate` | Spring Data JDBC, explicit `save`, no session or lazy loading |
+| Persistence (ADR-0032) | Spring Data JPA, `ddl-auto: validate` | Spring Data JDBC, explicit `save`, no session or lazy loading |
 | Events | outbox → Kafka | none (no Kafka) |
 | Tests | unit, web, JPA, module, flow, architecture | web, JDBC, flow, architecture |
 
@@ -18,7 +18,7 @@ Once invariants, several subdomains or Kafka events appear, use template 1 (`ord
 ```
 io.github.bsamsonov.catalog
 ├── CatalogApplication, OpenTelemetryLoggingConfig   root: bootstrap and cross-cutting configuration
-└── product/                     feature; package-info.java marks the CRUD variant of D6
+└── product/                     feature; package-info.java marks the CRUD variant of ADR-0030
     ├── ProductController        implements ProductsApi (generated from openapi.yaml), aggregate → DTO mapping
     ├── ProductExceptionHandler  problem+json: 404, 409 (duplicate code, stale version, races), 400 for parameters
     ├── ProductService           transaction boundary, duplicate and version checks
@@ -42,7 +42,7 @@ io.github.bsamsonov.catalog
 | Integration | `CatalogFlowIntegrationTest`: create → duplicate 409 → update → stale version 409 → filter → delete → 404 |
 | Architecture | `ArchitectureTest`: the controller does not touch the repository, transactions only in the service, no cycles between features, the aggregate stays inside its feature |
 
-There is no domain unit test: the CRUD variant has no domain rules (D7).
+There is no domain unit test: the CRUD variant has no domain rules (ADR-0031).
 
 ## Run
 - Tests: `./mvnw verify` (needs Docker).
@@ -55,6 +55,6 @@ Create → 201 (version 0); duplicate `code` → 409; update → version 1; stal
 The `Product updated` line reaches Loki with a `trace_id`, the `http put /products/{productId}` trace is in Tempo, and `http_server_requests` by status is in Prometheus.
 There are no SQL spans in the trace (template 1 has none either): they need `datasource-micrometer`.
 
-## Security (D11)
+## Security (ADR-0023)
 Every request carries a Keycloak token; access rules are in `SecurityConfig`, permissions in `openapi.yaml`.
 How to get a token and add a permission: `security/README.md`.

@@ -78,7 +78,7 @@ services:
       # dashboards as code (observability/grafana), the same files as in k3d
       - ../observability/grafana/dashboards:/blueprints/dashboards:ro
       - ../observability/grafana/compose-dashboards.yaml:/otel-lgtm/grafana/conf/provisioning/dashboards/blueprints.yaml:ro
-      # alerting (D10): own copy of the otel-lgtm Prometheus config with rule_files + alertmanagers,
+      # alerting (ADR-0022): own copy of the otel-lgtm Prometheus config with rule_files + alertmanagers,
       # rules from observability/prometheus (the same files as PrometheusRule in k3d), Watchdog only for compose
       - ./alerting/prometheus.yaml:/otel-lgtm/prometheus.yaml:ro
       - ../observability/prometheus:/blueprints/prometheus:ro

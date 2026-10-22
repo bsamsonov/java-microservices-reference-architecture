@@ -53,7 +53,7 @@ dashboards:
 	  | kubectl annotate --local -f - grafana_folder=Blueprints -o yaml \
 	  | kubectl apply --server-side -f -
 
-# D10. The same files as compose: observability/alertmanager/ and observability/prometheus/.
+# ADR-0022. The same files as compose: observability/alertmanager/ and observability/prometheus/.
 alerting:
 	# Alertmanager config: Secret read by kube-prometheus-stack (alertmanagerSpec.configSecret)
 	kubectl -n observability create secret generic alertmanager-blueprints \

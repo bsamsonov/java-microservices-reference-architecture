@@ -37,13 +37,13 @@ Traces and logs go over OTLP HTTP in both modes.
 
 Dashboards. The "Spring services" dashboard from `../observability/grafana/` is mounted into otel-lgtm; Grafana shows it in the Blueprints folder.
 
-Alerts (D10). otel-lgtm gets its own copy of the Prometheus config, `alerting/prometheus.yaml`: the image config plus `rule_files` and the Alertmanager address.
+Alerts (ADR-0022). otel-lgtm gets its own copy of the Prometheus config, `alerting/prometheus.yaml`: the image config plus `rule_files` and the Alertmanager address.
 Rules come from `../observability/prometheus/`; `alerting/watchdog.rules.yaml` exists only in compose (in k3d Watchdog ships with kube-prometheus-stack).
 Alertmanager is a separate container configured from `../observability/alertmanager/`; Grafana uses it as a data source (`alerting/grafana-alertmanager-datasource.yaml`).
 When the `otel-lgtm` image is upgraded, compare the copy with the original: `docker run --rm --entrypoint cat grafana/otel-lgtm:0.37.0 /otel-lgtm/prometheus.yaml`.
 After editing the files: `docker compose -f compose/compose.yaml restart lgtm alertmanager`. Details in `../observability/README.md` and `../docs/alerting.md`.
 
-## Verified: security (D11)
+## Verified: security (ADR-0023)
 - No token or a tampered token gives 401; bob (catalog-managers) cannot place an order or read notifications (403);
   alice cannot change the catalog (403); an order and its cancellation by alice produce two SENT notifications; `/actuator/prometheus` stays open.
 - The `http post /orders/{orderId}/cancel` trace contains the `authenticate bearertoken` and `authorize request` spans and reaches notifications-service.
@@ -60,4 +60,4 @@ Sent `POST /orders` (4 orders), then queried the Prometheus, Tempo and Loki APIs
 - Trace: a single Tempo trace contains `http post /orders` (SERVER) → `OrderController.placeOrder` → `AuditLogListener.on(OrderPlaced)` → `orders.events send` (PRODUCER),
   so the context survives the outbox all the way to Kafka.
 - Logs: the `Order placed: id=…` line reaches Loki with a `trace_id` label, and that `trace_id` leads to the same trace in Tempo.
-- Outbox: every row in `event_publication` got a `completion_date` (since D12 a delivered row is deleted instead). The `orders.events` topic is created automatically.
+- Outbox: every row in `event_publication` got a `completion_date` (since ADR-0003 a delivered row is deleted instead). The `orders.events` topic is created automatically.

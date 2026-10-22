@@ -1,6 +1,6 @@
 # platform: local Kubernetes
 
-Decisions: `docs/decisions.md` (D3 Strimzi, D4 k3d + Tilt). Postgres runs on the CloudNativePG operator
+Decisions: `docs/adr/` (ADR-0015 operators, ADR-0016 k3d + Tilt, ADR-0017 two run modes). Postgres runs on the CloudNativePG operator
 (the same operator approach as Strimzi, with a PodMonitor for Prometheus out of the box).
 
 | Component | In-cluster address | For services |
@@ -34,7 +34,7 @@ the k3d ingress takes port 8080, and both stacks at once do not fit into laptop 
 - a malformed message in `orders.events` ends up in `orders.events.DLT` with the cause in a header;
 - console logs in the pods are ECS JSON (`traceId`, `spanId`).
 
-## Verified: security (D11)
+## Verified: security (ADR-0023)
 - Keycloak in `infra` (dev mode, realm from `../security/keycloak/`); tokens with `iss=http://keycloak.localhost:8080/realms/blueprints` are accepted by the services.
 - Through the ingress: no token → 401, bob → order 403, alice → order and cancel → two SENT, alice → product 403, bob → product 201.
 - NetworkPolicy: namespace `apps` is closed (`manifests/apps/default-deny.yaml`); a service may reach DNS, `infra` and OTel on 4318.
@@ -44,7 +44,7 @@ the k3d ingress takes port 8080, and both stacks at once do not fit into laptop 
 Dashboards (`make dashboards`, part of `make up`): a ConfigMap from `../observability/grafana/dashboards/` is picked up by the Grafana sidecar;
 the "Spring services" dashboard is in the Blueprints folder (details in `../observability/README.md`).
 
-Alerts (D10, `make alerting`, part of `make up`): Secret `alertmanager-blueprints` from `../observability/alertmanager/`
+Alerts (ADR-0022, `make alerting`, part of `make up`): Secret `alertmanager-blueprints` from `../observability/alertmanager/`
 and `PrometheusRule` objects from `../observability/prometheus/` (wrapper: `alerting/render-rules.sh`; rules are recreated on every run,
 so a rule deleted from the repository disappears from the cluster too). Cluster rules (kubernetes-mixin) come with kube-prometheus-stack.
 `kubeControllerManager`, `kubeScheduler`, `kubeProxy` and `kubeEtcd` are disabled in the values: k3s does not expose their metrics,
@@ -59,7 +59,7 @@ and otherwise `KubeControllerManagerDown`, `KubeSchedulerDown` and `KubeProxyDow
   After deleting a resource run `./mvnw clean …`: without `clean` the old file stays in `target/classes` and lands in the jar.
 - After `k3d cluster stop` / `start` the Kafka pod (`blueprints-dual-0`) appears only after about 5 minutes: the first Strimzi
   reconciliation waits for its timeout. Storage is ephemeral, so messages are lost; the topic operator recreates topics from KafkaTopic.
-  While the broker is down the outbox keeps events in `event_publication`; `OutboxResubmission` resends them every 30 s once the broker is back, without a restart (D12).
+  While the broker is down the outbox keeps events in `event_publication`; `OutboxResubmission` resends them every 30 s once the broker is back, without a restart (ADR-0003).
 - Right after `tilt ci` the ingress may answer 502 while pods are replaced; it passes after a few seconds.
 - With the host disk 90 % full the kubelet evicted every pod (default threshold 10–15 %). `k3d/cluster.yaml`
   lowers the threshold to 2 GB free and keeps a single node. Keep at least 20 GB free for the cluster and the service images.

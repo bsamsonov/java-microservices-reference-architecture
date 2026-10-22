@@ -1,6 +1,6 @@
 # orders-service: the reference service (template 1: Spring Modulith + domain model)
 
-Decisions: `docs/decisions.md` (D1–D7). Spring Boot 4.1.1, Spring Modulith 2.1.1, Java 25, Maven.
+Decisions: `docs/adr/`. Spring Boot 4.1.1, Spring Modulith 2.1.1, Java 25, Maven.
 
 ## Structure
 ```
@@ -17,12 +17,12 @@ io.github.bsamsonov.orders
 - API contract: `src/main/resources/api/openapi.yaml`; the interface and DTOs are generated at build time.
 - Database: each module has its own schema (`orders`, `audit`), Flyway `V1`/`V2`; `V3` is the Spring Modulith outbox table.
 - Events: `@Externalized("orders.events::#{orderId}")` → Kafka through the event publication registry
-  (the event is stored in the same transaction as the order, delivered after commit; D12: a failed delivery is resubmitted
+  (the event is stored in the same transaction as the order, delivered after commit; ADR-0003: a failed delivery is resubmitted
   by `OutboxResubmission` every `outbox.resubmission.interval` without a restart, a delivered row is deleted).
 - Observability: `/actuator/prometheus`, health probes, traces and logs over OTLP (`OpenTelemetryLoggingConfig`),
   trace context in Kafka headers; `/actuator/modulith` shows the module map.
 
-## Tests (D7): `./mvnw verify`, 23 tests, all green
+## Tests (ADR-0031): `./mvnw verify`, 23 tests, all green
 | Level | Class |
 |---|---|
 | Unit | `OrderTest` |
@@ -44,6 +44,6 @@ io.github.bsamsonov.orders
 `make -C platform up`, then `tilt ci`: the pod is Ready, an order sent through `orders.localhost:8080` goes to Kafka and reaches notifications-service
 (details in `platform/README.md`).
 
-## Security (D11)
+## Security (ADR-0023)
 Every request carries a Keycloak token; access rules are in `SecurityConfig`, permissions in `openapi.yaml`.
 How to get a token and add a permission: `security/README.md`.

@@ -10,7 +10,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
 /**
- * Outbox delivery while the service runs (D12): a publication whose listener failed (Kafka down, audit listener error)
+ * Outbox delivery while the service runs (ADR-0003): a publication whose listener failed (Kafka down, audit listener error)
  * stays in {@code event_publication} as FAILED and is resubmitted here until it succeeds.
  * The registry claims each row with a conditional update, so replicas do not resubmit the same row twice.
  */

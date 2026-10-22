@@ -1,6 +1,6 @@
 # notifications-service: consumer of order events
 
-Created with the `create-service` skill from the `orders-service` template. Decisions: `docs/decisions.md` (D1–D7).
+Created with the `create-service` skill from the `orders-service` template. Decisions: `docs/adr/`.
 It reads `orders.events` (`OrderPlaced`, `OrderCancelled`), creates a customer notification for every event and "sends" it by email.
 The service publishes no events, so the outbox (`spring-modulith-starter-jdbc`, `events-kafka`, the `event_publication` table) is removed.
 
@@ -31,7 +31,7 @@ io.github.bsamsonov.notifications
 - **Observability:** `spring.kafka.listener.observation-enabled` continues the trace from the Kafka headers.
   One trace: `http post /orders` (orders-service) → `orders.events send` → `orders.events process` → `OrderEventsListener.on`.
 
-## Tests (D7): `./mvnw verify`, 25 tests, all green
+## Tests (ADR-0031): `./mvnw verify`, 25 tests, all green
 | Level | Class |
 |---|---|
 | Unit | `NotificationTest`: status transitions, finality |
@@ -53,6 +53,6 @@ io.github.bsamsonov.notifications
 - A malformed message `broken-2` → `orders.events.DLT` with cause headers and a WARN in the log. No reprocessing after a restart: the offset is committed.
 - Listener metric: `spring_kafka_listener_seconds_count{application="notifications-service"}`.
 
-## Security (D11)
+## Security (ADR-0023)
 Every request carries a Keycloak token; access rules are in `SecurityConfig`, permissions in `openapi.yaml`.
 How to get a token and add a permission: `security/README.md`.

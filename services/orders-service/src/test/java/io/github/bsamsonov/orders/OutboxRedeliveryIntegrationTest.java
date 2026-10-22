@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
 /**
- * Outbox delivery survives a broker outage without a restart of the service (D12):
+ * Outbox delivery survives a broker outage without a restart of the service (ADR-0003):
  * the Kafka send fails, the publication stays in event_publication, and the scheduled
  * resubmission delivers it once the broker is back.
  */

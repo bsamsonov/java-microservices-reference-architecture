@@ -21,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * JDBC slice on real Postgres with Flyway migrations: mapping, queries, constraints, version.
- * JDBC has no ddl-auto validate, so this test is what keeps the mapping in sync with the schema (D8):
+ * JDBC has no ddl-auto validate, so this test is what keeps the mapping in sync with the schema (ADR-0032):
  * it writes and reads every column.
  */
 @DataJdbcTest

@@ -2,7 +2,7 @@
 
 A lightweight [arc42](https://arc42.org/) description of the reference architecture: what it is for, which qualities drive it,
 how it is structured (C4 diagrams in Mermaid), how the main scenarios run, and what is knowingly missing.
-Decisions are recorded separately as ADRs in [`docs/adr/`](../adr/README.md) (entries not yet migrated: [`docs/decisions.md`](../decisions.md)); each one names the drivers below that it serves.
+Decisions are recorded separately as ADRs in [`docs/adr/`](../adr/README.md); each one names the drivers below that it serves.
 
 ## 1. Goals
 
@@ -29,7 +29,7 @@ Ordered by priority. Each driver is stated as a scenario with a measurable respo
 | ID | Driver | Scenario (stimulus → response, measure) | Status |
 |---|---|---|---|
 | QD1 | **Fast, consistent service onboarding** | A developer or agent creates a service from a template → it builds, passes all tests and runs in both modes; it appears in the shared dashboard, alerts and SLOs **with no edits** to observability files. Target: one to two days for a service with real business logic | automated: scaffolded copies of both templates pass `./mvnw verify`; dashboards, rules and SLOs group by the `application` label |
-| QD2 | **No lost business events** | An order is accepted → its `OrderPlaced` event reaches every consumer at least once, even if Kafka is down at that moment; a duplicate delivery changes nothing; a poison message does not block the partition | automated: `OutboxRedeliveryIntegrationTest` (Kafka paused → order → Kafka resumed → event delivered, no restart, D12); idempotency is tested; a broken message goes to the DLT (verified) |
+| QD2 | **No lost business events** | An order is accepted → its `OrderPlaced` event reaches every consumer at least once, even if Kafka is down at that moment; a duplicate delivery changes nothing; a poison message does not block the partition | automated: `OutboxRedeliveryIntegrationTest` (Kafka paused → order → Kafka resumed → event delivered, no restart, ADR-0003); idempotency is tested; a broken message goes to the DLT (verified) |
 | QD3 | **Observable by default** | Any request can be followed across services: one trace from HTTP through the outbox and Kafka to the consumer; every log line carries `trace_id`. A user-visible failure fires an SLO alert. Measure: availability 99.5 % and 99 % of requests under 500 ms over 28 days; in the outage test the fast-burn alert reached Alertmanager in about 3.5 minutes | verified; alert rules are unit-tested (`promtool test`, `pint`) |
 | QD4 | **Architecture rules enforced by the build** | A change crosses a module boundary, puts JPA into the domain or a controller into persistence → `./mvnw verify` fails with a message that says what to do instead | automated: `ModularityTest`, `HexagonArchitectureTest`, `ArchitectureTest` |
 | QD5 | **One artifact, two run modes** | The same jar and image run in Docker Compose and in Kubernetes; only environment variables differ. The same dashboard, rule and SLO files serve both modes | verified |
@@ -119,13 +119,13 @@ flowchart TB
 
 | Container | Responsibility | Template |
 |---|---|---|
-| `orders-service` | order lifecycle (place, cancel), audit log, publishes `OrderPlaced` / `OrderCancelled` | template 1: Modulith, domain model, light hexagon (D6) |
+| `orders-service` | order lifecycle (place, cancel), audit log, publishes `OrderPlaced` / `OrderCancelled` | template 1: Modulith, domain model, light hexagon (ADR-0001, ADR-0030) |
 | `notifications-service` | reacts to order events, keeps notification state `PENDING → SENT / FAILED` | template 1, consumer variant |
-| `catalog-service` | product catalog with optimistic locking and paging | template 2: CRUD on Spring Data JDBC, no Modulith (D8) |
+| `catalog-service` | product catalog with optimistic locking and paging | template 2: CRUD on Spring Data JDBC, no Modulith (ADR-0001, ADR-0032) |
 | Postgres | one database per service; inside a service, one schema per module | |
-| Kafka | `orders.events` (3 partitions) and its dead-letter topic | Strimzi in k8s (D3) |
-| Keycloak | users, groups, permissions as realm roles `<service>:<action>` in the `permissions` claim | D11 |
-| Observability | OTLP for traces and logs, Prometheus for metrics, one dashboard and one rule set for all services | D9, D10 |
+| Kafka | `orders.events` (3 partitions) and its dead-letter topic | Strimzi in k8s (ADR-0010, ADR-0015) |
+| Keycloak | users, groups, permissions as realm roles `<service>:<action>` in the `permissions` claim | ADR-0023 |
+| Observability | OTLP for traces and logs, Prometheus for metrics, one dashboard and one rule set for all services | ADR-0020, ADR-0021, ADR-0022 |
 
 Inside a template-1 service the structure is fixed and checked by tests (QD4):
 
@@ -259,21 +259,18 @@ and the cause alert `SpringDbPoolExhausted` (warning) goes to chat. Measured tim
 
 ## 9. Decisions
 
-ADRs with their drivers are indexed in [`docs/adr/`](../adr/README.md). The entries below are the earlier list in [`docs/decisions.md`](../decisions.md), mapped to drivers:
+Decisions are ADRs in [`docs/adr/`](../adr/README.md); the index lists each one with its status and drivers. The same mapping from the drivers' side:
 
-| Decision | Drivers |
+| Driver | ADRs |
 |---|---|
-| D1 Helm, shared chart | QD1, QD5 |
-| D3 Strimzi; CloudNativePG | QD5, QD6 |
-| D4 k3d + Tilt | QD6 |
-| D5 Maven | QD1 |
-| D6 modules by subdomain, light hexagon, two templates | QD1, QD4, QD8 |
-| D7 test pyramid | QD2, QD4 |
-| D8 JPA in template 1, Spring Data JDBC in template 2 | QD1, QD8 |
-| D9 dashboards as code, one set for both modes | QD1, QD3, QD5 |
-| D10 Prometheus rules, Alertmanager, SLOs via Pyrra | QD3 |
-| D11 Keycloak, resource server in every service, NetworkPolicy | QD7 |
-| D12 outbox: scheduled resubmission, delete on completion | QD2 |
+| QD1 Fast, consistent service onboarding | [0001](../adr/0001-modulith-inside-each-microservice.md), [0006](../adr/0006-api-first-openapi.md), [0008](../adr/0008-java-25-spring-boot-4.md), [0011](../adr/0011-flyway-migrations.md), [0012](../adr/0012-maven-build.md), [0014](../adr/0014-helm-shared-service-chart.md), [0016](../adr/0016-k3d-and-tilt-for-local-kubernetes.md), [0021](../adr/0021-dashboards-as-code.md), [0025](../adr/0025-ai-agent-as-a-participant.md), [0032](../adr/0032-jpa-for-rich-domain-jdbc-for-crud.md) |
+| QD2 No lost business events | [0002](../adr/0002-integrate-services-through-events.md), [0003](../adr/0003-outbox-on-modulith-event-registry.md), [0004](../adr/0004-idempotent-consumers-retries-and-dlt.md), [0005](../adr/0005-event-format-json-with-json-schema.md), [0010](../adr/0010-kafka-as-event-broker.md), [0031](../adr/0031-test-pyramid.md) |
+| QD3 Observable by default | [0002](../adr/0002-integrate-services-through-events.md), [0004](../adr/0004-idempotent-consumers-retries-and-dlt.md), [0020](../adr/0020-opentelemetry-through-spring-boot.md), [0021](../adr/0021-dashboards-as-code.md), [0022](../adr/0022-alerting-prometheus-rules-alertmanager-pyrra.md) |
+| QD4 Architecture rules enforced by the build | [0001](../adr/0001-modulith-inside-each-microservice.md), [0006](../adr/0006-api-first-openapi.md), [0007](../adr/0007-database-per-service-schema-per-module.md), [0011](../adr/0011-flyway-migrations.md), [0022](../adr/0022-alerting-prometheus-rules-alertmanager-pyrra.md), [0024](../adr/0024-architecture-rules-as-tests.md), [0030](../adr/0030-light-hexagon-inside-a-module.md), [0031](../adr/0031-test-pyramid.md) |
+| QD5 One artifact, two run modes | [0007](../adr/0007-database-per-service-schema-per-module.md), [0009](../adr/0009-postgresql.md), [0010](../adr/0010-kafka-as-event-broker.md), [0013](../adr/0013-container-image-dockerfile.md), [0014](../adr/0014-helm-shared-service-chart.md), [0015](../adr/0015-operators-for-postgres-and-kafka.md), [0017](../adr/0017-two-run-modes-same-artifacts.md), [0018](../adr/0018-gitops-with-argo-cd.md), [0019](../adr/0019-secrets-in-git-for-gitops.md), [0020](../adr/0020-opentelemetry-through-spring-boot.md), [0021](../adr/0021-dashboards-as-code.md), [0026](../adr/0026-no-spring-cloud-netflix-or-config-server.md) |
+| QD6 Runs on a developer laptop | [0003](../adr/0003-outbox-on-modulith-event-registry.md), [0007](../adr/0007-database-per-service-schema-per-module.md), [0009](../adr/0009-postgresql.md), [0010](../adr/0010-kafka-as-event-broker.md), [0013](../adr/0013-container-image-dockerfile.md), [0015](../adr/0015-operators-for-postgres-and-kafka.md), [0016](../adr/0016-k3d-and-tilt-for-local-kubernetes.md), [0017](../adr/0017-two-run-modes-same-artifacts.md), [0026](../adr/0026-no-spring-cloud-netflix-or-config-server.md), [0027](../adr/0027-service-mesh-deferred.md), [0028](../adr/0028-api-gateway-deferred.md), [0029](../adr/0029-multi-cluster-and-cloud-deferred.md) |
+| QD7 Secure baseline | [0019](../adr/0019-secrets-in-git-for-gitops.md), [0023](../adr/0023-keycloak-resource-server-network-policy.md), [0027](../adr/0027-service-mesh-deferred.md), [0028](../adr/0028-api-gateway-deferred.md) |
+| QD8 Operable by an AI agent | [0001](../adr/0001-modulith-inside-each-microservice.md), [0005](../adr/0005-event-format-json-with-json-schema.md), [0006](../adr/0006-api-first-openapi.md), [0008](../adr/0008-java-25-spring-boot-4.md), [0011](../adr/0011-flyway-migrations.md), [0012](../adr/0012-maven-build.md), [0023](../adr/0023-keycloak-resource-server-network-policy.md), [0024](../adr/0024-architecture-rules-as-tests.md), [0025](../adr/0025-ai-agent-as-a-participant.md), [0030](../adr/0030-light-hexagon-inside-a-module.md), [0032](../adr/0032-jpa-for-rich-domain-jdbc-for-crud.md) |
 
 ## 10. Risks and technical debt
 
@@ -281,7 +278,7 @@ Known and accepted for now; each has a condition for fixing it.
 
 | ID | Risk or debt | Impact | Plan |
 |---|---|---|---|
-| R1 | Outbox (after D12): with several replicas a restart republishes rows still in flight on other replicas; no metric or alert on the outbox backlog yet | duplicate deliveries (absorbed by idempotent consumers); a long outage is visible only through the Kafka send errors | backlog gauge (`event_publication` row count) and an alert, together with the broker outage experiment (B8) |
+| R1 | Outbox (after ADR-0003): with several replicas a restart republishes rows still in flight on other replicas; no metric or alert on the outbox backlog yet | duplicate deliveries (absorbed by idempotent consumers); a long outage is visible only through the Kafka send errors | backlog gauge (`event_publication` row count) and an alert, together with the broker outage experiment (B8) |
 | R2 | The event contract is implicit: the consumer resolves the type from the producer's Java class name (`__TypeId__`) | renaming a record or a consumer in another language breaks integration | explicit type header (CloudEvents) and JSON Schema / AsyncAPI, checked in producer tests |
 | R3 | Services are copies of a template with no upgrade path; versions live in each `pom.xml` | ten services drift to ten stacks | parent POM / BOM and one internal starter |
 | R4 | No variant for a synchronous call to another service | the template covers only event-driven integration | `RestClient` / HTTP interface with timeouts, retry, circuit breaker and a contract test |

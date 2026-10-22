@@ -1,12 +1,12 @@
 ---
 name: create-service
-description: Creates a new Spring service in this repository from one of two templates (services/orders-service — Modulith and a domain model; services/catalog-service — a simple CRUD on Spring Data JDBC). It copies the template, renames packages, artifact, database, schema and topic, replaces the domain, writes tests per D7, runs ./mvnw verify and wires the service into compose, Tilt and the platform. Only business logic is discussed; infrastructure comes from the template. Use when the user says "create service X", "new service", "add a microservice", "scaffold a service", "make a service from the template".
+description: Creates a new Spring service in this repository from one of two templates (services/orders-service — Modulith and a domain model; services/catalog-service — a simple CRUD on Spring Data JDBC). It copies the template, renames packages, artifact, database, schema and topic, replaces the domain, writes tests per ADR-0031, runs ./mvnw verify and wires the service into compose, Tilt and the platform. Only business logic is discussed; infrastructure comes from the template. Use when the user says "create service X", "new service", "add a microservice", "scaffold a service", "make a service from the template".
 ---
 
 # create-service
 
 The service rules (modules, hexagon, contracts, tests, definition of done, prohibitions) are in `AGENTS.md` and are not repeated here.
-This skill sets the order of work. There are two templates (D6, D8):
+This skill sets the order of work. There are two templates (ADR-0001, ADR-0032):
 | Template | Sample | When |
 |---|---|---|
 | 1 | `services/orders-service` | invariants and states, several subdomains, Kafka events (published or consumed) |
@@ -19,7 +19,7 @@ If a template 2 service later grows rules or events, move it to template 1 inste
 Do not ask about infrastructure: it comes from the template. Ask in one message and offer a default for every item:
 1. **Name** of the service in kebab-case (`payments`, `loyalty-points`); the `-service` suffix is added automatically.
 2. **Aggregate(s) and invariants**: which states exist, which transitions are forbidden. No business rules and no events → template 2.
-   No rules but events are needed → template 1 with a CRUD module (D6, rule 5 in `AGENTS.md`): no `domain/`, marked in `package-info.java`.
+   No rules but events are needed → template 1 with a CRUD module (ADR-0030, rule 5 in `AGENTS.md`): no `domain/`, marked in `package-info.java`.
 3. **Use cases → HTTP**: commands and queries, error codes (404, 409, 422).
 4. **Events**: what the module publishes and who listens. The topic is `<schema>.events`, the key is the aggregate id.
    Separately: does the service consume other services' events, and which ones? If so, use the consumer variant (step 2b) and decide what to do with invalid messages (default: retries, then DLT).
@@ -87,7 +87,7 @@ Sample: `services/catalog-service`. The `product` package is renamed to the feat
 6. A second feature is a second package next to `product`, built the same way. The `ArchitectureTest` rule "the aggregate stays inside its feature"
    is written for `product` today: when a feature is added, generalise it to all feature packages instead of deleting it.
 
-## 2d. Access permissions (all templates, D11)
+## 2d. Access permissions (all templates, ADR-0023)
 How it works: `security/README.md`. Permissions are named `<schema>:read` and `<schema>:write` (like `orders:read`).
 1. **`security/keycloak/realm-blueprints.json`**: realm roles `<schema>:read`, `<schema>:write`; grant them to a group
    (`customers` or a new one), otherwise no user has the permissions and every request gets 403.
@@ -96,7 +96,7 @@ How it works: `security/README.md`. Permissions are named `<schema>:read` and `<
 4. **Tests**: web-slice requests use `.with(token("<schema>:write"))`, the claim-mapping test uses your permissions; 401 and 403 for every rule.
 5. A consumer without HTTP writes (like notifications) gets only `<schema>:read`.
 
-## 3. Tests (D7)
+## 3. Tests (ADR-0031)
 **Template 2:** `ProductControllerTest` (`@WebMvcTest`), `ProductRepositoryTest` (`@DataJdbcTest`), `<Name>FlowIntegrationTest` (the full CRUD cycle over HTTP on Postgres);
 `ArchitectureTest` stays unchanged, there is no domain unit test. The rest of this section is about template 1.
 

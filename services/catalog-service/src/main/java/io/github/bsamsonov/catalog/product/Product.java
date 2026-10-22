@@ -9,7 +9,7 @@ import org.springframework.data.annotation.Version;
 import org.springframework.data.relational.core.mapping.Table;
 
 /**
- * Product: aggregate and model at once (CRUD variant), mapped by Spring Data JDBC (D8): one row, no session,
+ * Product: aggregate and model at once (CRUD variant), mapped by Spring Data JDBC (ADR-0032): one row, no session,
  * no lazy loading; a change is stored only by an explicit {@code save}. Columns follow the default snake_case naming.
  * {@code code} is the immutable business key.
  */

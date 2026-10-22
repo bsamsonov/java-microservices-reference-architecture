@@ -2,7 +2,7 @@
 
 Every API call needs an access token. Keycloak issues the token to a user, each service checks it
 and decides by the user's permissions. Inside Kubernetes, network policies allow a service to talk only
-to what it needs. Decision record: D11 in `docs/decisions.md`.
+to what it needs. Decision record: ADR-0023 in `docs/adr/`.
 
 ## How a request is checked
 

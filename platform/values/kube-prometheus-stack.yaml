@@ -1,5 +1,5 @@
 fullnameOverride: kps   # -> services kps-prometheus, kps-grafana
-# Alerting (D10): rules come as PrometheusRule from observability/prometheus/ (make alerting),
+# Alerting (ADR-0022): rules come as PrometheusRule from observability/prometheus/ (make alerting),
 # Alertmanager config is the Secret built from observability/alertmanager/ (the same files compose mounts).
 alertmanager:
   enabled: true

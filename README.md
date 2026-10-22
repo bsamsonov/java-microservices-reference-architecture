@@ -11,7 +11,7 @@ from the same service artifacts, and it is built to be extended by a developer w
 | Three services that exercise the platform: `orders` (Spring Modulith, domain model, transactional outbox → Kafka), `notifications` (idempotent Kafka consumer with retries and DLT), `catalog` (small CRUD on Spring Data JDBC) | [`services/`](services/) |
 | Two service templates and a `create-service` skill that scaffolds a new service from them | [`.claude/skills/create-service/`](.claude/skills/create-service/SKILL.md) |
 | Architecture overview: quality drivers, C4 diagrams, runtime scenarios, risks | [`docs/architecture/`](docs/architecture/README.md) |
-| Architecture decision records: options, cost and when to choose differently | [`docs/adr/`](docs/adr/README.md) (earlier short list: [`docs/decisions.md`](docs/decisions.md)) |
+| Architecture decision records: options, cost and when to choose differently | [`docs/adr/`](docs/adr/README.md) |
 | Laptop mode: Postgres, Kafka, Keycloak, Grafana LGTM, Alertmanager | [`compose/`](compose/README.md) |
 | Kubernetes mode: k3d, CloudNativePG, Strimzi, Keycloak, kube-prometheus-stack, Loki, Tempo, OTel Collector, NetworkPolicy | [`platform/`](platform/README.md) |
 | Dashboards, Prometheus rules, SLOs (Pyrra), Alertmanager routing, runbooks | [`observability/`](observability/README.md), [`docs/alerting.md`](docs/alerting.md) |

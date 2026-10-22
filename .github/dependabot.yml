@@ -8,6 +8,10 @@ updates:
     schedule:
       interval: weekly
     groups:
+      # first match wins: a Spring Boot minor stays in its own PR (AGENTS.md names the version)
+      spring-boot-minor:
+        patterns: ["org.springframework.boot:*"]
+        update-types: [minor]
       maven-minor-patch:
         update-types: [minor, patch]
   - package-ecosystem: github-actions
@@ -24,6 +28,10 @@ updates:
       - /services/catalog-service
     schedule:
       interval: weekly
+    ignore:
+      # the JDK is pinned to the LTS line (ADR-0008); a new major is a decision, not an update
+      - dependency-name: eclipse-temurin
+        update-types: ["version-update:semver-major"]
     groups:
       docker-minor-patch:
         update-types: [minor, patch]

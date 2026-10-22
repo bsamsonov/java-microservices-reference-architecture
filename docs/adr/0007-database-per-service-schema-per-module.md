@@ -27,7 +27,8 @@ Modules inside one service share the service's user: they share one transaction,
 - **Good:** one database server to run on a laptop; a module or a service can move to its own server by changing a URL; schemas make ownership visible.
 - **Cost:** the services share one server, so they share its failure, its resources and its version.
   Until the per-service user is in place, isolation between services is a convention, not a permission.
-  Schemas of modules inside a service stay a convention: no test checks the SQL a module runs.
+  Schemas of modules inside a service stay a convention for now: no test checks the SQL a module runs (a test is planned:
+  entity schema, migration prefix and schema names in SQL must match the module).
   Cross-service reports need events or a read model, not joins.
 
 ## When to choose differently

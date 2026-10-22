@@ -35,7 +35,6 @@ All commands run from the service folder (`services/<name>`) unless stated other
 | The same plus the services in containers (from the root) | `./mvnw -DskipTests package` in each service, then `docker compose -f compose/compose.yaml --profile apps up -d --build` |
 | Kubernetes (from the root) | `make -C platform up`, then `tilt ci` (or `tilt up` with the UI) |
 | Check alerting (from the root, needs Docker) | `observability/check-alerting.sh` |
-| Apply the repository ruleset after editing `.github/rulesets/main.json` (owner, from the root) | `gh api -X PUT repos/{owner}/{repo}/rulesets/$(gh api repos/{owner}/{repo}/rulesets -q '.[]\|select(.name=="main").id') --input .github/rulesets/main.json` |
 
 Grafana: http://localhost:3000 (admin/admin), Alertmanager: http://localhost:9093. Service: http://localhost:8080, module map: `/actuator/modulith`.
 Keycloak: http://localhost:8180 (admin/admin). API calls need a token: `TOKEN=$(security/token.sh alice)`, `curl -H "Authorization: Bearer $TOKEN" …`.
@@ -123,5 +122,5 @@ Infrastructure versions (Postgres, Kafka, otel-lgtm) are pinned and equal in com
 - Disable or skip tests (`-DskipTests` before a commit, `@Disabled`) to get a green build.
 - Open an endpoint without a permission (`permitAll`) except health and `/actuator/prometheus`; log tokens.
 - Write non-English text anywhere in the repository: code, comments, docs, commit messages.
-- Edit an `Accepted`, `Rejected` or `Superseded` ADR beyond its `Status` and `Implemented` lines: write a new ADR that supersedes it.
+- Edit an `Accepted`, `Rejected` or `Superseded` ADR beyond its `Status`, `Implemented` and `Amended by` lines: write a new ADR that supersedes or amends it.
 - Change more than one `services/<name>/` in one pull request without the label `cross-cutting`.

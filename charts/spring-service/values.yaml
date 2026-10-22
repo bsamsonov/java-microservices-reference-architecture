@@ -1,6 +1,6 @@
 image:
   repository: ""            # required
-  tag: latest
+  tag: ""                   # defaults to the chart appVersion; Tilt substitutes its own tag
   pullPolicy: IfNotPresent
 replicaCount: 1
 containerPort: 8080

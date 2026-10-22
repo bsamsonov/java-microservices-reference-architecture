@@ -18,11 +18,12 @@ A new service must get them without writing manifests (QD1), and the values must
 Option 1. The chart renders `deployment`, `service`, `ingress`, `servicemonitor`, `networkpolicy` and `kafkatopics` (Strimzi `KafkaTopic`);
 the service's `deploy/values.yaml` sets the image, `env`, `secretEnv`, resources and `kafka.topics`. Tilt renders the chart with these values (ADR-0016);
 Argo CD will deploy the same chart (ADR-0018). Platform components come from their upstream Helm charts (`platform/Makefile`). The local tool is Helm 4.
+The image tag defaults to the chart `appVersion` (no `latest`); Tilt substitutes its own tag, a release pipeline passes `--set image.tag`.
 
 ## Consequences
 - **Good:** a new service is one values file; a fix in the chart reaches every service; Helm is the packaging most Java teams and vendors use.
 - **Cost:** Go templates are harder to read than YAML patches; a chart change affects all services at once and has no tests yet
-  (`helm lint` and `kubeconform` are planned in CI). Helm 3 is at the end of its support, so the README must name Helm 4.
+  (`helm lint` and `kubeconform` run in CI). Helm 3 is at the end of its support, so the README must name Helm 4.
 
 ## When to choose differently
 - Only environment overlays of plain manifests, no templating: **Kustomize**.

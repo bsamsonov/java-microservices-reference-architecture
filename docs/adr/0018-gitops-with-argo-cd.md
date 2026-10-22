@@ -1,7 +1,7 @@
 # ADR-0018: GitOps delivery with Argo CD
 
 - **Status:** Accepted
-- **Implemented:** no, roadmap B5
+- **Implemented:** no, see the [Roadmap](../../README.md#roadmap-what-is-deliberately-not-done)
 - **Date:** 2026-10-22
 - **Drivers:** QD6
 - **Risks:** closes R7 when implemented

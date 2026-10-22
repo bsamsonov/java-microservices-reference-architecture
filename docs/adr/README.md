@@ -22,7 +22,7 @@ The earlier short list D1–D12 lives in [`docs/decisions.md`](../decisions.md) 
 | [0004](0004-idempotent-consumers-retries-and-dlt.md) | Idempotent consumers, bounded retries and a dead-letter topic | System | Accepted | QD2, QD3 | |
 | [0005](0005-event-format-json-with-json-schema.md) | Event format: JSON now, JSON Schema and AsyncAPI next; registry and binary formats deferred | System | Accepted (partly planned) | QD2, QD8 | |
 | [0006](0006-api-first-openapi.md) | API-first: OpenAPI file, generated interfaces | System | Accepted | QD1, QD4, QD8 | |
-| [0007](0007-database-per-service-schema-per-module.md) | A database per service and a schema per module | System | Accepted | QD4, QD5, QD6 | |
+| [0007](0007-database-per-service-schema-per-module.md) | A database per service and a schema per module | System | Accepted (per-service user planned) | QD4, QD5, QD6 | |
 | [0008](0008-java-25-spring-boot-4.md) | Java 25 and Spring Boot 4.1 | Stack | Accepted | QD1, QD8 | |
 | [0009](0009-postgresql.md) | PostgreSQL as the database for every service | Stack | Accepted | QD5, QD6 | |
 | [0010](0010-kafka-as-event-broker.md) | Apache Kafka as the event broker | Stack | Accepted | QD2, QD5, QD6 | D3 (in part) |

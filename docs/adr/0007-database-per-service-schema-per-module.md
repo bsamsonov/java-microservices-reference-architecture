@@ -1,6 +1,6 @@
 # ADR-0007: A database per service and a schema per module
 
-- **Status:** Accepted
+- **Status:** Accepted (per-service database user planned)
 - **Date:** 2026-10-22
 - **Drivers:** QD4, QD5, QD6
 
@@ -19,11 +19,15 @@ Option 1. Compose runs one Postgres and creates a database per service (`compose
 k3d runs one CloudNativePG cluster and creates them with CNPG `Database` resources (`platform/manifests/databases/`).
 Inside a service each module has its own schema (`orders`, `audit`) and its own Flyway migrations (`V<n>__<module>_<what>.sql`).
 Reading or writing another module's or another service's tables is forbidden (`AGENTS.md`).
+**Each service gets its own database user** that owns only its database (decided 2026-10-22, not implemented yet:
+today all services connect as one user `app`, listed as a known gap in [`security/README.md`](../../security/README.md)).
+Modules inside one service share the service's user: they share one transaction, which the outbox (ADR-0003) relies on.
 
 ## Consequences
 - **Good:** one database server to run on a laptop; a module or a service can move to its own server by changing a URL; schemas make ownership visible.
 - **Cost:** the services share one server, so they share its failure, its resources and its version.
-  All services connect as the same database user, so isolation between services is a convention, not a permission; a per-service user is the next step.
+  Until the per-service user is in place, isolation between services is a convention, not a permission.
+  Schemas of modules inside a service stay a convention: no test checks the SQL a module runs.
   Cross-service reports need events or a read model, not joins.
 
 ## When to choose differently

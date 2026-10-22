@@ -5,6 +5,7 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -16,6 +17,7 @@ concurrency:
 jobs:
   services:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
@@ -33,11 +35,19 @@ jobs:
           cache-dependency-path: services/${{ matrix.service }}/pom.xml
       # Testcontainers use the Docker daemon of the runner
       - run: ./mvnw -B verify
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: reports-${{ matrix.service }}
+          path: services/${{ matrix.service }}/target/*-reports/
+          if-no-files-found: ignore
       - name: Build the image (not pushed)
         run: docker build -t ${{ matrix.service }}:ci .
 
   platform:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
       - uses: azure/setup-helm@v5
@@ -63,6 +73,7 @@ jobs:
 
   alerting:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
       # The script runs pyrra, promtool, amtool and pint in pinned containers

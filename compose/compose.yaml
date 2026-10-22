@@ -8,15 +8,14 @@ services:
   postgres:
     image: postgres:18-alpine
     environment:
-      POSTGRES_DB: orders
-      POSTGRES_USER: app
-      POSTGRES_PASSWORD: app   # local demo only
+      POSTGRES_USER: postgres       # admin, local only; each service has its own user and database (postgres-init/)
+      POSTGRES_PASSWORD: postgres   # local demo only
     ports: ["5432:5432"]
     volumes:
       - pgdata:/var/lib/postgresql   # postgres 18 keeps PGDATA in /var/lib/postgresql/18/docker
-      - ./postgres-init:/docker-entrypoint-initdb.d:ro   # one <db>.sql per extra service
+      - ./postgres-init:/docker-entrypoint-initdb.d:ro   # one <db>.sql per service: its user and database
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U app -d orders"]
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U postgres"]   # TCP: ready only after the init scripts ran
       interval: 5s
       timeout: 3s
       retries: 20

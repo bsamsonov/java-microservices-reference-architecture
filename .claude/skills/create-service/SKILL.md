@@ -121,14 +121,14 @@ Write Java files with the Write tool or a quoted heredoc (`<<'EOF'`): an unquote
 | `services/<svc>/deploy/values.yaml` | template 1: `kafka.topics`: `<schema>.events` instead of `orders.events`; template 2: no Kafka, nothing to change |
 | `Tiltfile` | add the line `spring_service('<svc>')` |
 | `compose/compose.yaml` | copy the block of your template (`orders-service` or `catalog-service`; the latter has no Kafka) as `<svc>`: `build`, `image: <svc>:compose`, the next free host port (8080–8082 are taken), the database in `SPRING_DATASOURCE_URL` |
-| `compose/postgres-init/<db>.sql` | `create database <db> owner app;` (see the README in that folder) |
-| `platform/manifests/databases/<db>.yaml` | a `Database` CR from the README in that folder |
+| `compose/postgres-init/<db>.sql` | the service's user and database (template in the README in that folder) |
+| `platform/manifests/databases/<db>.yaml` and `platform/manifests/postgres.yaml` | a `Database` CR owned by `<db>` and a managed role (both in the README in that folder); scaffold already set `secretEnv` to `pg-<name>` |
 | `compose/README.md` | a row for the service in the address table |
 | `compose/compose.yaml` (service block) | `SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI` is already in the copied block; check it |
 | Keycloak | after a realm change: `docker compose -f compose/compose.yaml up -d --force-recreate keycloak` |
 
-If the `pgdata` volume already exists, the init script does not run; create the database by hand:
-`docker compose -f compose/compose.yaml exec postgres createdb -U app <db>`.
+If the `pgdata` volume already exists, the init script does not run; run it by hand:
+`docker compose -f compose/compose.yaml exec -T postgres psql -U postgres < compose/postgres-init/<db>.sql`.
 To run two services locally at once: `SERVER_PORT=8081 ./mvnw spring-boot:run`.
 
 ## 6. Check in compose

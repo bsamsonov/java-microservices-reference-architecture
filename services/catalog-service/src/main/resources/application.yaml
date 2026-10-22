@@ -15,8 +15,8 @@ spring:
           authority-prefix: ""                                       # authority = permission as is, e.g. orders:write
   datasource:
     url: jdbc:postgresql://localhost:5432/catalog
-    username: app
-    password: app
+    username: catalog
+    password: catalog
 
 management:
   endpoints:

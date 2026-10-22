@@ -5,7 +5,7 @@ The Kubernetes mode lives in `../platform/` (k3d + Helm). Services do not know w
 
 | Component | Address from the host | Address from containers |
 |---|---|---|
-| Postgres 18 (db/user/pass `orders`/`app`/`app`) | `localhost:5432` | `postgres:5432` |
+| Postgres 18 (a database and user per service, password = user name; admin `postgres`/`postgres`) | `localhost:5432` | `postgres:5432` |
 | Kafka 4.3 (KRaft, single node) | `localhost:9092` | `kafka:19092` |
 | Grafana (admin/admin) | http://localhost:3000 | |
 | OTLP gRPC / HTTP | `localhost:4317` / `localhost:4318` | `lgtm:4317` / `lgtm:4318` |

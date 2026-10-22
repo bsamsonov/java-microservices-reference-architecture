@@ -10,8 +10,8 @@ env:
   SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak.localhost:8080/realms/blueprints
   SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak.infra:8080/realms/blueprints/protocol/openid-connect/certs
 secretEnv:
-  - {name: SPRING_DATASOURCE_USERNAME, secret: pg-app, key: username}
-  - {name: SPRING_DATASOURCE_PASSWORD, secret: pg-app, key: password}
+  - {name: SPRING_DATASOURCE_USERNAME, secret: pg-catalog, key: username}
+  - {name: SPRING_DATASOURCE_PASSWORD, secret: pg-catalog, key: password}
 ingress:
   enabled: true
   host: catalog.localhost

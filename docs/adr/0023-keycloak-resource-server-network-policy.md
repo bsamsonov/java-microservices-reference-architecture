@@ -25,7 +25,7 @@ A new endpoint means four edits: realm role and group, `SecurityConfig`, the per
 ## Consequences
 - **Good:** standard Spring Security with almost no code; a service's access policy fits in one method; no single point of failure in front of the services.
 - **Cost:** gaps accepted on purpose and listed with revisit conditions in `security/README.md`: ownership checks (planned next: `customerId` from the token, 404 for another customer's order), service-to-service auth, Kafka ACLs,
-  encrypted secrets (ADR-0019), one database user (ADR-0007), Keycloak in dev mode with the password grant (risk R8).
+  encrypted secrets (ADR-0019), Keycloak in dev mode with the password grant (risk R8).
 
 ## When to choose differently
 - The company already has an identity provider (Entra ID, Okta, Cognito, Auth0): use it; the services only change the issuer and the claim mapping.

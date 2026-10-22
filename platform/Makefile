@@ -3,7 +3,7 @@
 CLUSTER := blueprints
 HELM    := helm upgrade --install --wait --timeout 10m
 
-.PHONY: up down cluster repos operators infra security observability dashboards alerting status grafana apps-namespace
+.PHONY: up down cluster repos operators infra db-secrets db-privileges security observability dashboards alerting status grafana apps-namespace
 
 up: cluster repos operators infra security observability dashboards alerting apps-namespace status
 
@@ -26,12 +26,31 @@ operators:
 	$(HELM) strimzi strimzi/strimzi-kafka-operator -n infra --set watchAnyNamespace=true
 	$(HELM) cnpg cnpg/cloudnative-pg -n infra
 
-infra:
+infra: db-secrets
 	kubectl apply -f manifests/kafka.yaml -f manifests/postgres.yaml
 	kubectl -n infra wait kafka/blueprints --for=condition=Ready --timeout=10m
 	kubectl -n infra wait cluster.postgresql.cnpg.io/pg --for=condition=Ready --timeout=10m
-	# one Database per extra service (orders comes from initdb)
-	ls manifests/databases/*.yaml >/dev/null 2>&1 && kubectl apply -f manifests/databases/ || true
+	kubectl apply -f manifests/databases/
+	$(MAKE) db-privileges
+
+# Service databases (ADR-0007): manifests/databases/<name>.yaml declares database and owner <db>; the secret pg-<name> holds
+# user <db> and a random password. It is created once and never overwritten (until SOPS, ADR-0019). The role itself is in postgres.yaml.
+db-secrets:
+	for f in manifests/databases/*.yaml; do \
+	  secret=pg-$$(basename $$f .yaml); user=$$(sed -n 's/^  owner: *//p' $$f); \
+	  kubectl -n infra get secret $$secret >/dev/null 2>&1 || kubectl -n infra create secret generic $$secret \
+	    --type=kubernetes.io/basic-auth --from-literal=username=$$user --from-literal=password=$$(openssl rand -hex 16); \
+	  kubectl -n infra label secret $$secret --overwrite cnpg.io/reload=true blueprints.io/db-user=true >/dev/null; \
+	done
+
+# Only the owner may connect to a service database: PUBLIC loses CONNECT and TEMPORARY (idempotent).
+db-privileges:
+	primary=$$(kubectl -n infra get pod -l cnpg.io/cluster=pg,cnpg.io/instanceRole=primary -o name); \
+	for f in manifests/databases/*.yaml; do \
+	  db=$$(sed -n 's/^  owner: *//p' $$f); \
+	  kubectl -n infra wait database.postgresql.cnpg.io/$$(basename $$f .yaml) --for=jsonpath='{.status.applied}'=true --timeout=2m; \
+	  kubectl -n infra exec $$primary -c postgres -- psql -qc "revoke connect, temporary on database $$db from public"; \
+	done
 
 # Keycloak with the same realm file as compose (security/keycloak); pods restart to re-import a changed realm.
 security:
@@ -78,6 +97,6 @@ down:
 apps-namespace:
 	kubectl create namespace apps --dry-run=client -o yaml | kubectl apply -f -
 	kubectl apply -f manifests/apps/default-deny.yaml
-	kubectl -n infra get secret pg-app -o json \
-	  | jq '{apiVersion, kind, type, data, metadata: {name: .metadata.name, namespace: "apps"}}' \
+	kubectl -n infra get secret -l blueprints.io/db-user=true -o json \
+	  | jq '{apiVersion: "v1", kind: "List", items: [.items[] | {apiVersion: "v1", kind: "Secret", type, data, metadata: {name: .metadata.name, namespace: "apps"}}]}' \
 	  | kubectl apply -f -

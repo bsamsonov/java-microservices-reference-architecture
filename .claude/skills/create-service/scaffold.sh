@@ -51,6 +51,8 @@ grep -rlZ -e "$tpl" -e "$tcls" "$dest" --exclude-dir=.mvn --exclude=mvnw --exclu
     -e "s/\b${tcls}Application\b/${cls}Application/g" \
     -e "s/\b${tcls}FlowIntegrationTest\b/${cls}FlowIntegrationTest/g" \
     -e "s#(jdbc:postgresql://[^/]+/)$tpl#\1$db#g" \
+    -e "s/^(    (username|password): )$tpl\$/\1$db/" \
+    -e "s/secret: pg-$tpl,/secret: pg-$name,/g" \
     -e "s/host: $tpl\.localhost/host: $name.localhost/"
 
 chmod +x "$dest/mvnw"

@@ -1,0 +1,10 @@
+# Database of orders-service in the shared CNPG cluster (see README.md here)
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: orders
+  namespace: infra
+spec:
+  cluster: {name: pg}
+  name: orders
+  owner: orders

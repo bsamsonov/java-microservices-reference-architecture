@@ -1,6 +1,6 @@
 # ADR-0007: A database per service and a schema per module
 
-- **Status:** Accepted (per-service database user planned)
+- **Status:** Accepted
 - **Date:** 2026-10-22
 - **Drivers:** QD2, QD6, QD7
 
@@ -19,14 +19,15 @@ Option 1. Compose runs one Postgres and creates a database per service (`compose
 k3d runs one CloudNativePG cluster and creates them with CNPG `Database` resources (`platform/manifests/databases/`).
 Inside a service each module has its own schema (`orders`, `audit`) and its own Flyway migrations (`V<n>__<module>_<what>.sql`).
 Reading or writing another module's or another service's tables is forbidden (`AGENTS.md`).
-**Each service gets its own database user** that owns only its database (decided 2026-10-22, not implemented yet:
-today all services connect as one user `app`, listed as a known gap in [`security/README.md`](../../security/README.md)).
+**Each service has its own database user** that owns its database and everything Flyway creates in it; CONNECT is revoked from PUBLIC,
+so no other user can open the database. Compose creates the user in `compose/postgres-init/<db>.sql`; k3d declares it as a CNPG managed role
+with the secret `pg-<db>` (`make db-secrets`, `make db-privileges`).
 Modules inside one service share the service's user: they share one transaction, which the outbox (ADR-0003) relies on.
 
 ## Consequences
 - **Good:** one database server to run on a laptop; a module or a service can move to its own server by changing a URL; schemas make ownership visible.
 - **Cost:** the services share one server, so they share its failure, its resources and its version.
-  Until the per-service user is in place, isolation between services is a convention, not a permission.
+  A new service adds its user in two places in k3d (the `Database` file and the role in `postgres.yaml`).
   Schemas of modules inside a service stay a convention for now: no test checks the SQL a module runs (a test is planned:
   entity schema, migration prefix and schema names in SQL must match the module).
   Cross-service reports need events or a read model, not joins.

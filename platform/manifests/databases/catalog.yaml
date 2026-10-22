@@ -7,4 +7,4 @@ metadata:
 spec:
   cluster: {name: pg}
   name: catalog
-  owner: app
+  owner: catalog

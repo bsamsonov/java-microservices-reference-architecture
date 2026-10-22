@@ -1,7 +1,8 @@
 # Service databases in k3d
 
-The `pg` cluster (CloudNativePG) creates the `orders` database at initdb. Every further service adds a `<db>.yaml` file here;
-`make infra` applies the folder once the cluster is ready.
+Each service has its own Postgres user and database in the shared `pg` cluster (ADR-0007). A new service needs two edits:
+
+1. `<db-with-dashes>.yaml` here:
 
 ```yaml
 apiVersion: postgresql.cnpg.io/v1
@@ -12,5 +13,11 @@ metadata:
 spec:
   cluster: {name: pg}
   name: <db>                  # database name in Postgres
-  owner: app
+  owner: <db>                 # the service's own user
 ```
+
+2. A role in `../postgres.yaml` (`spec.managed.roles`): `{name: <db>, login: true, passwordSecret: {name: pg-<db-with-dashes>}}`.
+
+`make infra` then creates the secret `pg-<db-with-dashes>` (user `<db>`, random password; never overwritten), applies the folder and revokes
+CONNECT from PUBLIC on every database, so only its owner can connect. `make apps-namespace` copies the secrets to namespace `apps`;
+the service reads it through `secretEnv` in `deploy/values.yaml`.

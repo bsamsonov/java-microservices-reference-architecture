@@ -40,7 +40,7 @@ Eight records carry the story of the repository; the rest follow from them.
 | [0004](0004-idempotent-consumers-retries-and-dlt.md) | Idempotent consumers, bounded retries and a dead-letter topic | System | Accepted | QD3, QD5 |  |
 | [0005](0005-event-format-json-with-json-schema.md) | Event format: JSON now, JSON Schema and AsyncAPI next; registry and binary formats deferred | System | Accepted (JSON in force; JSON Schema and AsyncAPI planned) | QD2, QD3 |  |
 | [0006](0006-api-first-openapi.md) | API-first: OpenAPI file, generated interfaces | System | Accepted | QD1, QD2 |  |
-| [0007](0007-database-per-service-schema-per-module.md) | A database per service and a schema per module | System | Accepted (per-service database user planned) | QD2, QD6, QD7 |  |
+| [0007](0007-database-per-service-schema-per-module.md) | A database per service and a schema per module | System | Accepted | QD2, QD6, QD7 |  |
 | [0008](0008-java-25-spring-boot-4.md) | Java 25 and Spring Boot 4 | Stack | Accepted | QD1, QD2 |  |
 | [0009](0009-postgresql.md) | PostgreSQL as the database for every service | Stack | Accepted | QD6, QD7 |  |
 | [0010](0010-kafka-as-event-broker.md) | Apache Kafka as the event broker | Stack | Accepted | QD3, QD6, QD7 | D3 (in part) |

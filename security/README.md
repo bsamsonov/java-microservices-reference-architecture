@@ -109,6 +109,7 @@ A new service without a policy is isolated, not open. Compose has no network pol
 | Forged or expired token | signature by Keycloak keys, issuer, audience, expiry | done |
 | User does more than allowed | permission per endpoint; 403 | done |
 | Token issued for another application | audience `blueprints-api` required | done |
+| Service reads or changes another service's data | own database user per service, CONNECT revoked from PUBLIC | done |
 | Compromised pod scans the cluster | NetworkPolicy: only infra, OTel and DNS | done (k3d) |
 | Customer reads or cancels another customer's order | ownership check (customer id from the token) | **not covered** |
 | Service impersonates another service, forged Kafka event | service-to-service auth, Kafka ACL | **not covered** |
@@ -122,6 +123,5 @@ A new service without a policy is isolated, not open. Compose has no network pol
 | Service-to-service auth (client credentials or mTLS) | services call each other only through Kafka inside the platform | a synchronous call between services or a third party |
 | Kafka authentication and ACLs (Strimzi `KafkaUser`) | one trusted platform | several teams or tenants on one cluster |
 | Encrypted secrets in git (SOPS + age) | planned together with GitOps (Argo CD); the tool (SOPS via KSOPS or helm-secrets, Sealed Secrets, External Secrets) is chosen in an ADR | with GitOps |
-| One database user `app` for all services | local platform; schemas are separated | a shared or production database |
 | Keycloak in dev mode, password grant, demo passwords | quick local start | any shared environment: production mode, own database, authorization code flow |
 | API gateway, rate limiting, image signing | out of scope of the template | public exposure, supply-chain requirements |

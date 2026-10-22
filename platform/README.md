@@ -6,7 +6,7 @@ Decisions: `docs/adr/` (ADR-0015 operators, ADR-0016 k3d + Tilt, ADR-0017 two ru
 | Component | In-cluster address | For services |
 |---|---|---|
 | Kafka (Strimzi, KRaft) | `blueprints-kafka-bootstrap.infra:9092` | `SPRING_KAFKA_BOOTSTRAP_SERVERS` |
-| Postgres (CNPG) | `pg-rw.infra:5432`, secret `pg-app` | `SPRING_DATASOURCE_*` |
+| Postgres (CNPG) | `pg-rw.infra:5432`, a user and secret `pg-<db>` per service (`manifests/databases/`) | `SPRING_DATASOURCE_*` |
 | OTel Collector | `otel-collector.observability:4317/4318` | `OTEL_EXPORTER_OTLP_ENDPOINT` (traces and logs) |
 | Prometheus | `kps-prometheus.observability:9090` | the service exposes `/actuator/prometheus`, the chart creates a ServiceMonitor |
 | Grafana | http://grafana.localhost:8080 (admin/admin) | Prometheus, Loki and Tempo data sources with trace ↔ log links, Alertmanager |

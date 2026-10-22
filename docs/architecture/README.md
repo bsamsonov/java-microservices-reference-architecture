@@ -47,7 +47,7 @@ QD6–QD7 are convenience. Each driver is stated as a scenario with a measurable
 - **No cloud account and no paid services**: everything is open source and starts locally. Managed services appear only as alternatives in decisions.
 - **Stack**: Java 25, Spring Boot 4.1, Spring Modulith 2.1, Maven, Postgres, Kafka; this is the stack the template is meant to teach.
 - **Production-like, not production**: demo passwords and Keycloak in dev mode are accepted and listed in [`security/README.md`](../../security/README.md).
-  Each service gets its own database user ([ADR-0007](../adr/0007-database-per-service-schema-per-module.md); implementation pending).
+  Each service has its own database user and can open only its own database ([ADR-0007](../adr/0007-database-per-service-schema-per-module.md)).
 
 ## 4. Context (C4 level 1)
 

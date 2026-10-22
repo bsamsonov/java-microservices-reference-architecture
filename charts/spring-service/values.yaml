@@ -7,7 +7,7 @@ containerPort: 8080
 
 # Plain env vars
 env: {}
-# Env vars from secrets: [{name: SPRING_DATASOURCE_PASSWORD, secret: pg-app, key: password}]
+# Env vars from secrets: [{name: SPRING_DATASOURCE_PASSWORD, secret: pg-<db>, key: password}]
 secretEnv: []
 
 resources:

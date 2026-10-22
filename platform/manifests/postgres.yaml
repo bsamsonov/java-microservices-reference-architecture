@@ -1,5 +1,6 @@
-# CloudNativePG: one shared Postgres cluster for local dev; each service gets its own database.
-# Service: pg-rw.infra:5432; credentials in secret pg-app (user app).
+# CloudNativePG: one shared Postgres cluster for local dev; each service gets its own user and database (ADR-0007).
+# Service: pg-rw.infra:5432. A service's credentials are in secret pg-<db> (user <db>), created by `make db-secrets`;
+# its database is a Database resource in databases/. The initdb database `app` is unused.
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
@@ -9,10 +10,13 @@ spec:
   imageName: ghcr.io/cloudnative-pg/postgresql:18.6-system-trixie   # pinned: same as the compose and test Postgres major
   instances: 1
   storage: {size: 2Gi}
-  bootstrap:
-    initdb:
-      database: orders
-      owner: app
+  # One role per service. The role owns its database; connect is revoked from PUBLIC (make db-privileges),
+  # so a service cannot open another service's database.
+  managed:
+    roles:
+      - {name: orders, login: true, passwordSecret: {name: pg-orders}}
+      - {name: notifications, login: true, passwordSecret: {name: pg-notifications}}
+      - {name: catalog, login: true, passwordSecret: {name: pg-catalog}}
 ---
 # CNPG deprecated spec.monitoring.enablePodMonitor -> declare PodMonitor explicitly
 apiVersion: monitoring.coreos.com/v1

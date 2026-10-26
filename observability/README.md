@@ -16,13 +16,13 @@ compose: `docker compose -f compose/compose.yaml restart lgtm alertmanager`; k3d
 
 ## The "Spring services" dashboard (`spring-services`)
 The `Service` variable comes from the `application` label, so a new service shows up on the dashboard without edits.
-Rows: HTTP (rate, share of 5xx, p95, per-endpoint breakdown), Kafka (producer, listener with errors, p95, lag, Modulith events), the outbox backlog (template 1),
+Rows: HTTP (rate, share of 5xx, p95, per-endpoint breakdown), Kafka (producer, listener with errors, p95, lag, Modulith events), the outbox backlog (template 1) and records moved to a DLT,
 the Hikari connection pool, JVM (heap, GC, CPU, threads, WARN/ERROR log lines) and WARN/ERROR logs from Loki with a link to the trace.
 
 ## Alerts
 How alerting works, the severity levels, the rule list and how to add an alert or an SLO are described in `docs/alerting.md`.
 In short: symptoms (5xx and latency) are caught by burn-rate SLO alerts (`HttpAvailabilityBudgetBurn`, `HttpLatencyBudgetBurn`);
-causes (`SpringKafkaListenerFailures`, `SpringKafkaConsumerLag`, `OutboxBacklogStale`, `SpringDbPoolExhausted`, `SpringHeapHigh`) are `warning`;
+causes (`SpringKafkaListenerFailures`, `SpringKafkaDeadLetters`, `SpringKafkaConsumerLag`, `OutboxBacklogStale`, `SpringDbPoolExhausted`, `SpringHeapHigh`) are `warning`;
 `SpringErrorLogLines` is `info`. Firing alerts are visible in Alertmanager and in Grafana (Alerting → Alert list, Alertmanager data source).
 Notification receivers are empty placeholders for now.
 

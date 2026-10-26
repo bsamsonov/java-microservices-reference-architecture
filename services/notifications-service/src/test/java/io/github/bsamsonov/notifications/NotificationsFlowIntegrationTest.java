@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -39,6 +41,9 @@ class NotificationsFlowIntegrationTest {
     private static final String TOPIC = "orders.events";
     private static final String PLACED = "io.github.bsamsonov.orders.order.OrderPlaced";
     private static final String CANCELLED = "io.github.bsamsonov.orders.order.OrderCancelled";
+
+    @Autowired
+    MeterRegistry meters;
 
     @Autowired
     MockMvcTester mvc;
@@ -113,6 +118,10 @@ class NotificationsFlowIntegrationTest {
         // the recoverer adds the reason, so the DLT can be triaged without logs
         assertThat(dead).filteredOn(r -> brokenJson.toString().equals(r.key())).singleElement()
                 .satisfies(r -> assertThat(r.headers().lastHeader("kafka_dlt-exception-message")).isNotNull());
+        // the alert SpringKafkaDeadLetters counts them
+        await().atMost(Duration.ofSeconds(5)).untilAsserted(() -> assertThat(
+                meters.find("kafka.dlt.records").tag("topic", TOPIC).counters().stream().mapToDouble(Counter::count).sum())
+                .isGreaterThanOrEqualTo(3.0));
         assertThat(mvc.get().uri("/notifications").with(token("notifications:read")).param("customerId", "c-78"))
                 .bodyJson().extractingPath("$").asArray().isEmpty();
     }

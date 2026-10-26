@@ -154,7 +154,7 @@ tests and documents, and the build checked its work. [`docs/ai-workflow.md`](doc
 | Item | State | Where |
 |---|---|---|
 | GitOps with Argo CD | decided, not implemented; deployment to k3d is driven from the laptop by Tilt | [ADR-0018](docs/adr/0018-gitops-with-argo-cd.md), [ADR-0019](docs/adr/0019-secrets-in-git-for-gitops.md), risk R7 |
-| Alert on records moved to the DLT | planned; a move is visible only in the log | [ADR-0004](docs/adr/0004-idempotent-consumers-retries-and-dlt.md) |
+| Replay from the DLT | not done; a record moved there raises `SpringKafkaDeadLetters` and waits for a person | [ADR-0004](docs/adr/0004-idempotent-consumers-retries-and-dlt.md) |
 | Load test; SLOs confirmed under load | not done; the SLO targets are demo values | risk R5 |
 | Model comparison on `create-service` (measures QD1) | planned | [`docs/ai-workflow.md`](docs/ai-workflow.md#limits) |
 | SBOM and image signing (cosign) | not done; images are built locally and not published | image build: [ADR-0013](docs/adr/0013-container-image-dockerfile.md) |

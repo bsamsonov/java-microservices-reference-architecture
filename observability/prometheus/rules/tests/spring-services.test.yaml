@@ -36,6 +36,27 @@ tests:
         alertname: SpringKafkaListenerFailures
         exp_alerts: []
 
+  # DLT: the counter is born at 1 (an invalid record), then a second record a few minutes later.
+  - interval: 1m
+    input_series:
+      - series: 'kafka_dlt_records_total{namespace="apps", application="notifications-service", topic="orders.events", exception="InvalidMessageException"}'
+        values: '_x10 1x3 2x20'
+    alert_rule_test:
+      - eval_time: 9m
+        alertname: SpringKafkaDeadLetters
+        exp_alerts: []
+      - eval_time: 11m
+        alertname: SpringKafkaDeadLetters
+        exp_alerts:
+          - exp_labels: {severity: warning, team: blueprints, namespace: apps, application: notifications-service, topic: orders.events}
+            exp_annotations:
+              summary: "notifications-service: records from orders.events moved to the DLT"
+              description: "1 records published to orders.events.DLT in 10 min; they are not processed until someone replays them."
+      # 10 min after the last record the alert resolves
+      - eval_time: 25m
+        alertname: SpringKafkaDeadLetters
+        exp_alerts: []
+
   - interval: 1m
     input_series:
       - series: 'kafka_consumer_fetch_manager_records_lag{namespace="apps", application="notifications-service", topic="orders.events", partition="0"}'

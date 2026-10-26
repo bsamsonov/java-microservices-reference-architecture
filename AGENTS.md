@@ -72,6 +72,7 @@ Rules. Tests enforce them: a violation fails `./mvnw verify`.
 - **Migrations.** Flyway, files `src/main/resources/db/migration/V<n>__<schema>_<what>.sql` (the module's schema). An applied migration is never changed; write a new one instead. `ddl-auto` stays `validate`.
 - **Outbox (ADR-0003).** The `event_publication` table comes from Spring Modulith, its migration is `V3`. The event is written in the same transaction as the data and delivered after commit.
   A failed delivery stays in the table and `OutboxResubmission` resubmits it on a schedule; a delivered row is deleted (`completion-mode: delete`), so the table holds only the backlog.
+  `OutboxMetrics` exports its size and age; the alert `OutboxBacklogStale` reads them, so a publishing service keeps both.
 - **Idempotency.** Every event handler must survive redelivery. Usually a unique `event_id` and `on conflict do nothing`.
 - **Access (ADR-0023).** Every endpoint requires a permission `<service>:<action>`. A new endpoint means four edits (details in `security/README.md`):
   role and group in `security/keycloak/realm-blueprints.json`, a line in `SecurityConfig`, the permission and `401`/`403` responses in `openapi.yaml`, tests for 401 and 403.

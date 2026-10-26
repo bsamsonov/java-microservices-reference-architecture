@@ -1,6 +1,7 @@
 # ADR-0004: Idempotent consumers, bounded retries and a dead-letter topic
 
 - **Status:** Accepted
+- **Implemented:** yes, including the DLT counter (`kafka.dlt.records`) and the alert `SpringKafkaDeadLetters`; DLT replay is not
 - **Date:** 2026-10-22
 - **Drivers:** QD3, QD5
 

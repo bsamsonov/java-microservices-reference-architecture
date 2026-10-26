@@ -54,6 +54,29 @@ tests:
               summary: "notifications-service is 5k records behind on orders.events"
               description: "Consumer lag has stayed above 1000 records for 10 min."
 
+  # Outbox: the age grows by 60 s a minute while Kafka is down, then drops to 0 once the backlog is delivered.
+  # Two replicas report the same table; the alert fires once per service.
+  - interval: 1m
+    input_series:
+      - series: 'outbox_publications_oldest_age_seconds{namespace="apps", application="orders-service", pod="orders-1"}'
+        values: '0x5 60+60x9 0x5'
+      - series: 'outbox_publications_oldest_age_seconds{namespace="apps", application="orders-service", pod="orders-2"}'
+        values: '0x5 60+60x9 0x5'
+    alert_rule_test:
+      - eval_time: 9m
+        alertname: OutboxBacklogStale
+        exp_alerts: []
+      - eval_time: 12m
+        alertname: OutboxBacklogStale
+        exp_alerts:
+          - exp_labels: {severity: warning, team: blueprints, namespace: apps, application: orders-service}
+            exp_annotations:
+              summary: "orders-service: an event has waited 7m 0s in the outbox"
+              description: "The oldest undelivered event publication is older than 5 min; consumers get events late. Usually Kafka is unreachable."
+      - eval_time: 16m
+        alertname: OutboxBacklogStale
+        exp_alerts: []
+
   - interval: 1m
     input_series:
       - series: 'hikaricp_connections_pending{namespace="apps", application="orders-service", pool="HikariPool-1"}'

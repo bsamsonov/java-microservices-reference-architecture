@@ -33,6 +33,17 @@ groups:
           summary: "{{ $labels.application }} is {{ $value | humanize }} records behind on {{ $labels.topic }}"
           description: "Consumer lag has stayed above 1000 records for 10 min."
 
+      # Only services with a transactional outbox export this gauge (template 1, ADR-0003); replicas share the table, hence max.
+      - alert: OutboxBacklogStale
+        expr: max by (namespace, application) (outbox_publications_oldest_age_seconds) > 300
+        for: 1m
+        labels:
+          severity: warning
+          team: blueprints
+        annotations:
+          summary: "{{ $labels.application }}: an event has waited {{ $value | humanizeDuration }} in the outbox"
+          description: "The oldest undelivered event publication is older than 5 min; consumers get events late. Usually Kafka is unreachable."
+
       - alert: SpringDbPoolExhausted
         expr: sum by (namespace, application) (hikaricp_connections_pending) > 0
         for: 5m

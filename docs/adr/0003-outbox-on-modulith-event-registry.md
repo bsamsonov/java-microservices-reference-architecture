@@ -1,6 +1,7 @@
 # ADR-0003: Transactional outbox on the Spring Modulith event publication registry
 
 - **Status:** Accepted
+- **Implemented:** yes, including the backlog gauges (`OutboxMetrics`) and the alert `OutboxBacklogStale`
 - **Date:** 2026-10-22
 - **Drivers:** QD3, QD7
 - **Replaces:** D12

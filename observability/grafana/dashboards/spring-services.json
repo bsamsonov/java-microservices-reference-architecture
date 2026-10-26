@@ -596,6 +596,121 @@
     },
     {
       "type": "row",
+      "id": 25,
+      "title": "Outbox: undelivered events (template 1)",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 34
+      },
+      "panels": []
+    },
+    {
+      "type": "timeseries",
+      "id": 26,
+      "title": "Outbox backlog (publications)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 35
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "stacking": {
+              "mode": "none"
+            }
+          },
+          "min": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "max by (application) (outbox_publications_pending{application=~\"$application\"})",
+          "legendFormat": "{{application}}",
+          "refId": "A"
+        }
+      ],
+      "description": "Event publications not delivered yet. Normally 0; grows while Kafka is unreachable."
+    },
+    {
+      "type": "timeseries",
+      "id": 27,
+      "title": "Oldest undelivered event, age",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 35
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "custom": {
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "stacking": {
+              "mode": "none"
+            }
+          },
+          "min": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "max by (application) (outbox_publications_oldest_age_seconds{application=~\"$application\"})",
+          "legendFormat": "{{application}}",
+          "refId": "A"
+        }
+      ],
+      "description": "Alert OutboxBacklogStale fires above 5 min."
+    },
+    {
+      "type": "row",
       "id": 13,
       "title": "Database: connection pool",
       "collapsed": false,
@@ -603,7 +718,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 34
+        "y": 43
       },
       "panels": []
     },
@@ -619,7 +734,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 35
+        "y": 44
       },
       "fieldConfig": {
         "defaults": {
@@ -688,7 +803,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 35
+        "y": 44
       },
       "fieldConfig": {
         "defaults": {
@@ -737,7 +852,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 35
+        "y": 44
       },
       "fieldConfig": {
         "defaults": {
@@ -784,7 +899,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 43
+        "y": 52
       },
       "panels": []
     },
@@ -800,7 +915,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 44
+        "y": 53
       },
       "fieldConfig": {
         "defaults": {
@@ -851,7 +966,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 44
+        "y": 53
       },
       "fieldConfig": {
         "defaults": {
@@ -901,7 +1016,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 44
+        "y": 53
       },
       "fieldConfig": {
         "defaults": {
@@ -951,7 +1066,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 52
+        "y": 61
       },
       "fieldConfig": {
         "defaults": {
@@ -1001,7 +1116,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 52
+        "y": 61
       },
       "fieldConfig": {
         "defaults": {
@@ -1048,7 +1163,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 60
+        "y": 69
       },
       "panels": []
     },
@@ -1064,7 +1179,7 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 61
+        "y": 70
       },
       "options": {
         "showTime": true,

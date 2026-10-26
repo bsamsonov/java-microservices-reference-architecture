@@ -281,7 +281,7 @@ Known and accepted for now; each has a condition for fixing it.
 
 | ID | Risk or debt | Impact | Plan |
 |---|---|---|---|
-| R1 | Outbox (after ADR-0003): with several replicas a restart republishes rows still in flight on other replicas; no metric or alert on the outbox backlog yet | duplicate deliveries (absorbed by idempotent consumers); a long outage is visible only through the Kafka send errors | backlog gauge (`event_publication` row count) and an alert, together with the broker outage experiment ([Roadmap](../../README.md#roadmap-what-is-deliberately-not-done)) |
+| R1 | Outbox (after ADR-0003): with several replicas a restart republishes rows still in flight on other replicas; the backlog alert `OutboxBacklogStale` is unit-tested but not yet seen firing in a real broker outage | duplicate deliveries (absorbed by idempotent consumers) | the broker outage experiment confirms the alert ([Roadmap](../../README.md#roadmap-what-is-deliberately-not-done)) |
 | R2 | The event contract is implicit: the consumer resolves the type from the producer's Java class name (`__TypeId__`) | renaming a record or a consumer in another language breaks integration | explicit type header (CloudEvents) and JSON Schema / AsyncAPI, checked in producer tests |
 | R3 | Services are copies of a template with no upgrade path; versions live in each `pom.xml` | ten services drift to ten stacks | parent POM / BOM and one internal starter |
 | R4 | No variant for a synchronous call to another service | the template covers only event-driven integration | `RestClient` / HTTP interface with timeouts, retry, circuit breaker and a contract test |

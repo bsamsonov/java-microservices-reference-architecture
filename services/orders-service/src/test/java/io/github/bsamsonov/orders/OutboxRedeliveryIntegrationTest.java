@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
+import io.micrometer.core.instrument.MeterRegistry;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -31,7 +33,7 @@ import static org.awaitility.Awaitility.await;
 /**
  * Outbox delivery survives a broker outage without a restart of the service (ADR-0003):
  * the Kafka send fails, the publication stays in event_publication, and the scheduled
- * resubmission delivers it once the broker is back.
+ * resubmission delivers it once the broker is back. The backlog gauges (OutboxMetrics) show the wait and drop to zero.
  */
 @SpringBootTest(properties = {
         // fail fast while the broker is paused, instead of the default 60 s / 120 s
@@ -44,7 +46,8 @@ import static org.awaitility.Awaitility.await;
         "spring.kafka.admin.properties[request.timeout.ms]=2000",
         "spring.kafka.admin.properties[default.api.timeout.ms]=2000",
         "outbox.resubmission.interval=2s",
-        "outbox.resubmission.min-age=1s"
+        "outbox.resubmission.min-age=1s",
+        "outbox.metrics.interval=1s"
 })
 @AutoConfigureMockMvc
 @Import(TestcontainersConfiguration.class)
@@ -61,6 +64,9 @@ class OutboxRedeliveryIntegrationTest {
 
     @Autowired
     KafkaAdmin kafkaAdmin;
+
+    @Autowired
+    MeterRegistry meters;
 
     @Test
     void eventPlacedWhileKafkaIsDownIsDeliveredWhenKafkaIsBack() {
@@ -82,6 +88,12 @@ class OutboxRedeliveryIntegrationTest {
             await().atMost(Duration.ofSeconds(60)).untilAsserted(() -> assertThat(
                     jdbc.sql("select count(*) from event_publication where status = 'FAILED' and serialized_event like :id")
                             .param("id", "%" + id + "%").query(Long.class).single()).isPositive());
+
+            // the backlog is visible in the metrics behind the alert OutboxBacklogStale
+            await().atMost(Duration.ofSeconds(10)).untilAsserted(() -> {
+                assertThat(pending()).isGreaterThanOrEqualTo(1);
+                assertThat(oldestAgeSeconds()).isPositive();
+            });
         } finally {
             docker.unpauseContainerCmd(kafka.getContainerId()).exec();
         }
@@ -103,5 +115,17 @@ class OutboxRedeliveryIntegrationTest {
         // completion mode DELETE: a delivered publication leaves the table
         await().atMost(Duration.ofSeconds(15)).untilAsserted(() -> assertThat(
                 jdbc.sql("select count(*) from event_publication").query(Long.class).single()).isZero());
+        await().atMost(Duration.ofSeconds(10)).untilAsserted(() -> {
+            assertThat(pending()).isZero();
+            assertThat(oldestAgeSeconds()).isZero();
+        });
+    }
+
+    private double pending() {
+        return meters.get("outbox.publications.pending").gauge().value();
+    }
+
+    private double oldestAgeSeconds() {
+        return meters.get("outbox.publications.oldest.age").timeGauge().value(TimeUnit.SECONDS);
     }
 }

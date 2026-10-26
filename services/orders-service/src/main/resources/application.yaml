@@ -33,6 +33,10 @@ spring:
       acks: all
     template:
       observation-enabled: true      # propagate trace context into Kafka headers
+  task:
+    scheduling:
+      pool:
+        size: 2                      # a resubmission stuck on a broker outage must not stop the outbox metrics
   modulith:
     events:
       jdbc:
@@ -43,10 +47,13 @@ spring:
       completion-mode: delete        # a delivered publication leaves the table: event_publication holds only the backlog
 
 # OutboxResubmission: resubmit FAILED publications (e.g. Kafka was down) without a restart
+# OutboxMetrics: backlog gauges for the alert OutboxBacklogStale
 outbox:
   resubmission:
     interval: 30s
     min-age: 10s
+  metrics:
+    interval: 15s
 
 management:
   endpoints:

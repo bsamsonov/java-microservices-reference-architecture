@@ -19,6 +19,7 @@ io.github.bsamsonov.orders
 - Events: `@Externalized("orders.events::#{orderId}")` → Kafka through the event publication registry
   (the event is stored in the same transaction as the order, delivered after commit; ADR-0003: a failed delivery is resubmitted
   by `OutboxResubmission` every `outbox.resubmission.interval` without a restart, a delivered row is deleted).
+  `OutboxMetrics` exports the backlog: `outbox_publications_pending` and `outbox_publications_oldest_age_seconds`, behind the alert `OutboxBacklogStale`.
 - Observability: `/actuator/prometheus`, health probes, traces and logs over OTLP (`OpenTelemetryLoggingConfig`),
   trace context in Kafka headers; `/actuator/modulith` shows the module map.
 
@@ -30,7 +31,7 @@ io.github.bsamsonov.orders
 | JPA slice | `JpaOrderRepositoryTest` (`@DataJpaTest` + Postgres Testcontainers + Flyway) |
 | Module | `OrderModuleTest` (`@ApplicationModuleTest`, `Scenario`) |
 | Integration | `OrdersFlowIntegrationTest`: HTTP → database → audit → Kafka, 409 on a repeated cancel, empty outbox |
-| Integration | `OutboxRedeliveryIntegrationTest`: Kafka paused → order placed → publication `FAILED` → Kafka resumed → event in `orders.events`, outbox empty, no restart |
+| Integration | `OutboxRedeliveryIntegrationTest`: Kafka paused → order placed → publication `FAILED` and the backlog gauges up → Kafka resumed → event in `orders.events`, outbox empty, gauges at 0, no restart |
 | Architecture | `ModularityTest` (Modulith verify + docs in `target/spring-modulith-docs`), `HexagonArchitectureTest` (ArchUnit), `ModuleSchemaTest` (a schema per module, migrations by schema) |
 
 `ModularityTest` was checked to fail when the `audit` module touches an internal class of `order`.

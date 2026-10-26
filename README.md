@@ -154,7 +154,6 @@ tests and documents, and the build checked its work. [`docs/ai-workflow.md`](doc
 | Item | State | Where |
 |---|---|---|
 | GitOps with Argo CD | decided, not implemented; deployment to k3d is driven from the laptop by Tilt | [ADR-0018](docs/adr/0018-gitops-with-argo-cd.md), [ADR-0019](docs/adr/0019-secrets-in-git-for-gitops.md), risk R7 |
-| Outbox backlog metric and alert | planned; a long Kafka outage is visible only through send errors | risk R1, [ADR-0003](docs/adr/0003-outbox-on-modulith-event-registry.md) |
 | Alert on records moved to the DLT | planned; a move is visible only in the log | [ADR-0004](docs/adr/0004-idempotent-consumers-retries-and-dlt.md) |
 | Load test; SLOs confirmed under load | not done; the SLO targets are demo values | risk R5 |
 | Model comparison on `create-service` (measures QD1) | planned | [`docs/ai-workflow.md`](docs/ai-workflow.md#limits) |

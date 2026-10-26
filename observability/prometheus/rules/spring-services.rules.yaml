@@ -23,6 +23,20 @@ groups:
           summary: "{{ $labels.application }}: failed Kafka records on {{ $labels.messaging_source_name }}"
           description: "{{ $value | humanize }} failed listener attempts in 10 min; after retries the records end up in the DLT."
 
+      # A record in a DLT left the main flow and waits for a person. The counter is born at 1, same trick as above.
+      - alert: SpringKafkaDeadLetters
+        expr: |
+          sum by (namespace, application, topic) (
+            (kafka_dlt_records_total unless kafka_dlt_records_total offset 10m)
+            or increase(kafka_dlt_records_total[10m])
+          ) > 0
+        labels:
+          severity: warning
+          team: blueprints
+        annotations:
+          summary: "{{ $labels.application }}: records from {{ $labels.topic }} moved to the DLT"
+          description: "{{ $value | humanize }} records published to {{ $labels.topic }}.DLT in 10 min; they are not processed until someone replays them."
+
       - alert: SpringKafkaConsumerLag
         expr: max by (namespace, application, topic) (kafka_consumer_fetch_manager_records_lag) > 1000
         for: 10m

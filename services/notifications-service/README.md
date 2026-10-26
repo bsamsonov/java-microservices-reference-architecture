@@ -25,7 +25,8 @@ io.github.bsamsonov.notifications
   Delivery is at least once: if the commit fails after sending, the redelivery sends the email again.
 - **Errors.** Transient ones (for example the database is down): 3 retries 1 s apart, then `orders.events.DLT`.
   An invalid message (broken JSON, no `__TypeId__`, no `customerId`) goes to the DLT immediately, without retries.
-  The DLT record keeps the cause in the `kafka_dlt-exception-*` headers, and the service logs a WARN `Record sent to DLT`.
+  The DLT record keeps the cause in the `kafka_dlt-exception-*` headers, and the service logs a WARN `Record sent to DLT`
+  and counts it in `kafka.dlt.records` (tags `topic`, `exception`; alert `SpringKafkaDeadLetters`).
   A channel failure (`NotificationDeliveryException`) is a business outcome: the notification becomes FAILED and does not go to the DLT.
 - **Database:** schema `notifications`, Flyway `V1`.
 - **Observability:** `spring.kafka.listener.observation-enabled` continues the trace from the Kafka headers.
@@ -38,7 +39,7 @@ io.github.bsamsonov.notifications
 | Web slice | `NotificationControllerTest` (`@WebMvcTest`, MockMvcTester): required `customerId`, 404 problem+json; 401, 403, mapping of the `permissions` claim |
 | JPA slice | `JpaNotificationRepositoryTest`: mapping, ordering, database uniqueness of `source_event_id` |
 | Module | `NotificationModuleTest` (`@ApplicationModuleTest`): SENT, a repeat is skipped, channel failure → FAILED (fake channel, not a mock) |
-| Integration | `NotificationsFlowIntegrationTest`: records in `orders.events` → HTTP API; duplicate and unknown type; broken JSON, missing `customerId`, missing header → DLT |
+| Integration | `NotificationsFlowIntegrationTest`: records in `orders.events` → HTTP API; duplicate and unknown type; broken JSON, missing `customerId`, missing header → DLT, counted in `kafka.dlt.records` |
 | Architecture | `ModularityTest`, `HexagonArchitectureTest`, `ModuleSchemaTest` |
 
 ## Run
@@ -51,6 +52,7 @@ io.github.bsamsonov.notifications
 - The topic history (5 older `OrderPlaced`) is processed on first start; `trace_id` is taken from the headers of the old messages.
 - `POST /orders` → cancel → two SENT notifications for `c-live`; one trace across both services in Tempo, `Notification sent` lines with the same `trace_id` in Loki.
 - A malformed message `broken-2` → `orders.events.DLT` with cause headers and a WARN in the log. No reprocessing after a restart: the offset is committed.
+- 2026-10-26: a malformed message `dlt-check` → `kafka_dlt_records_total{exception="InvalidMessageException"} 1` in Prometheus over OTLP → `SpringKafkaDeadLetters` active in Alertmanager.
 - Listener metric: `spring_kafka_listener_seconds_count{application="notifications-service"}`.
 
 ## Security (ADR-0023)

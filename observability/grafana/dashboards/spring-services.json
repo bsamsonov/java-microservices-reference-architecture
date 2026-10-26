@@ -597,7 +597,7 @@
     {
       "type": "row",
       "id": 25,
-      "title": "Outbox: undelivered events (template 1)",
+      "title": "Outbox and dead letters",
       "collapsed": false,
       "gridPos": {
         "h": 1,
@@ -708,6 +708,57 @@
         }
       ],
       "description": "Alert OutboxBacklogStale fires above 5 min."
+    },
+    {
+      "type": "timeseries",
+      "id": 28,
+      "title": "Records moved to the DLT, per 10 min",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 35
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "stacking": {
+              "mode": "none"
+            }
+          },
+          "min": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "sum by (application, topic, exception) (increase(kafka_dlt_records_total{application=~\"$application\"}[10m]))",
+          "legendFormat": "{{application}} {{topic}} {{exception}}",
+          "refId": "A"
+        }
+      ],
+      "description": "Alert SpringKafkaDeadLetters fires on any record. The cause is in the kafka_dlt-exception-* headers of the DLT record."
     },
     {
       "type": "row",

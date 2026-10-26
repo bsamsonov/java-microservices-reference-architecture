@@ -62,7 +62,8 @@ Sample: `services/notifications-service`. Differences from the reference:
   from the `__TypeId__` header (Modulith puts the producer's fully qualified class name there). The JSON is read into the service's **own** records with the needed fields;
   producer classes are not imported. Unknown types are skipped (`debug` log).
 - **Errors**: a `DefaultErrorHandler` bean (Boot attaches it to the container factory) with a `DeadLetterPublishingRecoverer` to `<topic>.DLT`
-  (partition `-1`) and a WARN log on transfer: the recoverer itself logs nothing. Invalid messages need
+  (partition `-1`), a WARN log on transfer (the recoverer itself logs nothing) and the counter `kafka.dlt.records` with tags `topic` and `exception`:
+  the alert `SpringKafkaDeadLetters` and the dashboard read it, so keep the name. Invalid messages need
   their own exception in `addNotRetryableExceptions`. A failure of an external channel is handled in the domain (for example a FAILED status), not through the DLT.
 - **Idempotency**: the inbound `eventId` is stored in a `unique` column, plus an `exists…` check in the use case.
 - **Configuration**: `spring.kafka.consumer.group-id: ${spring.application.name}`, `auto-offset-reset: earliest`,

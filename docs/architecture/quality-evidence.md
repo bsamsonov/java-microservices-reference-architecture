@@ -40,6 +40,14 @@ the last 4 rows were the `PUBLISHED` ones left by the stopped pod, picked up whe
 315 orders, 315 notifications, 315 audit rows; 415 records in `orders.events`, so **100 duplicates** (32 %), all absorbed by the consumer.
 The duplicates are the cost named in ADR-0037: a row older than 5 minutes is marked `FAILED` again while its resubmission is still waiting for the broker.
 
+**Run 3 and run 4, planned restarts and a crash with Kafka up.** Run 3 used the configuration of ADR-0037 before republish on restart was dropped,
+run 4 the final one (no republish, the task executor awaits its tasks on shutdown). Orders every 0.4–0.6 s, three `kubectl rollout restart` each.
+After every restart no publication older than 15 s was left; run 3: 300 orders, 300 records in `orders.events`, 300 notifications;
+run 4: 673 orders, 673 records, 673 notifications, so no loss and no duplicates. A `kill -9` of the JVM in run 4 lost nothing either,
+but nothing was in flight at that moment (the network cut did not break the open producer connection), so the crash path is shown only by
+`OutboxStalePublicationIntegrationTest` and by the 4 `PUBLISHED` rows of run 2. HTTP is the weak spot: each planned restart cost one or two requests
+(`502`, or `504` after the 30 s ingress timeout), and the crash 40 `503` until the new pod was ready, because there is one replica.
+
 **Other findings.**
 - A pod started while Kafka is down has no topic metadata, so every send blocks for `max.block.ms` (60 s) in the shared task executor.
   The thread dump showed all 8 `task-*` threads in `KafkaProducer.waitOnMetadata`; republished and new events queue behind them.
@@ -48,4 +56,4 @@ The duplicates are the cost named in ADR-0037: a row older than 5 minutes is mar
   because kube-router rejects instead of dropping. It stays covered only by the cluster id warm-up in `OutboxRedeliveryIntegrationTest`.
 - The `502` came from the ingress sending a request to the old pod while it stopped: no graceful shutdown or `preStop` delay in the chart yet.
 
-**Not checked yet.** A Grafana screenshot of the run; a silent network drop; an outage with two replicas.
+**Not checked yet.** A Grafana screenshot of the run; a silent network drop; an outage with two replicas; a crash with sends in flight on the platform.

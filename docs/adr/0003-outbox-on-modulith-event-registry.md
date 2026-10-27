@@ -5,7 +5,7 @@
 - **Date:** 2026-10-22
 - **Drivers:** QD3, QD7
 - **Replaces:** D12
-- **Amended by:** ADR-0037, staleness monitor turned on
+- **Amended by:** ADR-0037, staleness monitor replaces republish on restart
 
 ## Context and drivers
 An order and its `OrderPlaced` event must be stored atomically: no order without an event, no event without an order (QD3).

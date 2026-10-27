@@ -19,7 +19,8 @@ io.github.bsamsonov.orders
 - Events: `@Externalized("orders.events::#{orderId}")` → Kafka through the event publication registry
   (the event is stored in the same transaction as the order, delivered after commit; ADR-0003: a failed delivery is resubmitted
   by `OutboxResubmission` every `outbox.resubmission.interval` without a restart, a delivered row is deleted;
-  ADR-0037: a row left in flight by a stopped pod is marked `FAILED` after 5 minutes by the Modulith staleness monitor).
+  ADR-0037: a row left in flight by a crashed pod is marked `FAILED` after 5 minutes by the Modulith staleness monitor; no republish on restart;
+  on a planned stop the task executor waits for the sends already started).
   `OutboxMetrics` exports the backlog: `outbox_publications_pending` and `outbox_publications_oldest_age_seconds`, behind the alert `OutboxBacklogStale`.
 - Observability: `/actuator/prometheus`, health probes, traces and logs over OTLP (`OpenTelemetryLoggingConfig`),
   trace context in Kafka headers; `/actuator/modulith` shows the module map.
@@ -33,7 +34,7 @@ io.github.bsamsonov.orders
 | Module | `OrderModuleTest` (`@ApplicationModuleTest`, `Scenario`) |
 | Integration | `OrdersFlowIntegrationTest`: HTTP → database → audit → Kafka, 409 on a repeated cancel, empty outbox |
 | Integration | `OutboxRedeliveryIntegrationTest`: Kafka paused → order placed → publication `FAILED` and the backlog gauges up → Kafka resumed → event in `orders.events`, outbox empty, gauges at 0, no restart |
-| Integration | `OutboxStalePublicationIntegrationTest`: a 10-minute-old `RESUBMITTED` row, as a stopped pod leaves it → marked `FAILED` → event in `orders.events`, outbox empty |
+| Integration | `OutboxStalePublicationIntegrationTest`: a 10-minute-old row in `PUBLISHED`, `PROCESSING` or `RESUBMITTED`, as a crashed pod leaves it → marked `FAILED` → event in `orders.events`, outbox empty |
 | Architecture | `ModularityTest` (Modulith verify + docs in `target/spring-modulith-docs`), `HexagonArchitectureTest` (ArchUnit), `ModuleSchemaTest` (a schema per module, migrations by schema) |
 
 `ModularityTest` was checked to fail when the `audit` module touches an internal class of `order`.

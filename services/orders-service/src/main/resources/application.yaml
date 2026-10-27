@@ -45,6 +45,12 @@ spring:
       # outbox (ADR-0003): rows stuck after a crash are republished on restart; failed ones are resubmitted on a schedule
       republish-outstanding-events-on-restart: true
       completion-mode: delete        # a delivered publication leaves the table: event_publication holds only the backlog
+      # ADR-0037: a publication left in flight by a stopped pod is marked FAILED, then OutboxResubmission sends it again.
+      # Must exceed the longest Kafka send (max.block.ms 60 s + delivery.timeout.ms 120 s); counted from the publication date
+      staleness:
+        published: 5m
+        processing: 5m
+        resubmitted: 5m
 
 # OutboxResubmission: resubmit FAILED publications (e.g. Kafka was down) without a restart
 # OutboxMetrics: backlog gauges for the alert OutboxBacklogStale

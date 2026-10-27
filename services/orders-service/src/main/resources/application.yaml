@@ -34,6 +34,10 @@ spring:
     template:
       observation-enabled: true      # propagate trace context into Kafka headers
   task:
+    execution:
+      shutdown:                      # ADR-0037: on SIGTERM, sends to Kafka already started wait for the broker's ack
+        await-termination: true
+        await-termination-period: 20s
     scheduling:
       pool:
         size: 2                      # a resubmission stuck on a broker outage must not stop the outbox metrics
@@ -42,11 +46,12 @@ spring:
       jdbc:
         schema-initialization:
           enabled: false             # table comes from Flyway V3
-      # outbox (ADR-0003): rows stuck after a crash are republished on restart; failed ones are resubmitted on a schedule
-      republish-outstanding-events-on-restart: true
       completion-mode: delete        # a delivered publication leaves the table: event_publication holds only the backlog
-      # ADR-0037: a publication left in flight by a stopped pod is marked FAILED, then OutboxResubmission sends it again.
-      # Must exceed the longest Kafka send (max.block.ms 60 s + delivery.timeout.ms 120 s); counted from the publication date
+      # outbox recovery (ADR-0003, ADR-0037): FAILED rows are resubmitted on a schedule (OutboxResubmission); a row left in flight
+      # by a stopped or crashed pod is marked FAILED after 5 min. No republish on restart: with several replicas it resends
+      # the rows other replicas are still sending. The threshold must exceed the longest Kafka send
+      # (max.block.ms 60 s + delivery.timeout.ms 120 s); Modulith counts it from the publication date
+      republish-outstanding-events-on-restart: false
       staleness:
         published: 5m
         processing: 5m

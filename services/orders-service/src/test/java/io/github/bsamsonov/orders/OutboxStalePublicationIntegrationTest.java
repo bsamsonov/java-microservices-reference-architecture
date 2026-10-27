@@ -13,7 +13,8 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.testcontainers.kafka.KafkaContainer;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,9 +26,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
 /**
- * A publication left in flight by a pod that was stopped mid-send is delivered without another restart (ADR-0037).
- * In the broker outage experiment such rows stayed RESUBMITTED (or PUBLISHED) for good: the scheduled resubmission
- * takes only FAILED rows, and republish-on-restart runs once, at startup. The staleness monitor marks them FAILED.
+ * A publication left in flight by a pod that was stopped or crashed mid-send is delivered with no restart (ADR-0037).
+ * In the broker outage experiment such rows stayed RESUBMITTED or PUBLISHED for good: the scheduled resubmission
+ * takes only FAILED rows. The staleness monitor marks them FAILED; there is no republish on restart.
  */
 @SpringBootTest(properties = {
         "spring.modulith.events.staleness.check-interval=1s",
@@ -46,15 +47,16 @@ class OutboxStalePublicationIntegrationTest {
     @Autowired
     KafkaContainer kafka;
 
-    @Test
-    void publicationLeftInFlightByAStoppedPodIsDelivered() {
+    @ParameterizedTest
+    @ValueSource(strings = {"PUBLISHED", "PROCESSING", "RESUBMITTED"})
+    void publicationLeftInFlightByAStoppedPodIsDelivered(String status) {
         var orderId = UUID.randomUUID();
         var publishedAt = Instant.now().minus(Duration.ofMinutes(10));
-        // what a pod stopped during a resubmission leaves behind: status RESUBMITTED, no completion
+        // what a stopped pod leaves behind: a status of a publication in flight, no completion
         jdbc.sql("""
                         insert into event_publication (id, listener_id, event_type, serialized_event, publication_date,
                                                        status, completion_attempts, last_resubmission_date)
-                        values (:id, :listener, :type, :event, :publishedAt, 'RESUBMITTED', 2, :resubmittedAt)
+                        values (:id, :listener, :type, :event, :publishedAt, :status, 1, :resubmittedAt)
                         """)
                 .param("id", UUID.randomUUID())
                 .param("listener", KAFKA_LISTENER)
@@ -63,7 +65,9 @@ class OutboxStalePublicationIntegrationTest {
                         {"eventId":"%s","orderId":"%s","customerId":"c-stale","total":5.00,"occurredAt":"%s"}
                         """.formatted(UUID.randomUUID(), orderId, publishedAt).strip())
                 .param("publishedAt", OffsetDateTime.ofInstant(publishedAt, ZoneOffset.UTC))
-                .param("resubmittedAt", OffsetDateTime.ofInstant(publishedAt.plus(Duration.ofMinutes(4)), ZoneOffset.UTC))
+                .param("status", status)
+                .param("resubmittedAt", "RESUBMITTED".equals(status)
+                        ? OffsetDateTime.ofInstant(publishedAt.plus(Duration.ofMinutes(4)), ZoneOffset.UTC) : null)
                 .update();
 
         List<ConsumerRecord<String, String>> received = new ArrayList<>();

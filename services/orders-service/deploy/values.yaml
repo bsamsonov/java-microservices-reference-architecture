@@ -1,6 +1,7 @@
 # orders-service on the local platform (see platform/README.md for addresses)
 image:
   repository: orders-service     # Tilt replaces it with the built image
+replicaCount: 2                  # the public write path: survives a planned restart and a voluntary eviction (ADR-0038)
 env:
   SPRING_DATASOURCE_URL: jdbc:postgresql://pg-rw.infra:5432/orders
   SPRING_KAFKA_BOOTSTRAP_SERVERS: blueprints-kafka-bootstrap.infra:9092

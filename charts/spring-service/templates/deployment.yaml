@@ -5,12 +5,18 @@ metadata:
   labels: {{- include "spring-service.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: {{ .Values.rollout.maxSurge }}
+      maxUnavailable: {{ .Values.rollout.maxUnavailable }}
   selector:
     matchLabels: {{- include "spring-service.selector" . | nindent 6 }}
   template:
     metadata:
       labels: {{- include "spring-service.labels" . | nindent 8 }}
     spec:
+      terminationGracePeriodSeconds: {{ .Values.shutdown.terminationGracePeriodSeconds }}
       securityContext:
         runAsNonRoot: true
         runAsUser: 10001
@@ -29,6 +35,9 @@ spec:
             - name: {{ .name }}
               valueFrom: {secretKeyRef: {name: {{ .secret }}, key: {{ .key }}}}
             {{- end }}
+          lifecycle:
+            preStop:
+              sleep: {seconds: {{ .Values.shutdown.preStopSleepSeconds }}}
           startupProbe:
             httpGet: {path: {{ .Values.probes.liveness }}, port: http}
             periodSeconds: 5

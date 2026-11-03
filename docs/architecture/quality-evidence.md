@@ -55,5 +55,20 @@ but nothing was in flight at that moment (the network cut did not break the open
 - The `Admin.close()` hang from the Testcontainers test (a silently unreachable broker on the first send after start) did not show here,
   because kube-router rejects instead of dropping. It stays covered only by the cluster id warm-up in `OutboxRedeliveryIntegrationTest`.
 - The `502` came from the ingress sending a request to the old pod while it stopped: no graceful shutdown or `preStop` delay in the chart yet.
+  Fixed by ADR-0038, see [rollout and eviction](#rollout-and-eviction).
 
 **Not checked yet.** A Grafana screenshot of the run; a silent network drop; an outage with two replicas; a crash with sends in flight on the platform.
+
+## Rollout and eviction
+**Method.** The chart of ADR-0038 (`preStop` sleep 10 s, grace period 75 s, `maxSurge: 1` / `maxUnavailable: 0`), `orders-service` with 2 replicas
+and a PodDisruptionBudget `minAvailable: 1`; Kafka and the database up. One `POST /orders` every ~0.2 s through the ingress for 4 minutes.
+Three `kubectl rollout restart` of `orders-service`, 30 s apart; then what `kubectl drain` does on one node: an eviction of each `orders-service` pod
+through the Eviction API, repeated while the PDB refuses. k3d has one node, so a real drain would also evict Postgres and Kafka.
+
+**Run 5 (2026-10-28).** 1023 requests, **all `201`**, the slowest 0.36 s. Each rolling restart took 22–23 s.
+The first eviction was accepted at once; the second was refused by the PDB three times, for 16 s, until the replacement pod was Ready.
+1023 new orders, 1023 new records in `orders.events`, 1023 new notifications, and the outbox empty at the end: no loss and **no duplicates**,
+also with two replicas running the outbox jobs. Before the chart change the same restarts cost one or two `502`/`504` each (runs 2–4 above).
+
+**Not checked.** A crash with two replicas (requests to the dead pod fail until readiness drops it); a drain of a real node with several nodes;
+a redeploy of `notifications-service`, which has one replica and so no PDB.

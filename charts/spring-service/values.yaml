@@ -5,6 +5,18 @@ image:
 replicaCount: 1
 containerPort: 8080
 
+# Rollout without failed requests or stuck work (ADR-0038).
+# The new pod is Ready before the old one stops; the old one leaves the endpoints before Spring starts to shut down.
+rollout:
+  maxSurge: 1
+  maxUnavailable: 0
+shutdown:
+  preStopSleepSeconds: 10           # time for endpoints and the ingress to stop sending traffic to the pod
+  terminationGracePeriodSeconds: 75 # preStop 10 + web server drain (timeout-per-shutdown-phase 30) + executor await 20 + margin
+# Rendered only when replicaCount > 1: with one replica it would block a node drain forever.
+podDisruptionBudget:
+  minAvailable: 1
+
 # Plain env vars
 env: {}
 # Env vars from secrets: [{name: SPRING_DATASOURCE_PASSWORD, secret: pg-<db>, key: password}]

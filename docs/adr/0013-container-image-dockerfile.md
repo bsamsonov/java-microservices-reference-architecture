@@ -4,6 +4,7 @@
 - **Date:** 2026-10-22
 - **Drivers:** QD6, QD7
 - **Risks:** R9, accepted with this decision
+- **Amended by:** ADR-0039, heap share 60 % with a 768Mi container limit
 
 ## Context and drivers
 The same image must run in compose and in Kubernetes (QD6). The jar is already built and tested by `./mvnw` and by Tilt,

@@ -74,7 +74,7 @@ Eight records carry the story of the repository; the rest follow from them.
 | [0036](0036-conventional-commits.md) | Commit messages: Conventional Commits from 2026-10-22, checked in CI | Process | Accepted | QD1, QD2 |  |
 | [0037](0037-outbox-staleness-monitor.md) | Outbox recovery: the staleness monitor instead of republish on restart (amends 0003) | System | Accepted | QD3 |  |
 | [0038](0038-graceful-rollout.md) | Rollout and eviction without failed requests: `preStop`, surge-first rollout, PDB with 2 replicas | Platform | Accepted | QD3, QD5, QD7 |  |
-| [0039](0039-jvm-memory-and-container-limit.md) | JVM heap share 60 % and a 768Mi container limit (amends 0013) | Platform | Accepted | QD3, QD5 |  |
+| [0039](0039-jvm-memory-and-container-limit.md) | JVM heap as a share of the container limit, both set in the chart (amends 0013) | Platform | Accepted | QD3, QD5 |  |
 
 ## Notes
 - Schema registry: covered by [ADR-0005](0005-event-format-json-with-json-schema.md) as a deferred step.

@@ -11,6 +11,7 @@ COPY --from=extract /build/extracted/spring-boot-loader/ ./
 COPY --from=extract /build/extracted/snapshot-dependencies/ ./
 COPY --from=extract /build/extracted/application/ ./
 USER 10001
-ENV JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=60 -XX:+ExitOnOutOfMemoryError"
+# Heap size is set by the chart next to the memory limit (jvmOptions, ADR-0039); compose has no limit and uses the JVM default.
+ENV JAVA_TOOL_OPTIONS="-XX:+ExitOnOutOfMemoryError"
 EXPOSE 8080
 ENTRYPOINT ["java", "org.springframework.boot.loader.launch.JarLauncher"]

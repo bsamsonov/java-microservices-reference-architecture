@@ -28,6 +28,9 @@ spec:
             - {name: http, containerPort: {{ .Values.containerPort }}}
           env:
             - {name: SPRING_APPLICATION_NAME, value: {{ .Release.Name | quote }}}
+            {{- with .Values.jvmOptions }}
+            - {name: JAVA_TOOL_OPTIONS, value: {{ . | quote }}}
+            {{- end }}
             {{- range $k, $v := .Values.env }}
             - {name: {{ $k }}, value: {{ $v | quote }}}
             {{- end }}

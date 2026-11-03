@@ -81,7 +81,7 @@ k6 writes its own metrics into the cluster Prometheus by remote write, next to `
 
 **Run 1 (2026-11-03, limit 512Mi, heap 75 %).** 22 676 requests, **3.3 % failed** (693 `POST /orders`, 52 reads); p95 11.6 ms, p99 20 ms.
 Both `orders-service` pods were `OOMKilled` (kernel memcg kill at ~520 MiB RSS): the heap took 384 MiB of the 512Mi limit, too little was left for the rest of the JVM.
-Fixed by [ADR-0039](../adr/0039-jvm-memory-and-container-limit.md): limit 768Mi, heap 60 %.
+Fixed by [ADR-0039](../adr/0039-jvm-memory-and-container-limit.md): limit 768Mi, heap 60 %, both now in the chart values.
 
 **Run 2 (2026-11-03, limit 768Mi, heap 60 %).** 23 435 requests, **0 failed**, p95 8.5 ms, p99 13 ms, the slowest 0.3 s; no pod restarts.
 

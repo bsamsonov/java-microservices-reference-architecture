@@ -22,9 +22,14 @@ env: {}
 # Env vars from secrets: [{name: SPRING_DATASOURCE_PASSWORD, secret: pg-<db>, key: password}]
 secretEnv: []
 
+# Memory (ADR-0039): the limit caps the whole JVM process, not only the heap. The heap is a share of the limit,
+# so raising limits.memory raises the heap too; the rest (metaspace, threads, code cache, buffers) needs ~300 MiB.
+# Laptop setting: request < limit (Burstable). In production set requests.memory = limits.memory (Guaranteed).
 resources:
   requests: {cpu: 100m, memory: 384Mi}
   limits: {memory: 768Mi}
+# Rendered as JAVA_TOOL_OPTIONS; replaces the image default.
+jvmOptions: "-XX:MaxRAMPercentage=60 -XX:+ExitOnOutOfMemoryError"
 
 probes:
   liveness: /actuator/health/liveness

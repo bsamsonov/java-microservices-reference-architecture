@@ -72,3 +72,19 @@ also with two replicas running the outbox jobs. Before the chart change the same
 
 **Not checked.** A crash with two replicas (requests to the dead pod fail until readiness drops it); a drain of a real node with several nodes;
 a redeploy of `notifications-service`, which has one replica and so no PDB.
+
+## Load
+**Method.** k6 2.3 from the laptop through the ingress, open model (`ramping-arrival-rate`): ramp to 20 orders/s in 2 minutes, hold 8 minutes, ramp down.
+Each iteration places an order, reads it back, and cancels one order in ten, so about 36 requests/s. Scenario and runner:
+[`platform/experiments/load/`](../../platform/experiments/load/). The thresholds are the service SLOs seen from the client: < 0.1 % failed, p95 < 500 ms.
+k6 writes its own metrics into the cluster Prometheus by remote write, next to `http_server_requests`. `orders-service` runs 2 replicas.
+
+**Run 1 (2026-11-03, limit 512Mi, heap 75 %).** 22 676 requests, **3.3 % failed** (693 `POST /orders`, 52 reads); p95 11.6 ms, p99 20 ms.
+Both `orders-service` pods were `OOMKilled` (kernel memcg kill at ~520 MiB RSS): the heap took 384 MiB of the 512Mi limit, too little was left for the rest of the JVM.
+Fixed by [ADR-0039](../adr/0039-jvm-memory-and-container-limit.md): limit 768Mi, heap 60 %.
+
+**Run 2 (2026-11-03, limit 768Mi, heap 60 %).** 23 435 requests, **0 failed**, p95 8.5 ms, p99 13 ms, the slowest 0.3 s; no pod restarts.
+
+**Not checked yet.** The SLO error budget burned during the run, and that every order reached `orders.events` and `notifications-service`:
+on the one-node laptop cluster Kafka, Prometheus and Loki kept restarting during the runs (SIGTERM, exit 0, no probe failure recorded), so these numbers are not trustworthy.
+Also open: a stress profile to find the ceiling (`run.sh stress`), and the consumer lag experiment.

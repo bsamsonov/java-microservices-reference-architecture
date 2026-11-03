@@ -157,7 +157,8 @@ tests and documents, and the build checked its work. [`docs/ai-workflow.md`](doc
 | Replay from the DLT | not done; a record moved there raises `SpringKafkaDeadLetters` and waits for a person | [ADR-0004](docs/adr/0004-idempotent-consumers-retries-and-dlt.md) |
 | `Idempotency-Key` on `POST /orders` | not done; a client that retries after a timeout may create a second order | [ADR-0038](docs/adr/0038-graceful-rollout.md) |
 | Order of events in `notifications-service` | not checked: an `OrderCancelled` may arrive before an `OrderPlaced` delayed in the outbox | [ADR-0037](docs/adr/0037-outbox-staleness-monitor.md) |
-| Load test; SLOs confirmed under load | not done; the SLO targets are demo values | risk R5 |
+| SLOs confirmed under load | partly: 20 orders/s held the latency and availability targets; error budget, ceiling and consumer lag not measured | risk R5, [quality evidence](docs/architecture/quality-evidence.md#load) |
+| Load test as a cluster resource (k6-operator `TestRun`) | not done; k6 runs from the laptop through the ingress. In production the load generator goes on separate nodes, so it does not share CPU with the service it measures | [`platform/experiments/load/`](platform/experiments/load/) |
 | Model comparison on `create-service` (measures QD1) | planned | [`docs/ai-workflow.md`](docs/ai-workflow.md#limits) |
 | SBOM and image signing (cosign) | not done; images are built locally and not published | image build: [ADR-0013](docs/adr/0013-container-image-dockerfile.md) |
 | Service mesh, API gateway, multi-cluster | deferred, with the conditions to revisit | [ADR-0027](docs/adr/0027-service-mesh-deferred.md), [ADR-0028](docs/adr/0028-api-gateway-deferred.md), [ADR-0029](docs/adr/0029-multi-cluster-and-cloud-deferred.md) |
